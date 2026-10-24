@@ -41,8 +41,48 @@ lease_seconds = 300
 notify = "auto"             # auto | inotify | poll
 poll_interval_ms = 500
 
-[auth]
-token_file = "config/api-token"  # created mode 0600; separate ingest and consume tokens
+# Every HTTP surface refuses unsigned requests before any route runs (ADR 0010).
+# One line per surface changes the scheme; `oaken-trunk keys add --surface ingest` makes a key.
+[security.ingest]
+scheme = "ed25519"          # ed25519 (RFC 9421, default) | hmac | mtls | bearer (loopback only, warned)
+keys_dir = "config/keys/ingest"   # public keys only for ed25519; files are mode 0600
+max_clock_skew_seconds = 60
 
-[logging]
-level = "info"              # never logs a message body
+[security.consume]
+scheme = "ed25519"
+keys_dir = "config/keys/consume"
+
+[security.admin]            # the management UI and the CLI's administrative operations
+scheme = "ed25519"
+keys_dir = "config/keys/admin"
+
+[security.mcp]
+scheme = "ed25519"
+keys_dir = "config/keys/mcp"
+
+[admin]                     # the management UI and, optionally, MCP on one listener
+enabled = false
+host = "127.0.0.1"
+port = 8081
+ui = true
+
+[admin.mcp]                 # MCP is mounted at /mcp on this listener
+enabled = false
+local_only = true           # refuse non-loopback peers even with a valid signature
+tier = "stats"              # stats by default; wider tiers need a deliberate change (ADR 0008)
+
+[mailauth]                  # DKIM, SPF, DMARC, ARC (ADR 0011)
+dkim_verify = true
+spf = true                  # evaluated only when the client address is known
+dmarc = "record"            # off | record | enforce
+max_header_bytes = "64KiB"  # the only part of a message held in memory
+trusted_hops = []           # upstream MTAs whose client address and Authentication-Results we trust
+
+[mailauth.sign]             # outbound DKIM; private keys are owner-only files, never in this file
+enabled = false
+selector = "trunk"
+key_file = "config/keys/dkim/trunk.pem"
+
+[log]
+level = "info"              # never logs content (ADR 0012)
+envelope = "none"           # none | hashed (a keyed hash of sender and recipient)

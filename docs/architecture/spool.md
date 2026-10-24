@@ -1,4 +1,12 @@
-# Spool
++++
+title = "Spool"
+subtitle = "The spool contract and the directory driver"
+lead = "Store, lease, ack and nack, how the default spool survives a crash, and what each durability mode costs."
+badges = [["text-bg-warning", "Pre-alpha"]]
+description = "The spool contract, durability modes and quota."
+group = "concepts"
+order = 20
++++
 
 A spool is a plugin. The contract is a bounded stream in and a stream out; where bytes live is the
 plugin's decision (ADR 0003).

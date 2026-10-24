@@ -1,0 +1,180 @@
+
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spool · Oaken Trunk</title>
+<meta name="description" content="The spool contract, durability modes and quota.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Spool · Oaken Trunk">
+<meta property="og:description" content="The spool contract, durability modes and quota.">
+<meta property="og:site_name" content="Oaken Trunk">
+<link rel="icon" type="image/png" href="../assets/brand/favicon.png">
+<link rel="apple-touch-icon" href="../assets/brand/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link rel="stylesheet" href="../assets/site.css">
+<script>(function(){var r=document.documentElement;r.classList.add('js');var t=null;try{t=localStorage.getItem('oaken-trunk-theme');}catch(e){}if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}r.setAttribute('data-bs-theme',t);})();</script>
+
+</head>
+<body class="has-pane" data-bs-spy="scroll" data-bs-target="#toc" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" tabindex="0">
+<a class="skip visually-hidden-focusable" href="#content">Skip to content</a>
+<header class="topbar d-lg-none">
+  <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">&#9776; Menu</button>
+  <span class="brand"><img src="../assets/brand/favicon.png" alt="" aria-hidden="true" width="24" height="24"> OAKENTRUNK</span>
+</header>
+<nav class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="toc" aria-label="Navigation">
+  <div class="offcanvas-header d-lg-none">
+    <span class="offcanvas-title fw-bold">Menu</span>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close menu"></button>
+  </div>
+  <div class="offcanvas-body"><div class="sidebar-inner">
+    <div class="top"><a class="brand" href="../index.html"><img src="../assets/brand/favicon.png" alt="" aria-hidden="true" width="28" height="28"> OAKENTRUNK</a>
+      <button class="theme" id="themeToggle" type="button" aria-label="Toggle dark mode">Theme</button></div>
+    <div class="what">The spool contract and the directory driver</div>
+    <div class="docnav"><a class="home-link" href="../index.html">&#8962; Home</a>
+      <div class="label">Concepts</div>
+      <a class="doc-link" href="index.html">Architecture</a>
+      <a class="doc-link" href="overview.html">Architecture overview</a>
+      <a class="doc-link" href="api-and-cli.html">API and CLI</a>
+      <a class="doc-link" href="software-map.html">Software map</a>
+      <a class="doc-link current" href="spool.html" aria-current="page">Spool</a>
+      <a class="doc-link" href="process-model.html">Process model</a>
+      <a class="doc-link" href="ingestion.html">Ingestion</a>
+      <a class="doc-link" href="mail-authentication.html">Mail authentication</a>
+      <a class="doc-link" href="consumers.html">Consumers</a>
+      <a class="doc-link" href="send.html">Send</a>
+      <a class="doc-link" href="../plugins.html">Writing a plugin</a>
+      <a class="doc-link" href="ai-safety.html">AI safety</a>
+      <a class="doc-link" href="security.html">Security</a>
+      <a class="doc-link" href="logging.html">Logs</a>
+      <div class="label">Project</div>
+      <a class="doc-link" href="../roadmap.html">Roadmap</a>
+      <a class="doc-link" href="../contributing.html">Contributing</a>
+      <a class="doc-link" href="../adr/index.html">Architecture decisions</a>
+      <a class="doc-link" href="../security.html">Security policy</a>
+      <a class="doc-link" href="../code-of-conduct.html">Code of conduct</a>
+    </div>
+    <div class="gh"><div class="label">GitHub</div>
+      <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
+    <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
+      <a class="nav-link" href="#contract"><span class="num">1</span>Contract</a>
+      <a class="nav-link" href="#directory-driver-default"><span class="num">2</span>Directory driver (default)</a>
+      <a class="nav-link" href="#other-drivers-planned"><span class="num">3</span>Other drivers (planned)</a>
+    </nav></div>
+  </div></div>
+</nav>
+<main id="content" tabindex="-1">
+  <header class="cover">
+    <div class="d-flex flex-wrap gap-2 mb-3"><span class="badge text-bg-warning">Pre-alpha</span></div>
+    <h1 class="display-6">Spool</h1>
+    <p class="lead">Store, lease, ack and nack, how the default spool survives a crash, and what each durability mode costs.</p>
+  </header>
+<p>A spool is a plugin. The contract is a bounded stream in and a stream out; where bytes live is the
+plugin's decision (ADR 0003).</p>
+
+<section id="contract" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>Contract</h2></div>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Operation</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>store(id, chunks, envelope)</code></td>
+<td>Persist a message from an async stream of chunks. Returns only when it is durable per the driver's durability.</td>
+</tr>
+<tr>
+<td><code>lease(consumer, limit, seconds)</code></td>
+<td>Reserve up to <code>limit</code> messages for a visibility timeout. Returns ids and lease tokens.</td>
+</tr>
+<tr>
+<td><code>open(id)</code></td>
+<td>Stream the bytes of a leased message.</td>
+</tr>
+<tr>
+<td><code>ack(id, token)</code></td>
+<td>The consumer is done; remove the message.</td>
+</tr>
+<tr>
+<td><code>nack(id, token)</code></td>
+<td>Return the message to the queue.</td>
+</tr>
+<tr>
+<td><code>delete(id)</code></td>
+<td>Remove regardless of lease (operator action, audited).</td>
+</tr>
+<tr>
+<td><code>watch()</code></td>
+<td>Wake consumers: inotify on directories, a poll otherwise. Never an in-process-only event.</td>
+</tr>
+<tr>
+<td><code>usage()</code></td>
+<td>Message count and bytes, for the quota and <code>status</code>.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Delivery is at-least-once (ADR 0004). Expired leases return to the queue. Ids are time-ordered and
+unique, so consumers dedupe on them.</p>
+</section>
+<section id="directory-driver-default" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Directory driver (default)</h2></div>
+<p>Maildir-like, one file per message: the first line is the JSON envelope, the rest is the raw
+RFC 822 bytes.</p>
+<div class="code"><pre class="highlight"><code>spool/tmp/&lt;id&gt;.msg                       being written
+spool/new/&lt;id&gt;.msg                       ready
+spool/leased/&lt;id&gt;.&lt;expiry&gt;.&lt;token&gt;.msg   leased; the name carries the lease
+</code></pre></div>
+<ul>
+<li><strong>Store:</strong> write to <code>tmp/</code>, fsync (per durability), rename into <code>new/</code>, fsync the directory, ack.</li>
+<li><strong>Lease:</strong> atomic rename <code>new/</code> to <code>leased/</code> with expiry and token in the name. Two consumers
+cannot lease the same file.</li>
+<li><strong>Ack:</strong> unlink. <strong>Nack:</strong> rename back to <code>new/</code>. <strong>Recovery:</strong> at start, delete stale <code>tmp/</code>
+files and return expired leases to <code>new/</code>.</li>
+</ul>
+<h3 id="durability">Durability</h3>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Mode</th>
+<th>Behaviour</th>
+<th>Loss window</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>strict</code> (default)</td>
+<td>fsync file and directory per message before the 250</td>
+<td>none for accepted mail</td>
+</tr>
+<tr>
+<td><code>batched</code></td>
+<td>concurrent messages share one fsync; the 250 follows that batch</td>
+<td>none, small latency</td>
+</tr>
+<tr>
+<td><code>volatile</code></td>
+<td>no fsync</td>
+<td>everything in flight</td>
+</tr>
+</tbody>
+</table></div>
+<p>A tmpfs mount is the operator's choice for the same driver, not a separate driver.</p>
+<h3 id="quota">Quota</h3>
+<p><code>max_spool_bytes</code> caps total size. At the limit, new mail gets a retryable 4xx (HTTP 507). Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.</p>
+</section>
+<section id="other-drivers-planned" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Other drivers (planned)</h2></div>
+<p>Redis stream with consumer groups, and S3 + SQS with visibility timeouts. Both map onto lease, ack and
+nack. They are not RAM-resident drivers of trunk, and each decides durability itself.</p>
+</section>
+  <footer>Oaken Trunk dev · Apache-2.0</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="../assets/site.js"></script>
+
+
+</body>
+</html>

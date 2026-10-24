@@ -1,11 +1,16 @@
 # Software map data. Edit it in the same change that builds or alters a component.
 #   status  built | partial | planned. built/partial -> `path` must exist; planned -> must not.
 #   prompt  the build prompt that delivers it.
+#   uses    direct calls into other components: same layer or lower, never up, no cycles.
 
 [[stacks]]
 id = "gateway"
 name = "Oaken Trunk gateway"
-layers = ["ingestors", "core", "spools", "senders"]
+layers = ["clients", "ingestors", "core", "plugins"]
+
+[[layers]]
+id = "clients"
+name = "Clients"
 
 [[layers]]
 id = "ingestors"
@@ -16,90 +21,155 @@ id = "core"
 name = "Core"
 
 [[layers]]
-id = "spools"
-name = "Spools"
-
-[[layers]]
-id = "senders"
-name = "Senders"
+id = "plugins"
+name = "Plugins"
 
 [[components]]
 id = "http"
-layer = "ingestors"
 name = "HTTP ingest"
+layer = "ingestors"
 status = "planned"
 prompt = "05"
+summary = "Streaming `/v1/send` submission into the spool with a bearer ingest token."
+uses = ["engine"]
 untrusted = true
 
 [[components]]
 id = "lmtp"
-layer = "ingestors"
 name = "LMTP ingest"
+layer = "ingestors"
 status = "planned"
 prompt = "07"
+summary = "The Postfix delivery target over a Unix or TCP socket."
+uses = ["engine"]
 untrusted = true
 
 [[components]]
 id = "smtp"
-layer = "ingestors"
 name = "SMTP ingest"
+layer = "ingestors"
 status = "planned"
 prompt = "09"
+summary = "SMTP on 25 and 587 with STARTTLS, AUTH after TLS and a recipient allowlist."
+uses = ["engine"]
 untrusted = true
 
 [[components]]
 id = "engine"
-layer = "core"
 name = "Engine and operation registry"
+layer = "core"
 status = "planned"
 prompt = "02"
-uses = []
-
-[[components]]
-id = "plugin-base"
-layer = "core"
-name = "Plugin base classes and contract suites"
-status = "planned"
-prompt = "04"
-
-[[components]]
-id = "host"
-layer = "core"
-name = "Plugin host"
-status = "planned"
-prompt = "04"
+summary = "Authenticates, applies limits, assigns a message id and streams the body into a spool in bounded chunks. Every capability is one registered operation that the HTTP API and CLI are generated from."
+uses = ["host", "plugin-base"]
 
 [[components]]
 id = "supervisor"
-layer = "core"
 name = "Supervisor and workers"
+layer = "core"
 status = "planned"
 prompt = "10"
+summary = "Opens the sockets, runs the worker processes, hands out batched credits for global limits and restarts crashed workers."
+uses = ["engine"]
+
+[[components]]
+id = "guard"
+name = "Request guard and authenticators"
+layer = "core"
+status = "planned"
+prompt = "18"
+summary = "One guard in front of every HTTP surface that refuses unsigned, stale, replayed or cross-surface requests before any route runs. The signing scheme is an authenticator plugin chosen per surface."
+uses = ["plugin-base"]
+untrusted = true
+
+[[components]]
+id = "mailauth"
+name = "Mail authentication"
+layer = "core"
+status = "planned"
+prompt = "19"
+summary = "Native DKIM verification and signing, with SPF, DMARC and ARC where the client address is known. Holds only the header block in memory and hashes the body as it streams."
+uses = ["plugin-base"]
+untrusted = true
+
+[[components]]
+id = "host"
+name = "Plugin host"
+layer = "core"
+status = "planned"
+prompt = "04"
+summary = "Discovers plugins through entry points and runs their lifecycle, health and doctor checks."
+uses = ["plugin-base"]
+
+[[components]]
+id = "plugin-base"
+name = "Plugin base classes and contract suites"
+layer = "plugins"
+status = "planned"
+prompt = "04"
+summary = "BaseIngestor, BaseSpool and BaseSender, with capabilities inferred from overridden methods, plus the shared contract test suites."
+uses = []
 
 [[components]]
 id = "spool-dir"
-layer = "spools"
 name = "Directory spool"
+layer = "plugins"
 status = "planned"
 prompt = "03"
+summary = "The default spool: one file per message, atomic rename, fsync by durability mode, lease by rename."
+uses = ["plugin-base"]
 
 [[components]]
 id = "spool-redis"
-layer = "spools"
 name = "Redis spool"
+layer = "plugins"
 status = "planned"
 prompt = "12"
+summary = "Redis stream and consumer groups mapped onto lease, ack and nack."
+uses = ["plugin-base"]
 
 [[components]]
 id = "spool-s3-sqs"
-layer = "spools"
 name = "S3 + SQS spool"
+layer = "plugins"
 status = "planned"
 prompt = "13"
+summary = "S3 objects for bodies and SQS visibility timeouts for leases."
+uses = ["plugin-base"]
 
 [[components]]
 id = "send"
-layer = "senders"
 name = "Outbound sender"
+layer = "plugins"
 status = "planned"
 prompt = "11"
+summary = "Drains the outbound spool with per-domain limits, backoff and bounces."
+uses = ["plugin-base"]
+
+[[components]]
+id = "cli"
+name = "CLI"
+layer = "clients"
+status = "planned"
+prompt = "06"
+summary = "The `oaken-trunk` command, a thin client of the operation registry. Every operation has a command, and it can run in-process against the spool."
+uses = ["engine"]
+
+[[components]]
+id = "webui"
+name = "Management UI"
+layer = "clients"
+status = "planned"
+prompt = "16"
+summary = "A separate web app on its own port for the operator, built only on operations the CLI already has. Off by default."
+uses = ["cli"]
+
+[[components]]
+id = "statsmcp"
+name = "MCP door"
+layer = "clients"
+status = "planned"
+prompt = "17"
+summary = "Optional MCP door generated from the whole operation registry and gated by a caller class the mount sets. Statistics tier by default, a confirm gate for state changes, and never message data or send, delete and the lease/ack verbs."
+uses = ["cli"]
+untrusted = true

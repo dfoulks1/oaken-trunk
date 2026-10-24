@@ -22,6 +22,11 @@ consumer, through a provider plugin that lives in the oaken-mail repository. Lic
 
 ## Decided
 
+0. **Server side.** Oaken Mail is client-side software (local-first, loopback, OS keyring). Oaken Trunk is
+   server-side software: network-facing, run by an operator, secrets from files, the environment or a
+   secret manager (never the OS keyring or `config.toml`). Operator concerns come first: systemd, logs
+   without bodies, a status endpoint, hardened defaults.
+
 1. **Language and tooling:** Python >=3.11, uv, hatchling, ruff, `mypy --strict`, pytest,
    import-linter. Same standards and layout as oaken-mail.
 2. **Identity parity:** the same home system as oaken-mail, with its own variable:
@@ -42,10 +47,12 @@ consumer, through a provider plugin that lives in the oaken-mail repository. Lic
    because workers are separate processes.
 9. **Concurrency:** asyncio uses one core per process. Scale with `workers = N` processes
    (`SO_REUSEPORT`) that share only the spool. Blocking file I/O runs in a thread pool.
-10. **Auth:** static API tokens (separate ingest and consume), SMTP AUTH PLAIN/LOGIN only after
-    STARTTLS, recipient allowlist (no open relay), mTLS for consumers later. Plugin-extensible.
-11. **One registry:** every capability is an operation; the HTTP API and CLI are generated from it,
-    so every endpoint has a CLI command.
+10. **Security by default:** every HTTP surface refuses unsigned requests before any route runs. The scheme is
+    an authenticator plugin chosen per surface in config (`ed25519` RFC 9421 default, `hmac`, `mtls`, and
+    `bearer` only on loopback with a warning), with per-surface keys. SMTP uses STARTTLS and AUTH, LMTP a
+    Unix socket with peer credentials. Recipient allowlist, no open relay. See ADR 0010.
+11. **One registry, one API:** every capability is an operation and the HTTP API exposes all of them. The
+    CLI is a thin client of the API and the MCP server is generated from the same registry (ADR 0009).
 12. **First-party real in 0.1:** directory spool, HTTP, CLI stdin, LMTP. Planned: SMTP, Redis,
     S3+SQS, send.
 13. **Postfix/qmail coexistence:** LMTP (`virtual_transport = lmtp:unix:...`) and a pipe command.
@@ -58,6 +65,23 @@ consumer, through a provider plugin that lives in the oaken-mail repository. Lic
 16. **Standard plugin base.** Ingestors, spools and senders extend `BaseIngestor`, `BaseSpool` and
     `BaseSender` (capabilities inferred from overridden methods, lenient returns, contract suites),
     as oaken-mail's plugins do. See `docs/plugins.md` and ADR 0006.
+
+17. **Separate projects.** Trunk and oaken-mail are separate; overlap and duplicated code are fine.
+18. **Management UI** on its own port, a separate client app and a client of the operation registry
+    (ADR 0007). Off by default, loopback unless opted in, its own token.
+19. **MCP door.** Generated from the whole registry and gated by caller class set by the mount. Statistics
+    tier by default; confirm gate in code for state changes; submit, send, delete and the lease/ack verbs
+    never exposed; no message data without an ADR; off by default, not in 0.1 (ADR 0008).
+
+20. **AI-forward, carefully.** Anything a model can reach follows `docs/architecture/ai-safety.md`: allowlist
+    in code, mail is data, nothing mutating, off by default, audited. Raising the exposure tier needs an ADR.
+
+21. **Mail authentication is native** (ADR 0011): DKIM verify and sign, SPF and DMARC when the client address is
+    known, ARC recorded; header-only buffering with an incremental body hash; `mailauth.dmarc` is off, record or
+    enforce, default record.
+22. **Logs carry no content and are not a product surface** (ADR 0012). No operation, verb, tool or page returns them.
+23. **MCP and the management UI may share one listener**, provided MCP is authenticated with its own scheme and keys
+    and defaults to local-only peers.
 
 ## Rules for every prompt
 

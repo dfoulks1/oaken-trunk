@@ -1,4 +1,12 @@
-# Send
++++
+title = "Send"
+subtitle = "The outbound path and bursts"
+lead = "How outbound mail is queued and drained, and how tens of thousands of messages are absorbed."
+badges = [["text-bg-warning", "Pre-alpha"]]
+description = "The outbound path."
+group = "concepts"
+order = 60
++++
 
 Outbound mail is submitted (HTTP, CLI, SMTP 587), stored in an outbound spool, and drained by a sender
 plugin at a controlled rate. The spool absorbs bursts: tens of thousands of messages are accepted

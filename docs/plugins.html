@@ -1,0 +1,292 @@
+
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Writing a plugin · Oaken Trunk</title>
+<meta name="description" content="How to write an ingestor, spool or sender.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Writing a plugin · Oaken Trunk">
+<meta property="og:description" content="How to write an ingestor, spool or sender.">
+<meta property="og:site_name" content="Oaken Trunk">
+<link rel="icon" type="image/png" href="assets/brand/favicon.png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/site.css">
+<script>(function(){var r=document.documentElement;r.classList.add('js');var t=null;try{t=localStorage.getItem('oaken-trunk-theme');}catch(e){}if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}r.setAttribute('data-bs-theme',t);})();</script>
+
+</head>
+<body class="has-pane" data-bs-spy="scroll" data-bs-target="#toc" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" tabindex="0">
+<a class="skip visually-hidden-focusable" href="#content">Skip to content</a>
+<header class="topbar d-lg-none">
+  <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">&#9776; Menu</button>
+  <span class="brand"><img src="assets/brand/favicon.png" alt="" aria-hidden="true" width="24" height="24"> OAKENTRUNK</span>
+</header>
+<nav class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="toc" aria-label="Navigation">
+  <div class="offcanvas-header d-lg-none">
+    <span class="offcanvas-title fw-bold">Menu</span>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close menu"></button>
+  </div>
+  <div class="offcanvas-body"><div class="sidebar-inner">
+    <div class="top"><a class="brand" href="index.html"><img src="assets/brand/favicon.png" alt="" aria-hidden="true" width="28" height="28"> OAKENTRUNK</a>
+      <button class="theme" id="themeToggle" type="button" aria-label="Toggle dark mode">Theme</button></div>
+    <div class="what">Ingestors, spools and senders</div>
+    <div class="docnav"><a class="home-link" href="index.html">&#8962; Home</a>
+      <div class="label">Concepts</div>
+      <a class="doc-link" href="architecture/index.html">Architecture</a>
+      <a class="doc-link" href="architecture/overview.html">Architecture overview</a>
+      <a class="doc-link" href="architecture/api-and-cli.html">API and CLI</a>
+      <a class="doc-link" href="architecture/software-map.html">Software map</a>
+      <a class="doc-link" href="architecture/spool.html">Spool</a>
+      <a class="doc-link" href="architecture/process-model.html">Process model</a>
+      <a class="doc-link" href="architecture/ingestion.html">Ingestion</a>
+      <a class="doc-link" href="architecture/mail-authentication.html">Mail authentication</a>
+      <a class="doc-link" href="architecture/consumers.html">Consumers</a>
+      <a class="doc-link" href="architecture/send.html">Send</a>
+      <a class="doc-link current" href="plugins.html" aria-current="page">Writing a plugin</a>
+      <a class="doc-link" href="architecture/ai-safety.html">AI safety</a>
+      <a class="doc-link" href="architecture/security.html">Security</a>
+      <a class="doc-link" href="architecture/logging.html">Logs</a>
+      <div class="label">Project</div>
+      <a class="doc-link" href="roadmap.html">Roadmap</a>
+      <a class="doc-link" href="contributing.html">Contributing</a>
+      <a class="doc-link" href="adr/index.html">Architecture decisions</a>
+      <a class="doc-link" href="security.html">Security policy</a>
+      <a class="doc-link" href="code-of-conduct.html">Code of conduct</a>
+    </div>
+    <div class="gh"><div class="label">GitHub</div>
+      <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
+    <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
+      <a class="nav-link" href="#the-four-kinds"><span class="num">1</span>The four kinds</a>
+      <a class="nav-link" href="#what-every-base-class-gives-you"><span class="num">2</span>What every base class gives you</a>
+      <a class="nav-link" href="#memory-rule-for-plugin-authors"><span class="num">3</span>Memory rule for plugin authors</a>
+      <a class="nav-link" href="#a-spool-in-one-screen"><span class="num">4</span>A spool in one screen</a>
+      <a class="nav-link" href="#an-ingestor-in-one-screen"><span class="num">5</span>An ingestor in one screen</a>
+      <a class="nav-link" href="#a-sender-in-one-screen"><span class="num">6</span>A sender in one screen</a>
+      <a class="nav-link" href="#an-authenticator-in-one-screen"><span class="num">7</span>An authenticator in one screen</a>
+      <a class="nav-link" href="#testing-a-plugin"><span class="num">8</span>Testing a plugin</a>
+      <a class="nav-link" href="#registering"><span class="num">9</span>Registering</a>
+    </nav></div>
+  </div></div>
+</nav>
+<main id="content" tabindex="-1">
+  <header class="cover">
+    <div class="d-flex flex-wrap gap-2 mb-3"><span class="badge text-bg-warning">Pre-alpha</span></div>
+    <h1 class="display-6">Writing a plugin</h1>
+    <p class="lead">Everything Trunk can be extended with is a plugin: a small class registered with an entry point. Start from a base class and run the contract suite.</p>
+  </header>
+<p>Everything Oaken Trunk can be extended with is a plugin: a small class registered with a Python entry
+point. Start from a base class, override what your plugin does, and run the contract suite. This is
+the same model as Oaken Mail's plugins, so the habits carry over.</p>
+
+<section id="the-four-kinds" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>The four kinds</h2></div>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Kind</th>
+<th>Entry-point group</th>
+<th>Base class</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ingestor</td>
+<td><code>oaken_trunk.ingestors</code></td>
+<td><code>BaseIngestor</code></td>
+<td>Speaks a protocol and hands core a byte stream and an envelope.</td>
+</tr>
+<tr>
+<td>Spool</td>
+<td><code>oaken_trunk.spools</code></td>
+<td><code>BaseSpool</code></td>
+<td>Stores messages and runs lease, ack and nack.</td>
+</tr>
+<tr>
+<td>Sender</td>
+<td><code>oaken_trunk.senders</code></td>
+<td><code>BaseSender</code></td>
+<td>Relays an outbound message to its destination.</td>
+</tr>
+<tr>
+<td>Authenticator</td>
+<td><code>oaken_trunk.authenticators</code></td>
+<td><code>BaseAuthenticator</code></td>
+<td>Decides whether a request or connection is who it claims to be: signed requests, SMTP AUTH, mTLS.</td>
+</tr>
+</tbody>
+</table></div>
+<p>First-party plugins (<code>oaken_trunk_*</code>) register exactly as a third party's would. The exact signatures
+are on the generated plugin contracts page.</p>
+</section>
+<section id="what-every-base-class-gives-you" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>What every base class gives you</h2></div>
+<ul>
+<li><code>self.ctx</code>: your settings (the <code>[ingest.&lt;name&gt;]</code>, <code>[spool.&lt;name&gt;]</code> or <code>[sender.&lt;name&gt;]</code> table of
+<code>config.toml</code>), a logger, the clock, the worker's thread pool, and the global limits. Secrets come
+from the environment or files, never from config.</li>
+<li><code>start()</code> and <code>stop()</code> lifecycle hooks, called by the host, with health reported to <code>doctor</code>.</li>
+<li><strong>Capabilities inferred from what you wrote</strong>, so there is no second list to keep in step.</li>
+<li>Lenient return types: a dict, tuple or plain value is coerced to the strict contract type, and a
+mistake produces a readable message such as <code>spool 'mine': lease() returned 3 ids for limit 2</code>.</li>
+<li>Isolation: an error fails that one message or operation and is logged. It never stops core.</li>
+</ul>
+<p>Plugins run in-process and are not sandboxed in v1. Core never imports a plugin, and a plugin never
+touches core's counters or another plugin's storage; it returns data and receives streams.</p>
+</section>
+<section id="memory-rule-for-plugin-authors" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Memory rule for plugin authors</h2></div>
+<p>Never read a whole message into memory. Bodies arrive and leave as async iterators of bounded
+chunks. A plugin that buffers a message breaks the gateway's memory guarantee and fails the contract
+suite's streaming test.</p>
+</section>
+<section id="a-spool-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>A spool in one screen</h2></div>
+<div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseSpool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leased</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MySpool</span><span class="p">(</span><span class="n">BaseSpool</span><span class="p">):</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="s2">"0.1"</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">chunks</span><span class="p">,</span> <span class="n">envelope</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>           <span class="c1"># bounded chunks, never the whole body</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span>  <span class="c1"># return only when durable</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">lease</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">consumer</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Leased</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">claim</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">seconds</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">):</span>               <span class="c1"># an async iterator of chunks</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+</code></pre></div>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>You write</th>
+<th>You gain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>store</code>, <code>lease</code>, <code>open</code>, <code>ack</code></td>
+<td>A working spool (all four are required)</td>
+</tr>
+<tr>
+<td><code>nack(id, token)</code></td>
+<td>Immediate return to the queue; without it a nack waits for lease expiry</td>
+</tr>
+<tr>
+<td><code>delete(id)</code></td>
+<td>Operator delete regardless of lease</td>
+</tr>
+<tr>
+<td><code>watch()</code></td>
+<td>Event-driven wake-up; without it the host polls</td>
+</tr>
+<tr>
+<td><code>usage()</code></td>
+<td>Quota enforcement and <code>status</code> totals</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="an-ingestor-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>An ingestor in one screen</h2></div>
+<div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseIngestor</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyIngestor</span><span class="p">(</span><span class="n">BaseIngestor</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sink</span><span class="p">):</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">():</span>
+            <span class="c1"># sink.submit streams the body into the spool under core's limits and raises a</span>
+            <span class="c1"># typed error (TooLarge, Overloaded, Rejected) you map to your protocol's reply.</span>
+            <span class="k">await</span> <span class="n">sink</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">body_chunks</span><span class="p">(),</span> <span class="n">conn</span><span class="o">.</span><span class="n">envelope</span><span class="p">)</span>
+</code></pre></div>
+<p>Raise <code>oaken_trunk.core.errors.AuthError</code> when credentials are refused. Core records it and your
+protocol replies with its auth failure; other ingestors carry on.</p>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>You write</th>
+<th>You gain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>listen(sink)</code></td>
+<td>A working ingestor (required)</td>
+</tr>
+<tr>
+<td><code>authenticate(ctx, credentials)</code></td>
+<td><code>auth</code> capability</td>
+</tr>
+<tr>
+<td><code>tls_context()</code></td>
+<td><code>tls</code> capability (STARTTLS or implicit)</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="a-sender-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">6</span><h2>A sender in one screen</h2></div>
+<p>A sender implements <code>send(envelope, chunks)</code> and returns a result: delivered, temporary failure
+(retry with backoff) or permanent failure (bounce). Per-domain limits and retries belong to the host,
+not the plugin.</p>
+</section>
+<section id="an-authenticator-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">7</span><h2>An authenticator in one screen</h2></div>
+<div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAuthenticator</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyAuthenticator</span><span class="p">(</span><span class="n">BaseAuthenticator</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="c1"># request is a read-only view: method, path, query, headers, body digest, peer.</span>
+        <span class="c1"># Return a Principal (key id and surface) or raise AuthError. Never read the body here.</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">key_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">signature_base</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">signature</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AuthError</span><span class="p">(</span><span class="s2">"bad signature"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Principal</span><span class="p">(</span><span class="n">key_id</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">key_id</span><span class="p">,</span> <span class="n">surface</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface</span><span class="p">)</span>
+</code></pre></div>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>You write</th>
+<th>You gain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>verify(request)</code></td>
+<td>A working authenticator (required)</td>
+</tr>
+<tr>
+<td><code>add_key</code>, <code>revoke_key</code>, <code>list_keys</code></td>
+<td>Key management through <code>oaken-trunk keys</code></td>
+</tr>
+<tr>
+<td><code>challenge()</code></td>
+<td>A protocol-level challenge (SMTP AUTH, for example)</td>
+</tr>
+</tbody>
+</table></div>
+<p>The guard runs it before any route, enforces freshness and replay protection around it, and fails closed on
+any error. See <a href="architecture/security.html">Security</a> and ADR 0010.</p>
+</section>
+<section id="testing-a-plugin" class="doc-section"><div class="section-head"><span class="section-num">8</span><h2>Testing a plugin</h2></div>
+<p>The shared contract suites live in <code>oaken_trunk.testing.contracts</code> (<code>SpoolContract</code>, <code>IngestorContract</code>,
+<code>SenderContract</code>, <code>AuthenticatorContract</code>). Subclass one, point it at your plugin, and run <code>pytest</code>. The suites cover required
+behaviour, lease expiry, crash recovery for spools, the streaming and memory rule, and the
+backpressure replies. Tests never use the network, Docker, Redis or AWS: use fakes (<code>FakeSpool</code>,
+<code>FakeIngestor</code>, <code>FakeSender</code>) and synthetic fixtures.</p>
+</section>
+<section id="registering" class="doc-section"><div class="section-head"><span class="section-num">9</span><h2>Registering</h2></div>
+<div class="code"><pre class="highlight"><code class="language-toml"><span class="k">[project.entry-points.</span><span class="s2">"oaken_trunk.spools"</span><span class="k">]</span>
+<span class="n">mine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_package:MySpool"</span>
+</code></pre></div>
+</section>
+  <footer>Oaken Trunk dev · Apache-2.0</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="assets/site.js"></script>
+
+
+</body>
+</html>

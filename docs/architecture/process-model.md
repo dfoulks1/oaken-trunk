@@ -1,4 +1,12 @@
-# Process model
++++
+title = "Process model"
+subtitle = "Workers, threads, limits and shared counters"
+lead = "How one supervisor, several worker processes and a small thread pool use your cores, and how limits stay exact."
+badges = [["text-bg-warning", "Pre-alpha"]]
+description = "Workers, threads and shared counters."
+group = "concepts"
+order = 30
++++
 
 asyncio runs on one thread, so one process uses about one core. Ingest is mostly socket-to-disk
 I/O, but TLS, MIME parsing and compression are CPU work and `fsync` blocks (ADR 0005).

@@ -1,6 +1,7 @@
 # 5. Process model: supervised worker processes, each an event loop plus a small thread pool
 
-Status: accepted
+- Status: accepted
+- Date: 2026-10-24
 
 **Context.** asyncio runs on one thread and so uses about one core per process. Ingest is mostly
 socket-to-disk I/O, but TLS, MIME parsing and compression are CPU work, and `fsync` blocks.

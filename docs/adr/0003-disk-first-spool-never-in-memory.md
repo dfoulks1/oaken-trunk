@@ -1,6 +1,7 @@
 # 3. Messages are never held whole in memory; the default spool is on disk
 
-Status: accepted
+- Status: accepted
+- Date: 2026-10-24
 
 **Context.** The first notes made RAM disk the first driver. A crash after an SMTP 250 then loses
 accepted mail, and a burst of large messages can exhaust memory.

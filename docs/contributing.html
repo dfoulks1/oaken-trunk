@@ -1,0 +1,232 @@
+
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contributing · Oaken Trunk</title>
+<meta name="description" content="Set up a development environment and the rules for contributions.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Contributing · Oaken Trunk">
+<meta property="og:description" content="Set up a development environment and the rules for contributions.">
+<meta property="og:site_name" content="Oaken Trunk">
+<link rel="icon" type="image/png" href="assets/brand/favicon.png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/site.css">
+<script>(function(){var r=document.documentElement;r.classList.add('js');var t=null;try{t=localStorage.getItem('oaken-trunk-theme');}catch(e){}if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}r.setAttribute('data-bs-theme',t);})();</script>
+
+</head>
+<body class="has-pane" data-bs-spy="scroll" data-bs-target="#toc" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" tabindex="0">
+<a class="skip visually-hidden-focusable" href="#content">Skip to content</a>
+<header class="topbar d-lg-none">
+  <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">&#9776; Menu</button>
+  <span class="brand"><img src="assets/brand/favicon.png" alt="" aria-hidden="true" width="24" height="24"> OAKENTRUNK</span>
+</header>
+<nav class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="toc" aria-label="Navigation">
+  <div class="offcanvas-header d-lg-none">
+    <span class="offcanvas-title fw-bold">Menu</span>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close menu"></button>
+  </div>
+  <div class="offcanvas-body"><div class="sidebar-inner">
+    <div class="top"><a class="brand" href="index.html"><img src="assets/brand/favicon.png" alt="" aria-hidden="true" width="28" height="28"> OAKENTRUNK</a>
+      <button class="theme" id="themeToggle" type="button" aria-label="Toggle dark mode">Theme</button></div>
+    <div class="what">How to contribute</div>
+    <div class="docnav"><a class="home-link" href="index.html">&#8962; Home</a>
+      <div class="label">Concepts</div>
+      <a class="doc-link" href="architecture/index.html">Architecture</a>
+      <a class="doc-link" href="architecture/overview.html">Architecture overview</a>
+      <a class="doc-link" href="architecture/api-and-cli.html">API and CLI</a>
+      <a class="doc-link" href="architecture/software-map.html">Software map</a>
+      <a class="doc-link" href="architecture/spool.html">Spool</a>
+      <a class="doc-link" href="architecture/process-model.html">Process model</a>
+      <a class="doc-link" href="architecture/ingestion.html">Ingestion</a>
+      <a class="doc-link" href="architecture/mail-authentication.html">Mail authentication</a>
+      <a class="doc-link" href="architecture/consumers.html">Consumers</a>
+      <a class="doc-link" href="architecture/send.html">Send</a>
+      <a class="doc-link" href="plugins.html">Writing a plugin</a>
+      <a class="doc-link" href="architecture/ai-safety.html">AI safety</a>
+      <a class="doc-link" href="architecture/security.html">Security</a>
+      <a class="doc-link" href="architecture/logging.html">Logs</a>
+      <div class="label">Project</div>
+      <a class="doc-link" href="roadmap.html">Roadmap</a>
+      <a class="doc-link current" href="contributing.html" aria-current="page">Contributing</a>
+      <a class="doc-link" href="adr/index.html">Architecture decisions</a>
+      <a class="doc-link" href="security.html">Security policy</a>
+      <a class="doc-link" href="code-of-conduct.html">Code of conduct</a>
+    </div>
+    <div class="gh"><div class="label">GitHub</div>
+      <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
+    <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
+      <a class="nav-link" href="#standards"><span class="num">1</span>Standards</a>
+      <a class="nav-link" href="#repository-layout-target"><span class="num">2</span>Repository layout (target)</a>
+      <a class="nav-link" href="#ai-tooling"><span class="num">3</span>AI tooling</a>
+      <a class="nav-link" href="#picking-up-a-prompt"><span class="num">4</span>Picking up a prompt</a>
+    </nav></div>
+  </div></div>
+</nav>
+<main id="content" tabindex="-1">
+  <header class="cover">
+    <div class="d-flex flex-wrap gap-2 mb-3"><span class="badge text-bg-primary">Open source</span></div>
+    <h1 class="display-6">Contributing</h1>
+    <p class="lead">Pull requests are welcome. Here is how to set up, what the checks are, and the ground rules.</p>
+  </header>
+<p>Pull requests are welcome. There is no DCO or CLA yet. The repository is currently design and
+prompts only; code arrives prompt by prompt.</p>
+
+<section id="standards" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>Standards</h2></div>
+<p>Oaken Trunk follows the same standards and layout as Oaken Mail. Where this page is silent, read
+<a href="https://github.com/dfoulks1/oaken-mail/blob/main/CONTRIBUTING.md">Oaken Mail's CONTRIBUTING.md</a>.</p>
+<ul>
+<li>Python 3.11+, uv, <code>src/</code> layout, hatchling, <code>ruff</code>, <code>mypy --strict</code>, <code>pytest</code> + <code>pytest-asyncio</code>,
+import-linter for boundaries, detect-secrets in pre-commit.</li>
+<li>Every Python file starts with <code># SPDX-License-Identifier: Apache-2.0</code>.</li>
+<li>Tests live in a <code>tests/</code> folder next to the code. Tests never use the network, Docker, Redis, AWS
+or real mail; use synthetic fixtures and fakes.</li>
+<li>Never commit real email content, addresses, spools or tokens.</li>
+<li>Conventional Commits.</li>
+</ul>
+</section>
+<section id="repository-layout-target" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Repository layout (target)</h2></div>
+<div class="code"><pre class="highlight"><code class="language-text">src/oaken_trunk/         core: engine, operation registry, plugin host, daemon
+src/oaken_trunk_*/       first-party plugins (ingestors, spools, senders)
+apps/cli/                the `oaken-trunk` command, a thin client (package oaken_trunk_cli)
+docs/                    architecture, ADRs, build prompts
+</code></pre></div>
+<p>Core never imports a plugin or a client. A plugin never touches another plugin's storage. Plugins
+register through entry points: <code>oaken_trunk.ingestors</code>, <code>oaken_trunk.spools</code>, <code>oaken_trunk.senders</code>.</p>
+</section>
+<section id="ai-tooling" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>AI tooling</h2></div>
+<p>Contributions made with generative AI must follow the ASF
+<a href="https://www.apache.org/legal/generative-tooling.html">Generative Tooling Guidance</a>, exactly as in
+Oaken Mail: you represent the work is yours to license under Apache-2.0, no GPL or incompatible
+code, and a provenance trailer (<code>Co-authored-by:</code> or <code>Generated-by:</code>) in the commit message.
+Public-facing AI-written text is reviewed by a committer or labelled as AI-generated.</p>
+</section>
+<section id="picking-up-a-prompt" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>Picking up a prompt</h2></div>
+<p>Trunk is built from numbered, self-contained prompts in <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/README.md"><code>docs/prompts/</code></a>.</p>
+<ol>
+<li>Read <code>docs/prompts/00-context.md</code>, this guide, the ADRs, and the architecture page for your part.</li>
+<li>Pick a prompt that is <strong>Open</strong> and whose dependencies are <strong>Built</strong>.</li>
+<li>Start with: <em>&quot;Read <code>docs/prompts/00-context.md</code>, then execute <code>docs/prompts/NN-....md</code>.&quot;</em> Where
+a prompt and the code or docs disagree, the code and docs win; stop and report.</li>
+<li>In the same pull request, update the status table below and <code>docs/softmap.toml</code>.</li>
+</ol>
+<h3 id="status-of-the-prompts">Status of the prompts</h3>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>#</th>
+<th>Prompt</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>bootstrap</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>02</td>
+<td>contracts-and-core</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>03</td>
+<td>directory-spool</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>04</td>
+<td>plugin-host</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>05</td>
+<td>http-ingest</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>06</td>
+<td>cli-client</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>07</td>
+<td>lmtp-ingest</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>08</td>
+<td>consumer-api</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>09</td>
+<td>smtp-ingest</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>10</td>
+<td>multi-worker</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>11</td>
+<td>send</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>12</td>
+<td>redis-spool</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>13</td>
+<td>s3-sqs-spool</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>14</td>
+<td>security-hardening</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>15</td>
+<td>docs-site</td>
+<td>Partly: the tooling is ported and the site builds; generated references wait for code</td>
+</tr>
+<tr>
+<td>16</td>
+<td>management-ui</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>17</td>
+<td>mcp-door</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>18</td>
+<td>request-guard</td>
+<td>Written</td>
+</tr>
+<tr>
+<td>19</td>
+<td>mail-authentication</td>
+<td>Written</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+  <footer>Oaken Trunk dev · Apache-2.0</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="assets/site.js"></script>
+
+
+</body>
+</html>

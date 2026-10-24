@@ -1,0 +1,143 @@
+
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mail authentication · Oaken Trunk</title>
+<meta name="description" content="Native DKIM and DMARC, when SPF and DMARC apply behind an MTA, and where the results go.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mail authentication · Oaken Trunk">
+<meta property="og:description" content="Native DKIM and DMARC, when SPF and DMARC apply behind an MTA, and where the results go.">
+<meta property="og:site_name" content="Oaken Trunk">
+<link rel="icon" type="image/png" href="../assets/brand/favicon.png">
+<link rel="apple-touch-icon" href="../assets/brand/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link rel="stylesheet" href="../assets/site.css">
+<script>(function(){var r=document.documentElement;r.classList.add('js');var t=null;try{t=localStorage.getItem('oaken-trunk-theme');}catch(e){}if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}r.setAttribute('data-bs-theme',t);})();</script>
+
+</head>
+<body class="has-pane" data-bs-spy="scroll" data-bs-target="#toc" data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" tabindex="0">
+<a class="skip visually-hidden-focusable" href="#content">Skip to content</a>
+<header class="topbar d-lg-none">
+  <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#toc" aria-controls="toc">&#9776; Menu</button>
+  <span class="brand"><img src="../assets/brand/favicon.png" alt="" aria-hidden="true" width="24" height="24"> OAKENTRUNK</span>
+</header>
+<nav class="sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="toc" aria-label="Navigation">
+  <div class="offcanvas-header d-lg-none">
+    <span class="offcanvas-title fw-bold">Menu</span>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#toc" aria-label="Close menu"></button>
+  </div>
+  <div class="offcanvas-body"><div class="sidebar-inner">
+    <div class="top"><a class="brand" href="../index.html"><img src="../assets/brand/favicon.png" alt="" aria-hidden="true" width="28" height="28"> OAKENTRUNK</a>
+      <button class="theme" id="themeToggle" type="button" aria-label="Toggle dark mode">Theme</button></div>
+    <div class="what">DKIM, SPF, DMARC and ARC</div>
+    <div class="docnav"><a class="home-link" href="../index.html">&#8962; Home</a>
+      <div class="label">Concepts</div>
+      <a class="doc-link" href="index.html">Architecture</a>
+      <a class="doc-link" href="overview.html">Architecture overview</a>
+      <a class="doc-link" href="api-and-cli.html">API and CLI</a>
+      <a class="doc-link" href="software-map.html">Software map</a>
+      <a class="doc-link" href="spool.html">Spool</a>
+      <a class="doc-link" href="process-model.html">Process model</a>
+      <a class="doc-link" href="ingestion.html">Ingestion</a>
+      <a class="doc-link current" href="mail-authentication.html" aria-current="page">Mail authentication</a>
+      <a class="doc-link" href="consumers.html">Consumers</a>
+      <a class="doc-link" href="send.html">Send</a>
+      <a class="doc-link" href="../plugins.html">Writing a plugin</a>
+      <a class="doc-link" href="ai-safety.html">AI safety</a>
+      <a class="doc-link" href="security.html">Security</a>
+      <a class="doc-link" href="logging.html">Logs</a>
+      <div class="label">Project</div>
+      <a class="doc-link" href="../roadmap.html">Roadmap</a>
+      <a class="doc-link" href="../contributing.html">Contributing</a>
+      <a class="doc-link" href="../adr/index.html">Architecture decisions</a>
+      <a class="doc-link" href="../security.html">Security policy</a>
+      <a class="doc-link" href="../code-of-conduct.html">Code of conduct</a>
+    </div>
+    <div class="gh"><div class="label">GitHub</div>
+      <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
+    <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
+      <a class="nav-link" href="#standards"><span class="num">1</span>Standards</a>
+      <a class="nav-link" href="#inbound-and-the-memory-rule"><span class="num">2</span>Inbound, and the memory rule</a>
+      <a class="nav-link" href="#behind-postfix-or-qmail"><span class="num">3</span>Behind Postfix or qmail</a>
+      <a class="nav-link" href="#enforcement"><span class="num">4</span>Enforcement</a>
+      <a class="nav-link" href="#outbound"><span class="num">5</span>Outbound</a>
+    </nav></div>
+  </div></div>
+</nav>
+<main id="content" tabindex="-1">
+  <header class="cover">
+    <div class="d-flex flex-wrap gap-2 mb-3"><span class="badge text-bg-warning">Pre-alpha</span></div>
+    <h1 class="display-6">Mail authentication</h1>
+    <p class="lead">Trunk verifies DKIM natively on every inbound message and signs outbound mail, without ever holding a whole message in memory.</p>
+  </header>
+
+<section id="standards" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>Standards</h2></div>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Standard</th>
+<th>Role in Trunk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DKIM</td>
+<td><a href="https://www.rfc-editor.org/rfc/rfc6376">RFC 6376</a>, Ed25519 in <a href="https://www.rfc-editor.org/rfc/rfc8463">RFC 8463</a></td>
+<td>Verified on every inbound message; signed on outbound</td>
+</tr>
+<tr>
+<td>SPF</td>
+<td><a href="https://www.rfc-editor.org/rfc/rfc7208">RFC 7208</a></td>
+<td>Evaluated when the client address is known</td>
+</tr>
+<tr>
+<td>DMARC</td>
+<td><a href="https://www.rfc-editor.org/rfc/rfc9989">RFC 9989</a>, which obsoletes RFC 7489</td>
+<td>Evaluated from DKIM and SPF; policy is recorded or enforced</td>
+</tr>
+<tr>
+<td>ARC</td>
+<td><a href="https://www.rfc-editor.org/rfc/rfc8617">RFC 8617</a> (Experimental)</td>
+<td>Verified and recorded, never acted on</td>
+</tr>
+<tr>
+<td>Results header</td>
+<td><a href="https://www.rfc-editor.org/rfc/rfc8601">RFC 8601</a></td>
+<td><code>Authentication-Results</code> stamped on each message</td>
+</tr>
+</tbody>
+</table></div>
+<p>The request signing of the ports is a different thing: <a href="https://www.rfc-editor.org/rfc/rfc9421">RFC 9421</a>. See
+<a href="security.html">Security</a>. Decisions are in <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/adr/0011-native-email-authentication.md">ADR 0011</a>.</p>
+</section>
+<section id="inbound-and-the-memory-rule" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Inbound, and the memory rule</h2></div>
+<p>Only the header block is held in memory, bounded by <code>max_header_bytes</code>. The DKIM body hash is computed incrementally
+as the body streams into the spool, so a verified message is never buffered whole.</p>
+</section>
+<section id="behind-postfix-or-qmail" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Behind Postfix or qmail</h2></div>
+<p>DKIM needs nothing but the message, so it works the same behind an MTA or at the edge. SPF and DMARC alignment need the
+address of the original client, which an MTA that hands mail over LMTP or a pipe does not pass. Trunk evaluates them at
+the SMTP edge, and behind an MTA only when a trusted upstream supplies the address. Otherwise they are recorded as not
+evaluated, never as a pass. An <code>Authentication-Results</code> field from outside is stripped unless it comes from a trusted hop.</p>
+</section>
+<section id="enforcement" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>Enforcement</h2></div>
+<p><code>mailauth.dmarc</code> is <code>off</code>, <code>record</code> (default for 0.1) or <code>enforce</code>. <code>enforce</code> answers a message whose published DMARC
+policy is <code>reject</code> with a permanent 5xx at the protocol edge.</p>
+</section>
+<section id="outbound" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>Outbound</h2></div>
+<p>The sender signs with DKIM (RSA-2048 and Ed25519) from owner-only key files. The body hash comes from a streaming pass
+over the spooled file, and the signature is added at send time, so signing also never holds a whole message.</p>
+</section>
+  <footer>Oaken Trunk dev · Apache-2.0</footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="../assets/site.js"></script>
+
+
+</body>
+</html>

@@ -9,9 +9,10 @@ The dedicated pass.
 ## Steps
 
 1. Injection and malformed-input suite across every ingestor (header injection, oversized lines, truncated DATA).
-2. Auth tests: token separation, TLS-before-AUTH, no open relay, mTLS for consumers if built.
+2. Auth tests: unsigned, badly signed, stale, replayed and cross-surface requests are refused before any route; TLS-before-AUTH; no open relay; every first-party authenticator passes `AuthenticatorContract`.
 3. Audit review: no message body in any log or exception; spool permissions owner-only.
-4. Dependency licence check: no GPL.
+4. Log audit per ADR 0012: sentinel content sent through every ingestor never appears in any log, error or response.
+5. Dependency licence check: no GPL.
 
 ## Acceptance criteria
 

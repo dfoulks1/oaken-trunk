@@ -15,6 +15,13 @@ open questions. Nothing here is a promise or a date.
 
 ## Later
 
+- **MCP door** (17). Generated from the whole registry, gated by caller class: statistics by default, a
+  confirm gate for changes, never message data, off by default. It may share the management UI's listener on its own
+  path, authenticated and local-only by default.
+
+- **Management UI** (16). A separate web app on its own port for queue, spool, leases and failures, built
+  only on operations the CLI already has.
+
 - **SMTP ingest** with STARTTLS, AUTH and a recipient allowlist.
 - **Outbound** (send): a Sender plugin kind, queue semantics, bounces. *Open:* DSN format and retry policy.
 - **Redis stream** and **S3 + SQS** spools, with their native consumer-group and visibility-timeout
@@ -24,4 +31,4 @@ open questions. Nothing here is a promise or a date.
 
 ## Not planned
 
-IMAP or POP3, mailbox search, spam filtering, a web UI, and a RAM-resident spool driver.
+IMAP or POP3, mailbox search, spam filtering, and a RAM-resident spool driver.

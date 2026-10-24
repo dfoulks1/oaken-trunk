@@ -5,6 +5,8 @@ streams each message into a spool, and tells consumers it is there. Consumers le
 do their work, and acknowledge it. Trunk keeps no mailbox, no index and no IMAP: it replaces the
 *delivery* step into a local mailbox (the Dovecot LDA role), not mailbox access.
 
+Oaken Mail is the client-side half of the family and Oaken Trunk is the server-side half: Trunk is run by an operator on a host that receives mail, and Oaken Mail (or anything else) consumes from it.
+
 **Status: pre-alpha. This repository holds the design and the build prompts; there is no code yet.**
 See the [roadmap](ROADMAP.md).
 
@@ -29,7 +31,7 @@ See the [roadmap](ROADMAP.md).
 ```
 
 Every capability is one registered operation. The HTTP API and the CLI are generated from the same
-registry, so every endpoint has a command. See [architecture](docs/architecture/overview.md).
+registry, so every endpoint has a command. A separate management UI on its own port is planned. See [architecture](docs/architecture/overview.md).
 
 ## Design rules
 

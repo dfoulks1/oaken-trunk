@@ -1,4 +1,12 @@
-# Ingestion
++++
+title = "Ingestion"
+subtitle = "HTTP, CLI, LMTP and SMTP"
+lead = "The ways mail gets in, how backpressure is reported, and how to sit beside Postfix or qmail."
+badges = [["text-bg-warning", "Pre-alpha"]]
+description = "How mail enters the gateway."
+group = "concepts"
+order = 40
++++
 
 An ingestor speaks one protocol and gives core a byte stream and an envelope. Core does the rest.
 

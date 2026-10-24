@@ -1,6 +1,6 @@
 # 05 - Http ingest
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 03, 04.
+**Read first:** `docs/prompts/00-context.md`. **Depends on:** 03, 04, 18.
 
 ## Goal
 
@@ -9,7 +9,7 @@
 ## Steps
 
 1. Starlette + uvicorn as in oaken-mail's ADR 0005; streaming request body into the engine.
-2. Bearer ingest token (separate from consume token), token file mode 0600.
+2. Behind the request guard of prompt 18: signed requests only, its own `ingest` surface and key set.
 3. Backpressure codes from `docs/architecture/ingestion.md`; `Retry-After` from `retry_after_seconds`.
 4. The route table is generated from the operation registry.
 

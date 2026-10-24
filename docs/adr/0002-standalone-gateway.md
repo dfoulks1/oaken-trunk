@@ -1,6 +1,7 @@
 # 2. Trunk is a standalone gateway; Oaken Mail is one consumer
 
-Status: accepted
+- Status: accepted
+- Date: 2026-10-24
 
 **Context.** Trunk is meant to sit beside Postfix or qmail and serve any consumer, not just Oaken
 Mail. Coupling it to Oaken Mail would narrow its audience and tie release cycles together.

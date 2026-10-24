@@ -8,10 +8,11 @@ Outbound spool and the Sender plugin kind.
 
 ## Steps
 
-1. Submission through HTTP, CLI and SMTP 587 into an outbound spool with its own quota.
-2. Bulk bodies stored once, per-recipient envelopes referencing them.
-3. Drain with per-domain concurrency and rate limits, connection reuse, backoff with jitter, bounces; domain-hash sharding across workers.
-4. Decide and record DSN format and the retry schedule in an ADR.
+1. DKIM signing per ADR 0011: RSA-2048 and Ed25519, body hash from a streaming pass over the spooled file, signature added at send time, keys owner-only.
+2. Submission through HTTP, CLI and SMTP 587 into an outbound spool with its own quota.
+3. Bulk bodies stored once, per-recipient envelopes referencing them.
+4. Drain with per-domain concurrency and rate limits, connection reuse, backoff with jitter, bounces; domain-hash sharding across workers.
+5. Decide and record DSN format and the retry schedule in an ADR.
 
 ## Acceptance criteria
 

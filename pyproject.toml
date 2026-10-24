@@ -1,0 +1,26 @@
+[project]
+name = "oaken-trunk-docs"
+version = "0.0.0"
+description = "Oaken Trunk: documentation tooling only. The gateway itself is not built yet."
+requires-python = ">=3.11"
+license = "Apache-2.0"
+dependencies = []
+
+[dependency-groups]
+# Site tooling (docs/tools). The gateway runtime must never depend on it.
+docs = [
+    "jinja2>=3.1.6",
+    "markdown-it-py",
+    "mdit-py-plugins",
+    "pygments",
+    "pytest",
+]
+
+[tool.uv]
+package = false
+default-groups = ["docs"]
+
+[tool.pytest.ini_options]
+testpaths = ["docs/tools/tests"]
+addopts = ["--import-mode=importlib"]
+pythonpath = ["docs/tools"]

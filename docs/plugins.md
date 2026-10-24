@@ -1,16 +1,25 @@
-# Writing a plugin
++++
+title = "Writing a plugin"
+subtitle = "Ingestors, spools and senders"
+lead = "Everything Trunk can be extended with is a plugin: a small class registered with an entry point. Start from a base class and run the contract suite."
+badges = [["text-bg-warning", "Pre-alpha"]]
+description = "How to write an ingestor, spool or sender."
+group = "concepts"
+order = 70
++++
 
 Everything Oaken Trunk can be extended with is a plugin: a small class registered with a Python entry
 point. Start from a base class, override what your plugin does, and run the contract suite. This is
 the same model as Oaken Mail's plugins, so the habits carry over.
 
-## The three kinds
+## The four kinds
 
 | Kind | Entry-point group | Base class | What it does |
 |---|---|---|---|
 | Ingestor | `oaken_trunk.ingestors` | `BaseIngestor` | Speaks a protocol and hands core a byte stream and an envelope. |
 | Spool | `oaken_trunk.spools` | `BaseSpool` | Stores messages and runs lease, ack and nack. |
 | Sender | `oaken_trunk.senders` | `BaseSender` | Relays an outbound message to its destination. |
+| Authenticator | `oaken_trunk.authenticators` | `BaseAuthenticator` | Decides whether a request or connection is who it claims to be: signed requests, SMTP AUTH, mTLS. |
 
 First-party plugins (`oaken_trunk_*`) register exactly as a third party's would. The exact signatures
 are on the generated plugin contracts page.
@@ -95,10 +104,34 @@ A sender implements `send(envelope, chunks)` and returns a result: delivered, te
 (retry with backoff) or permanent failure (bounce). Per-domain limits and retries belong to the host,
 not the plugin.
 
+## An authenticator in one screen
+
+```python
+from oaken_trunk.plugins.base import BaseAuthenticator
+
+class MyAuthenticator(BaseAuthenticator):
+    async def verify(self, request):
+        # request is a read-only view: method, path, query, headers, body digest, peer.
+        # Return a Principal (key id and surface) or raise AuthError. Never read the body here.
+        key = self.keys.get(request.key_id)
+        if key is None or not key.verify(request.signature_base, request.signature):
+            raise AuthError("bad signature")
+        return Principal(key_id=request.key_id, surface=self.surface)
+```
+
+| You write | You gain |
+|---|---|
+| `verify(request)` | A working authenticator (required) |
+| `add_key`, `revoke_key`, `list_keys` | Key management through `oaken-trunk keys` |
+| `challenge()` | A protocol-level challenge (SMTP AUTH, for example) |
+
+The guard runs it before any route, enforces freshness and replay protection around it, and fails closed on
+any error. See [Security](architecture/security.md) and ADR 0010.
+
 ## Testing a plugin
 
 The shared contract suites live in `oaken_trunk.testing.contracts` (`SpoolContract`, `IngestorContract`,
-`SenderContract`). Subclass one, point it at your plugin, and run `pytest`. The suites cover required
+`SenderContract`, `AuthenticatorContract`). Subclass one, point it at your plugin, and run `pytest`. The suites cover required
 behaviour, lease expiry, crash recovery for spools, the streaming and memory rule, and the
 backpressure replies. Tests never use the network, Docker, Redis or AWS: use fakes (`FakeSpool`,
 `FakeIngestor`, `FakeSender`) and synthetic fixtures.

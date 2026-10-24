@@ -1,6 +1,6 @@
 # 08 - Consumer api
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 05, 06.
+**Read first:** `docs/prompts/00-context.md`. **Depends on:** 05, 06, 18.
 
 ## Goal
 

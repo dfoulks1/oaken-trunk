@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/adr/index.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/ai-safety.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/api-and-cli.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/consumers.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/index.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/ingestion.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/logging.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/mail-authentication.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/overview.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/process-model.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/security.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/send.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/software-map.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/architecture/spool.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/code-of-conduct.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/contributing.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/plugins.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/roadmap.html</loc></url>
+  <url><loc>https://dfoulks1.github.io/oaken-trunk/security.html</loc></url>
+</urlset>

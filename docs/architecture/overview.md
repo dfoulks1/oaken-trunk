@@ -1,4 +1,12 @@
-# Overview
++++
+title = "Architecture overview"
+subtitle = "Layers, the operation registry and what trunk is not"
+lead = "How mail moves from an ingestor, through core, into a spool and out to consumers."
+badges = [["text-bg-warning", "Pre-alpha"]]
+description = "How the gateway is put together."
+group = "concepts"
+order = 10
++++
 
 Oaken Trunk is a stateless gateway with a durable spool. The processes hold no state; the spool does.
 Decisions are in [ADR 0002-0005](../adr/).
@@ -25,13 +33,20 @@ Decisions are in [ADR 0002-0005](../adr/).
 ## One registry
 
 Every capability is a registered operation (`submit`, `list`, `lease`, `fetch`, `ack`, `nack`,
-`delete`, `status`, `doctor`, ...). The HTTP API and the CLI are generated from it, so every endpoint
-has a command and there is no second path to anything. The CLI can run in-process against the spool
-without a daemon.
+`delete`, `status`, `doctor`, ...). The HTTP API exposes all of them, the CLI is a thin client of the API, and the MCP server is generated from
+the same registry, so there is no second path to anything ([API and CLI](api-and-cli.md)). The CLI can also run
+in-process without a daemon.
+
+## Clients
+
+The CLI (`oaken-trunk`) and the management UI are clients of the operation registry. The UI is a separate
+app on its own port, off by default (ADR 0007). An optional MCP door is generated from the same registry and gated by caller class; it
+shows statistics by default and never exposes message data or mutating operations without a deliberate
+tier change (ADR 0008).
 
 ## What trunk is not
 
-No IMAP or POP3, no mailbox search, no spam filtering, no web UI. It replaces local delivery, not
+No IMAP or POP3, no mailbox search and no spam filtering. It replaces local delivery, not
 mailbox access, and sits beside Postfix or qmail rather than replacing them.
 
 ## Memory rule

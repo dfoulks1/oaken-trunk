@@ -1,4 +1,12 @@
-# Consumers
++++
+title = "Consumers"
+subtitle = "Lease, fetch, ack and nack"
+lead = "How a consumer takes a message, what at-least-once delivery means, and how it is woken."
+badges = [["text-bg-warning", "Pre-alpha"]]
+description = "How consumers take messages."
+group = "concepts"
+order = 50
++++
 
 A consumer is anything that leases messages: the Oaken Mail provider plugin (in its own repository),
 a CLI, a webhook relay.

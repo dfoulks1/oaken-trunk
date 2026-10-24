@@ -64,4 +64,8 @@ Trunk is built from numbered, self-contained prompts in [`docs/prompts/`](docs/p
 | 12 | redis-spool | Written |
 | 13 | s3-sqs-spool | Written |
 | 14 | security-hardening | Written |
-| 15 | docs-site | Written |
+| 15 | docs-site | Partly: the tooling is ported and the site builds; generated references wait for code |
+| 16 | management-ui | Written |
+| 17 | mcp-door | Written |
+| 18 | request-guard | Written |
+| 19 | mail-authentication | Written |
