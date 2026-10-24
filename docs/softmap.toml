@@ -1,0 +1,105 @@
+# Software map data. Edit it in the same change that builds or alters a component.
+#   status  built | partial | planned. built/partial -> `path` must exist; planned -> must not.
+#   prompt  the build prompt that delivers it.
+
+[[stacks]]
+id = "gateway"
+name = "Oaken Trunk gateway"
+layers = ["ingestors", "core", "spools", "senders"]
+
+[[layers]]
+id = "ingestors"
+name = "Ingestors"
+
+[[layers]]
+id = "core"
+name = "Core"
+
+[[layers]]
+id = "spools"
+name = "Spools"
+
+[[layers]]
+id = "senders"
+name = "Senders"
+
+[[components]]
+id = "http"
+layer = "ingestors"
+name = "HTTP ingest"
+status = "planned"
+prompt = "05"
+untrusted = true
+
+[[components]]
+id = "lmtp"
+layer = "ingestors"
+name = "LMTP ingest"
+status = "planned"
+prompt = "07"
+untrusted = true
+
+[[components]]
+id = "smtp"
+layer = "ingestors"
+name = "SMTP ingest"
+status = "planned"
+prompt = "09"
+untrusted = true
+
+[[components]]
+id = "engine"
+layer = "core"
+name = "Engine and operation registry"
+status = "planned"
+prompt = "02"
+uses = []
+
+[[components]]
+id = "plugin-base"
+layer = "core"
+name = "Plugin base classes and contract suites"
+status = "planned"
+prompt = "04"
+
+[[components]]
+id = "host"
+layer = "core"
+name = "Plugin host"
+status = "planned"
+prompt = "04"
+
+[[components]]
+id = "supervisor"
+layer = "core"
+name = "Supervisor and workers"
+status = "planned"
+prompt = "10"
+
+[[components]]
+id = "spool-dir"
+layer = "spools"
+name = "Directory spool"
+status = "planned"
+prompt = "03"
+
+[[components]]
+id = "spool-redis"
+layer = "spools"
+name = "Redis spool"
+status = "planned"
+prompt = "12"
+
+[[components]]
+id = "spool-s3-sqs"
+layer = "spools"
+name = "S3 + SQS spool"
+status = "planned"
+prompt = "13"
+
+[[components]]
+id = "send"
+layer = "senders"
+name = "Outbound sender"
+status = "planned"
+prompt = "11"

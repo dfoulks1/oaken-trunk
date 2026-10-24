@@ -1,0 +1,48 @@
+# Oaken Trunk: documented template. Copy to <config dir>/config.toml and edit what you change.
+# Every section has defaults. Unknown top-level keys are an error.
+# Secrets (SMTP AUTH passwords, API tokens, S3/Redis credentials) never go here.
+version = 1
+
+[server]
+host = "127.0.0.1"          # bind loopback unless you opt in to more
+workers = 1                 # worker processes, each with its own event loop. 1..N or "auto"
+                            # "auto" = usable CPUs (cgroup and affinity aware), capped by max_workers
+max_workers = 8             # hard ceiling for "auto" and for any explicit value
+threads_per_worker = 4      # blocking-I/O threads (fsync, file writes) in each worker
+max_threads = 32            # hard ceiling on workers * threads_per_worker; startup fails above it
+max_inflight = 64           # messages being received at once across ALL workers (exact: the
+                            # supervisor hands workers batched credits)
+max_message_size = "25MiB"  # over this, 552 / HTTP 413
+retry_after_seconds = 30    # sent with 451 / 503 when we shed load
+
+[ingest.http]
+enabled = true
+port = 8080
+
+[ingest.smtp]
+enabled = false             # planned
+port = 587
+auth = ["PLAIN", "LOGIN"]   # only offered after STARTTLS
+accept_domains = []         # empty means refuse all recipients: no open relay
+
+[ingest.lmtp]
+enabled = false             # planned; the Postfix virtual_transport target
+socket = "run/lmtp.sock"
+
+[spool]
+driver = "dir"              # dir | redis | s3-sqs (the last two are planned)
+
+[spool.dir]
+path = "data/spool"         # a tmpfs mount is the operator's choice, not a driver
+durability = "strict"       # strict: fsync each message | batched: concurrent messages share one fsync
+                            # (ack after it) | volatile: no fsync, explicit opt-in
+max_spool_bytes = "20GiB"   # quota; at the limit new mail gets a retryable 4xx / HTTP 507
+lease_seconds = 300
+notify = "auto"             # auto | inotify | poll
+poll_interval_ms = 500
+
+[auth]
+token_file = "config/api-token"  # created mode 0600; separate ingest and consume tokens
+
+[logging]
+level = "info"              # never logs a message body
