@@ -1,6 +1,8 @@
-# 07 - Lmtp ingest
+# LMTP ingest
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 03, 04.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`.
+**Depends on:** [CORE_plugin-host](CORE_plugin-host.md), [CORE_daemon](CORE_daemon.md).
+**Delivers:** LMTP over a Unix socket: the Postfix delivery target
 
 ## Goal
 
@@ -20,4 +22,4 @@
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

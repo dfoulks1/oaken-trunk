@@ -77,23 +77,23 @@ open questions. Nothing here is a promise or a date.</p>
 
 <section id="next" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>Next</h2></div>
 <ul>
-<li><strong>Contracts and the directory spool</strong> (prompts 02-03). Ingestor, Spool and Sender contracts, and a
+<li><strong>Contracts and the directory spool</strong> (CORE_contracts-and-core and <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a>). Ingestor, Spool and Sender contracts, and a
 Maildir-style spool: write to <code>tmp/</code>, fsync, atomic rename into <code>new/</code>, lease by rename.
 <code>batched</code> durability (group commit, one fsync per batch) is in 0.1.</li>
-<li><strong>HTTP and CLI ingest</strong> (05-06). <code>/v1/send</code> as submission into the spool; <code>oaken-trunk submit</code> on stdin.</li>
-<li><strong>LMTP</strong> (07). The clean way to sit behind Postfix; a pipe target covers qmail.</li>
-<li><strong>Consumer API</strong> (08). Lease, fetch, ack, nack over HTTP, plus CLI parity.</li>
+<li><strong>HTTP listener and CLI</strong> (CORE_http-listener, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CLI_client.md">CLI_client</a>). <code>submit</code> over HTTP on the ingest surface; <code>steamer submit</code> on stdin.</li>
+<li><strong>LMTP</strong> (PLUGIN_lmtp-ingest). The clean way to sit behind Postfix; a pipe target covers qmail.</li>
+<li><strong>Consumer API</strong> (CORE_consumer-api). Lease, fetch, ack, nack over HTTP, plus CLI parity.</li>
 </ul>
 </section>
 <section id="later" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Later</h2></div>
 <ul>
 <li>
-<p><strong>MCP door</strong> (17). Generated from the whole registry, gated by caller class: statistics by default, a
+<p><strong>MCP door</strong> (MCP_mcp-door). Generated from the whole registry, gated by caller class: statistics by default, a
 confirm gate for changes, never message data, off by default. It may share the management UI's listener on its own
 path, authenticated and local-only by default.</p>
 </li>
 <li>
-<p><strong>Management UI</strong> (16). A separate web app on its own port for queue, spool, leases and failures, built
+<p><strong>Management UI</strong> (WEBUI_management-ui). A separate web app on its own port for queue, spool, leases and failures, built
 only on operations the CLI already has.</p>
 </li>
 <li>

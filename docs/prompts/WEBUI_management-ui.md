@@ -1,6 +1,8 @@
-# 16 - Management UI
+# Management UI
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 06, 08, 18.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/WEBUI.md`.
+**Depends on:** [CORE_system-operations](CORE_system-operations.md), [CORE_audit-and-jobs](CORE_audit-and-jobs.md), [CORE_http-listener](CORE_http-listener.md).
+**Delivers:** Operator web app on its own port, built only on operations the CLI has
 
 ## Goal
 
@@ -24,4 +26,4 @@ and the actions the CLI already offers (ADR 0007).
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

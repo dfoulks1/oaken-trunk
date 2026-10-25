@@ -15,7 +15,7 @@ plugin's decision (ADR 0003).
 
 | Operation | Meaning |
 |---|---|
-| `store(id, chunks, envelope)` | Persist a message from an async stream of chunks. Returns only when it is durable per the driver's durability. |
+| `writer(id, envelope)` | An async context manager: `write(chunk)` for each chunk, then `commit(annotations)`. The message is visible only after `commit`, which returns when it is durable per the driver's durability. Leaving the block without `commit` aborts and removes the partial data. |
 | `lease(consumer, limit, seconds)` | Reserve up to `limit` messages for a visibility timeout. Returns ids and lease tokens. |
 | `open(id)` | Stream the bytes of a leased message. |
 | `ack(id, token)` | The consumer is done; remove the message. |
@@ -23,6 +23,10 @@ plugin's decision (ADR 0003).
 | `delete(id)` | Remove regardless of lease (operator action, audited). |
 | `watch()` | Wake consumers: inotify on directories, a poll otherwise. Never an in-process-only event. |
 | `usage()` | Message count and bytes, for the quota and `status`. |
+
+`annotations` are results listeners recorded (empty until one does). The spool keeps them with the message
+and hands them back with `open`. How a driver keeps them is its own business (PLUGIN_directory-spool settles it for the
+directory driver).
 
 Delivery is at-least-once (ADR 0004). Expired leases return to the queue. Ids are time-ordered and
 unique, so consumers dedupe on them.
@@ -36,13 +40,15 @@ RFC 822 bytes.
 spool/tmp/<id>.msg                       being written
 spool/new/<id>.msg                       ready
 spool/leased/<id>.<expiry>.<token>.msg   leased; the name carries the lease
+spool/ann/<id>.ann                       annotations (absent means none); never moves
 ```
 
-- **Store:** write to `tmp/`, fsync (per durability), rename into `new/`, fsync the directory, ack.
+- **Write and commit:** write to `tmp/`; on `commit`, write any annotations to `ann/`, fsync (per durability), rename into `new/`, fsync the
+  directory, ack.
 - **Lease:** atomic rename `new/` to `leased/` with expiry and token in the name. Two consumers
   cannot lease the same file.
 - **Ack:** unlink. **Nack:** rename back to `new/`. **Recovery:** at start, delete stale `tmp/`
-  files and return expired leases to `new/`.
+  files, return expired leases to `new/`, and delete annotations that have no message.
 
 ### Durability
 

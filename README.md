@@ -18,7 +18,7 @@ See the [roadmap](ROADMAP.md).
 ## How it fits together
 
 ```
- Postfix / qmail (LMTP, pipe)   SMTP 25/587   HTTP /v1/send   CLI (stdin)      <- ingestors (plugins)
+ Postfix / qmail (LMTP, pipe)   SMTP 25/587   HTTP submit    CLI (stdin)      <- ingestors (plugins)
                       \             |              |             /
                        +------------+--- core -----+------------+
                          authenticate, size and rate limits, stream to spool

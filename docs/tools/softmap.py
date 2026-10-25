@@ -345,7 +345,7 @@ def map_svg(lay: Layout) -> str:
     p.append('<g id="edges"></g>')
     for c in lay.comps:
         n = lay.nodes[c["id"]]
-        sub = f"{STATUSES[c['status']][1].lower()} · prompt {c['prompt']}"
+        sub = f"{STATUSES[c['status']][1].lower()} · {c['prompt']}"
         mark = ""
         if c.get("untrusted"):
             mark = (
@@ -374,8 +374,9 @@ def chips(names: dict[str, str], ids: list[str], cb: bool = False) -> str:
 
 def prompt_link(cfg: Config, prompt: str) -> str:
     """Badge linking to the build prompt file, or plain text when there is none."""
-    matches = sorted((cfg.repo_root / "docs" / "prompts").glob(f"{prompt}-*.md"))
-    label = f"prompt {prompt}"
+    path = cfg.repo_root / "docs" / "prompts" / f"{prompt}.md"
+    matches = [path] if path.is_file() else []
+    label = prompt
     if not matches:
         return f'<span class="badge text-bg-light border">{esc(label)}</span>'
     rel = matches[0].relative_to(cfg.repo_root).as_posix()

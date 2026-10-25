@@ -28,7 +28,7 @@ change.
   file permissions and peer credentials, each through its own authenticator.
 - **Secrets:** private keys never live on the server, key files are created `0600` from the first byte, and
   signatures and keys are never logged.
-- **Easy to configure:** `[security.<surface>] scheme = "..."` is one line, `oaken-trunk keys add|list|revoke`
+- **Easy to configure:** `[security.<surface>] scheme = "..."` is one line, `steamer keys add|list|revoke`
   manages keys, and `doctor` verifies the result.
 
 ## Consequences

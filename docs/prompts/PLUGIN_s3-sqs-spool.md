@@ -1,6 +1,8 @@
-# 13 - S3 sqs spool
+# S3 and SQS spool
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 03.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`.
+**Depends on:** [PLUGIN_directory-spool](PLUGIN_directory-spool.md), [CORE_plugin-host](CORE_plugin-host.md).
+**Delivers:** S3 bodies, SQS visibility timeouts as leases
 
 ## Goal
 
@@ -20,4 +22,4 @@
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

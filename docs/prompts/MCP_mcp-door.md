@@ -1,6 +1,9 @@
-# 17 - MCP door
+# MCP door
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 06, 08, 18. **Not part of 0.1.**
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/MCP.md`.
+**Depends on:** [CORE_operation-registry](CORE_operation-registry.md), [CORE_system-operations](CORE_system-operations.md), [CORE_http-listener](CORE_http-listener.md).
+**Not part of 0.1.**
+**Delivers:** Optional MCP door gated by caller class. Not part of 0.1
 
 ## Goal
 
@@ -12,7 +15,7 @@ An optional MCP door generated from the whole registry and gated by caller class
 2. Policy in code: statistics tier by default (`status`, queue depth, spool usage and quota, lease and failure counts, worker health, `doctor`); wider tiers are an explicit operator setting.
 3. State-changing operations go through the two-phase confirm gate. `submit`, `send`, `delete`, `lease`, `fetch`, `ack` and `nack` are never exposed.
 4. No message body and no envelope field is returned without a tier change that has its own ADR. Any mail-derived text is wrapped as untrusted.
-5. Off by default; its own token and signing key; audited on every call. Requests follow the signed-request rules of the security prompt (14).
+5. Off by default; its own token and signing key; audited on every call. Requests follow the signed-request rules of the security prompt (CORE_security-hardening).
 6. Streamable HTTP transport, and a stdio bridge command as oaken-mail has.
 
 ## Acceptance criteria
@@ -25,4 +28,4 @@ An optional MCP door generated from the whole registry and gated by caller class
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

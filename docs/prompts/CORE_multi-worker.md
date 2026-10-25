@@ -1,6 +1,8 @@
-# 10 - Multi worker
+# Multi-worker
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 03, 05.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
+**Depends on:** [PLUGIN_directory-spool](PLUGIN_directory-spool.md), [CORE_daemon](CORE_daemon.md).
+**Delivers:** Supervisor and worker processes, bounded concurrency
 
 ## Goal
 
@@ -21,4 +23,4 @@ Supervisor and workers.
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

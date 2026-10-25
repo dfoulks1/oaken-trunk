@@ -74,7 +74,7 @@
   </header>
 
 <section id="the-shape" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>The shape</h2></div>
-<div class="code"><pre class="highlight"><code>   CLI (oaken-trunk)     management UI        MCP clients
+<div class="code"><pre class="highlight"><code>   CLI (steamer)      management UI        MCP clients
           \                   |                  /
            +------- HTTP API (every operation) --+
                             |
@@ -88,13 +88,13 @@
 <p>A thin client with no logic of its own, built like Oaken Mail's:</p>
 <ul>
 <li><strong>argparse from the standard library</strong>, lazy imports, so <code>--help</code> is fast.</li>
-<li><strong>Every operation is reachable</strong>: <code>oaken-trunk operation NAME --json '{...}'</code> runs any of them, and
-<code>oaken-trunk operation</code> lists them. Hand-written verbs cover the daily ones (<code>status</code>, <code>submit</code>, <code>lease</code>,
+<li><strong>Every operation is reachable</strong>: <code>steamer operation NAME --json '{...}'</code> runs any of them, and
+<code>steamer operation</code> lists them. Hand-written verbs cover the daily ones (<code>status</code>, <code>submit</code>, <code>lease</code>,
 <code>ack</code>, <code>nack</code>, <code>list</code>, <code>doctor</code>, <code>init</code>, <code>start</code>, <code>stop</code>).</li>
 <li><strong>Flags come from the operation's input schema.</strong> <code>foo_bar</code> becomes <code>--foo-bar</code>, a list is a repeated
 flag, an enum limits the choices. A secret field gets no value flag (it would land in shell history), only
 <code>--NAME-stdin</code>.</li>
-<li><strong>Plugin operations</strong> appear as <code>oaken-trunk PLUGIN VERB</code>.</li>
+<li><strong>Plugin operations</strong> appear as <code>steamer PLUGIN VERB</code>.</li>
 <li><code>--json</code> on any command gives machine-readable output.</li>
 <li><strong>In-process mode</strong> drives the registry without a daemon, for tests and one-shot use.</li>
 </ul>

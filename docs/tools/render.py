@@ -22,6 +22,34 @@ from pygments.util import ClassNotFound
 SCHEME = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*:")
 
 
+PROMPT_NAME = re.compile(
+    r"(?<![\[\w/(`-])(`?)((?:CORE|PLUGIN|CLI|WEBUI|MCP|DOCS)_[a-z0-9]+(?:-[a-z0-9]+)*)\1(?![\w\]/-]|\.md)"
+)
+
+
+def link_prompt_names(text: str, cfg: Config) -> str:
+    """Write a prompt's plain name in a page and it becomes a link to its file (never in a code fence).
+
+    A name that is not a prompt file is left alone; ``prompts.py`` is what fails on an unknown name."""
+    out: list[str] = []
+    fenced = False
+    for line in text.split("\n"):
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+        elif not fenced:
+
+            def link(m: re.Match[str]) -> str:
+                name = m.group(2)
+                if not (cfg.repo_root / "docs" / "prompts" / f"{name}.md").is_file():
+                    return m.group(0)
+                ticks = m.group(1)
+                return f"[{ticks}{name}{ticks}](repo:docs/prompts/{name}.md)"
+
+            line = PROMPT_NAME.sub(link, line)
+        out.append(line)
+    return "\n".join(out)
+
+
 @dataclass
 class Section:
     id: str
@@ -152,7 +180,7 @@ class Renderer:
     def render_plain(self, page: Page) -> Rendered:
         """The page body as one HTML string (used by the home page); no numbered sections."""
         env: EnvType = {}
-        tokens = self.md.parse(page.body_md, env)
+        tokens = self.md.parse(link_prompt_names(page.body_md, self.cfg), env)
         self._prepare(tokens, page)
         out = Rendered(intro_html=str(self.md.renderer.render(tokens, self.md.options, env)))
         out.has_mermaid = bool(env.get("has_mermaid"))
@@ -160,7 +188,7 @@ class Renderer:
 
     def render(self, page: Page) -> Rendered:
         env: EnvType = {}
-        tokens = self.md.parse(page.body_md, env)
+        tokens = self.md.parse(link_prompt_names(page.body_md, self.cfg), env)
         self._prepare(tokens, page)
         # split into groups at each level-2 heading
         groups: list[list[Token]] = [[]]

@@ -53,10 +53,14 @@ from oaken_trunk.plugins.contracts import Leased
 class MySpool(BaseSpool):
     version = "0.1"
 
-    async def store(self, message_id, chunks, envelope):
-        async for chunk in chunks:           # bounded chunks, never the whole body
-            await self.backend.append(message_id, chunk)
-        await self.backend.commit(message_id)  # return only when durable
+    async def write(self, message_id, chunk, envelope):   # one bounded chunk, never the whole body
+        await self.backend.append(message_id, chunk)
+
+    async def commit(self, message_id, annotations):      # visible from here; return only when durable
+        await self.backend.commit(message_id, annotations)
+
+    async def abort(self, message_id):                    # an error or a drop: remove the partial data
+        await self.backend.discard(message_id)
 
     async def lease(self, consumer, limit, seconds):
         return [Leased(m.id, m.token) for m in await self.backend.claim(consumer, limit, seconds)]
@@ -70,7 +74,7 @@ class MySpool(BaseSpool):
 
 | You write | You gain |
 |---|---|
-| `store`, `lease`, `open`, `ack` | A working spool (all four are required) |
+| `write`, `commit`, `abort`, `lease`, `open`, `ack` | A working spool (all six are required). The base class presents `write`, `commit` and `abort` to core as the `writer` of the spool contract |
 | `nack(id, token)` | Immediate return to the queue; without it a nack waits for lease expiry |
 | `delete(id)` | Operator delete regardless of lease |
 | `watch()` | Event-driven wake-up; without it the host polls |
@@ -122,7 +126,7 @@ class MyAuthenticator(BaseAuthenticator):
 | You write | You gain |
 |---|---|
 | `verify(request)` | A working authenticator (required) |
-| `add_key`, `revoke_key`, `list_keys` | Key management through `oaken-trunk keys` |
+| `add_key`, `revoke_key`, `list_keys` | Key management through `steamer keys` |
 | `challenge()` | A protocol-level challenge (SMTP AUTH, for example) |
 
 The guard runs it before any route, enforces freshness and replay protection around it, and fails closed on

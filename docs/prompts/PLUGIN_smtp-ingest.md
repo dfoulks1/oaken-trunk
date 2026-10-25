@@ -1,6 +1,8 @@
-# 09 - Smtp ingest
+# SMTP ingest
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 07.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`.
+**Depends on:** [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md).
+**Delivers:** SMTP on 25 and 587: STARTTLS, AUTH, recipient allowlist
 
 ## Goal
 
@@ -20,4 +22,4 @@
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

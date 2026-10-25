@@ -11,7 +11,7 @@ order = 15
 ## The shape
 
 ```
-   CLI (oaken-trunk)     management UI        MCP clients
+   CLI (steamer)      management UI        MCP clients
           \                   |                  /
            +------- HTTP API (every operation) --+
                             |
@@ -27,13 +27,13 @@ Decisions are in [ADR 0009](repo:docs/adr/0009-the-api-is-the-one-door.md).
 A thin client with no logic of its own, built like Oaken Mail's:
 
 - **argparse from the standard library**, lazy imports, so `--help` is fast.
-- **Every operation is reachable**: `oaken-trunk operation NAME --json '{...}'` runs any of them, and
-  `oaken-trunk operation` lists them. Hand-written verbs cover the daily ones (`status`, `submit`, `lease`,
+- **Every operation is reachable**: `steamer operation NAME --json '{...}'` runs any of them, and
+  `steamer operation` lists them. Hand-written verbs cover the daily ones (`status`, `submit`, `lease`,
   `ack`, `nack`, `list`, `doctor`, `init`, `start`, `stop`).
 - **Flags come from the operation's input schema.** `foo_bar` becomes `--foo-bar`, a list is a repeated
   flag, an enum limits the choices. A secret field gets no value flag (it would land in shell history), only
   `--NAME-stdin`.
-- **Plugin operations** appear as `oaken-trunk PLUGIN VERB`.
+- **Plugin operations** appear as `steamer PLUGIN VERB`.
 - `--json` on any command gives machine-readable output.
 - **In-process mode** drives the registry without a daemon, for tests and one-shot use.
 

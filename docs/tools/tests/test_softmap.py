@@ -27,7 +27,7 @@ id = "a"
 name = "Alpha"
 layer = "top"
 status = "built"
-prompt = "01"
+prompt = "CORE_bootstrap"
 path = "src/x.txt"
 summary = "The top piece."
 uses = ["b"]
@@ -37,7 +37,7 @@ id = "b"
 name = "Beta | pipe"
 layer = "bottom"
 status = "planned"
-prompt = "02"
+prompt = "CORE_contracts-and-core"
 summary = "The bottom piece."
 uses = []
 """
@@ -132,7 +132,7 @@ id = "b2"
 name = "Gamma"
 layer = "bottom"
 status = "planned"
-prompt = "03"
+prompt = "PLUGIN_directory-spool"
 summary = "Same layer."
 uses = ["b"]
 """
@@ -164,11 +164,11 @@ def test_stacks_must_cover_layers_in_order(tree: Tree, tmp_path: Path) -> None:
 
 
 def test_untrusted_marker_and_prompt_link(tree: Tree, tmp_path: Path) -> None:
-    tree.write("docs/prompts/01-bootstrap.md", "# p\n")
-    with_map(tree, MAP.replace('prompt = "01"', 'prompt = "01"\nuntrusted = true', 1))
+    tree.write("docs/prompts/CORE_bootstrap.md", "# p\n")
+    with_map(tree, MAP.replace('prompt = "CORE_bootstrap"', 'prompt = "CORE_bootstrap"\nuntrusted = true', 1))
     out = tmp_path / "out"
     build_site.build(tree.cfg(), out)
     html = (out / "map.html").read_text(encoding="utf-8")
     assert "untrusted input" in html
     assert 'class="untr"' in html
-    assert "blob/main/docs/prompts/01-bootstrap.md" in html
+    assert "blob/main/docs/prompts/CORE_bootstrap.md" in html

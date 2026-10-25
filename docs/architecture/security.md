@@ -36,7 +36,7 @@ authenticator plugin ([Writing a plugin](../plugins.md)).
 
 ## Keys and replay
 
-- `oaken-trunk keys add|list|revoke --surface NAME` manages keys. Private keys go to the client and are never
+- `steamer keys add|list|revoke --surface NAME` manages keys. Private keys go to the client and are never
   kept on the server. Key files are created mode 0600 from the first byte.
 - A timestamp window (`max_clock_skew_seconds`) and a nonce cache shared across workers through the
   supervisor stop replays. If the supervisor is unreachable, the guard refuses requests.

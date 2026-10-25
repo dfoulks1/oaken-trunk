@@ -9,11 +9,11 @@ order = 10
 +++
 
 Oaken Trunk is a stateless gateway with a durable spool. The processes hold no state; the spool does.
-Decisions are in [ADR 0002-0005](../adr/).
+Decisions are in [ADR 0002-0005](../adr).
 
 ```
  ingestors (plugins)      core                         spool (plugin)        consumers
- HTTP /v1/send  ----+                                                      +--> oaken-mail provider
+ HTTP submit   ----+                                                      +--> oaken-mail provider
  CLI stdin      ----+--> authenticate -> limits -> --> store (stream) --+--> +--> CLI / webhook
  LMTP / pipe    ----+    stream chunks, never whole     lease/ack/nack   notify
  SMTP (planned) ----+
@@ -39,7 +39,7 @@ in-process without a daemon.
 
 ## Clients
 
-The CLI (`oaken-trunk`) and the management UI are clients of the operation registry. The UI is a separate
+The CLI (`steamer`) and the management UI are clients of the operation registry. The UI is a separate
 app on its own port, off by default (ADR 0007). An optional MCP door is generated from the same registry and gated by caller class; it
 shows statistics by default and never exposes message data or mutating operations without a deliberate
 tier change (ADR 0008).

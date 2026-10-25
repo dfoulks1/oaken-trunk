@@ -74,9 +74,9 @@
     <p class="lead">How mail moves from an ingestor, through core, into a spool and out to consumers.</p>
   </header>
 <p>Oaken Trunk is a stateless gateway with a durable spool. The processes hold no state; the spool does.
-Decisions are in <a href="../adr/">ADR 0002-0005</a>.</p>
+Decisions are in <a href="../adr">ADR 0002-0005</a>.</p>
 <div class="code"><pre class="highlight"><code> ingestors (plugins)      core                         spool (plugin)        consumers
- HTTP /v1/send  ----+                                                      +--&gt; oaken-mail provider
+ HTTP submit   ----+                                                      +--&gt; oaken-mail provider
  CLI stdin      ----+--&gt; authenticate -&gt; limits -&gt; --&gt; store (stream) --+--&gt; +--&gt; CLI / webhook
  LMTP / pipe    ----+    stream chunks, never whole     lease/ack/nack   notify
  SMTP (planned) ----+
@@ -122,7 +122,7 @@ the same registry, so there is no second path to anything (<a href="api-and-cli.
 in-process without a daemon.</p>
 </section>
 <section id="clients" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Clients</h2></div>
-<p>The CLI (<code>oaken-trunk</code>) and the management UI are clients of the operation registry. The UI is a separate
+<p>The CLI (<code>steamer</code>) and the management UI are clients of the operation registry. The UI is a separate
 app on its own port, off by default (ADR 0007). An optional MCP door is generated from the same registry and gated by caller class; it
 shows statistics by default and never exposes message data or mutating operations without a deliberate
 tier change (ADR 0008).</p>

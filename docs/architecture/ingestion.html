@@ -81,18 +81,18 @@
 </thead>
 <tbody>
 <tr>
-<td>HTTP <code>/v1/send</code></td>
-<td>built</td>
-<td>Submission into the spool. Streaming request body. Bearer token.</td>
+<td>HTTP <code>POST /v1/ops/submit</code></td>
+<td>planned</td>
+<td><code>submit</code> on the ingest surface. Streaming request body. Signed requests.</td>
 </tr>
 <tr>
 <td>CLI stdin</td>
-<td>built</td>
-<td><code>oaken-trunk submit &lt; message.eml</code>; also the qmail pipe target.</td>
+<td>planned</td>
+<td><code>steamer submit &lt; message.eml</code>; also the qmail pipe target.</td>
 </tr>
 <tr>
 <td>LMTP</td>
-<td>built</td>
+<td>planned</td>
 <td>Unix or TCP socket. The Postfix <code>virtual_transport</code> target.</td>
 </tr>
 <tr>
@@ -139,7 +139,7 @@
 </section>
 <section id="postfix-and-qmail" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Postfix and qmail</h2></div>
 <p>Postfix: <code>virtual_transport = lmtp:unix:/path/to/run/lmtp.sock</code>. qmail: a <code>.qmail</code> line piping to
-<code>oaken-trunk submit</code>. Exact snippets belong in the 01 and 07 prompts' docs deliverables.</p>
+<code>steamer submit</code>. Exact snippets belong in the docs deliverables of <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_bootstrap.md">CORE_bootstrap</a> and <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_lmtp-ingest.md">PLUGIN_lmtp-ingest</a>.</p>
 </section>
   <footer>Oaken Trunk dev · Apache-2.0</footer>
 </main>

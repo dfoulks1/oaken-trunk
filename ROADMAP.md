@@ -6,20 +6,20 @@ open questions. Nothing here is a promise or a date.
 
 ## Next
 
-- **Contracts and the directory spool** (prompts 02-03). Ingestor, Spool and Sender contracts, and a
+- **Contracts and the directory spool** (CORE_contracts-and-core and PLUGIN_directory-spool). Ingestor, Spool and Sender contracts, and a
   Maildir-style spool: write to `tmp/`, fsync, atomic rename into `new/`, lease by rename.
   `batched` durability (group commit, one fsync per batch) is in 0.1.
-- **HTTP and CLI ingest** (05-06). `/v1/send` as submission into the spool; `oaken-trunk submit` on stdin.
-- **LMTP** (07). The clean way to sit behind Postfix; a pipe target covers qmail.
-- **Consumer API** (08). Lease, fetch, ack, nack over HTTP, plus CLI parity.
+- **HTTP listener and CLI** (CORE_http-listener, CLI_client). `submit` over HTTP on the ingest surface; `steamer submit` on stdin.
+- **LMTP** (PLUGIN_lmtp-ingest). The clean way to sit behind Postfix; a pipe target covers qmail.
+- **Consumer API** (CORE_consumer-api). Lease, fetch, ack, nack over HTTP, plus CLI parity.
 
 ## Later
 
-- **MCP door** (17). Generated from the whole registry, gated by caller class: statistics by default, a
+- **MCP door** (MCP_mcp-door). Generated from the whole registry, gated by caller class: statistics by default, a
   confirm gate for changes, never message data, off by default. It may share the management UI's listener on its own
   path, authenticated and local-only by default.
 
-- **Management UI** (16). A separate web app on its own port for queue, spool, leases and failures, built
+- **Management UI** (WEBUI_management-ui). A separate web app on its own port for queue, spool, leases and failures, built
   only on operations the CLI already has.
 
 - **SMTP ingest** with STARTTLS, AUTH and a recipient allowlist.

@@ -12,9 +12,9 @@ An ingestor speaks one protocol and gives core a byte stream and an envelope. Co
 
 | Ingestor | 0.1 | Notes |
 |---|---|---|
-| HTTP `/v1/send` | built | Submission into the spool. Streaming request body. Bearer token. |
-| CLI stdin | built | `oaken-trunk submit < message.eml`; also the qmail pipe target. |
-| LMTP | built | Unix or TCP socket. The Postfix `virtual_transport` target. |
+| HTTP `POST /v1/ops/submit` | planned | `submit` on the ingest surface. Streaming request body. Signed requests. |
+| CLI stdin | planned | `steamer submit < message.eml`; also the qmail pipe target. |
+| LMTP | planned | Unix or TCP socket. The Postfix `virtual_transport` target. |
 | SMTP 25/587 | planned | STARTTLS, AUTH PLAIN/LOGIN only after TLS, recipient allowlist, no open relay. |
 
 ## Backpressure
@@ -31,4 +31,4 @@ A 4xx is retryable, so the sender's own queue holds the backlog, not ours.
 ## Postfix and qmail
 
 Postfix: `virtual_transport = lmtp:unix:/path/to/run/lmtp.sock`. qmail: a `.qmail` line piping to
-`oaken-trunk submit`. Exact snippets belong in the 01 and 07 prompts' docs deliverables.
+`steamer submit`. Exact snippets belong in the docs deliverables of CORE_bootstrap and PLUGIN_lmtp-ingest.

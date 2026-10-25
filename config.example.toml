@@ -4,20 +4,17 @@
 version = 1
 
 [server]
-host = "127.0.0.1"          # bind loopback unless you opt in to more
+host = "127.0.0.1"          # bind loopback unless you opt in to more (non-loopback needs TLS and a signed scheme)
+port = 8080                 # the one HTTP listener; surfaces come from the key and the operation
 workers = 1                 # worker processes, each with its own event loop. 1..N or "auto"
                             # "auto" = usable CPUs (cgroup and affinity aware), capped by max_workers
 max_workers = 8             # hard ceiling for "auto" and for any explicit value
-threads_per_worker = 4      # blocking-I/O threads (fsync, file writes) in each worker
+threads_per_worker = 1      # blocking-I/O threads (fsync, file writes) per worker; 1 until tested
 max_threads = 32            # hard ceiling on workers * threads_per_worker; startup fails above it
 max_inflight = 64           # messages being received at once across ALL workers (exact: the
                             # supervisor hands workers batched credits)
 max_message_size = "25MiB"  # over this, 552 / HTTP 413
 retry_after_seconds = 30    # sent with 451 / 503 when we shed load
-
-[ingest.http]
-enabled = true
-port = 8080
 
 [ingest.smtp]
 enabled = false             # planned
@@ -42,7 +39,7 @@ notify = "auto"             # auto | inotify | poll
 poll_interval_ms = 500
 
 # Every HTTP surface refuses unsigned requests before any route runs (ADR 0010).
-# One line per surface changes the scheme; `oaken-trunk keys add --surface ingest` makes a key.
+# One line per surface changes the scheme; `steamer keys add --surface ingest` makes a key.
 [security.ingest]
 scheme = "ed25519"          # ed25519 (RFC 9421, default) | hmac | mtls | bearer (loopback only, warned)
 keys_dir = "config/keys/ingest"   # public keys only for ed25519; files are mode 0600

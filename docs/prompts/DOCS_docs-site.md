@@ -1,6 +1,8 @@
-# 15 - Docs site
+# Docs site
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 01.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/DOCS.md`.
+**Depends on:** [CORE_bootstrap](CORE_bootstrap.md), [CORE_operation-registry](CORE_operation-registry.md), [CORE_daemon](CORE_daemon.md).
+**Delivers:** Docs site tooling
 
 ## Goal
 
@@ -21,4 +23,4 @@ The documentation site tooling, as oaken-mail's prompt 01a.
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

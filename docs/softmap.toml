@@ -25,23 +25,13 @@ id = "plugins"
 name = "Plugins"
 
 [[components]]
-id = "http"
-name = "HTTP ingest"
-layer = "ingestors"
-status = "planned"
-prompt = "05"
-summary = "Streaming `/v1/send` submission into the spool with a bearer ingest token."
-uses = ["engine"]
-untrusted = true
-
-[[components]]
 id = "lmtp"
 name = "LMTP ingest"
 layer = "ingestors"
 status = "planned"
-prompt = "07"
+prompt = "PLUGIN_lmtp-ingest"
 summary = "The Postfix delivery target over a Unix or TCP socket."
-uses = ["engine"]
+uses = ["registry"]
 untrusted = true
 
 [[components]]
@@ -49,26 +39,71 @@ id = "smtp"
 name = "SMTP ingest"
 layer = "ingestors"
 status = "planned"
-prompt = "09"
+prompt = "PLUGIN_smtp-ingest"
 summary = "SMTP on 25 and 587 with STARTTLS, AUTH after TLS and a recipient allowlist."
-uses = ["engine"]
+uses = ["registry"]
 untrusted = true
 
 [[components]]
 id = "engine"
-name = "Engine and operation registry"
+name = "Engine"
 layer = "core"
 status = "planned"
-prompt = "02"
-summary = "Authenticates, applies limits, assigns a message id and streams the body into a spool in bounded chunks. Every capability is one registered operation that the HTTP API and CLI are generated from."
+prompt = "CORE_contracts-and-core"
+summary = "The data path. Applies limits, assigns a message id, streams the body into a spool through a writer in bounded chunks, fires listener events in order, and commits."
 uses = ["host", "plugin-base"]
+
+[[components]]
+id = "registry"
+name = "Operation registry"
+layer = "core"
+status = "planned"
+prompt = "CORE_operation-registry"
+summary = "The command path. Every capability is one typed operation with a surface, a permission class and an MCP ceiling. The API, CLI, UI and MCP are generated from it."
+uses = ["engine", "host"]
+
+[[components]]
+id = "daemon"
+name = "Daemon"
+layer = "core"
+status = "planned"
+prompt = "CORE_daemon"
+summary = "Runs core as one process: composition root, start, stop, reload and graceful shutdown, serving the registry over a local Unix socket."
+uses = ["registry"]
+
+[[components]]
+id = "httplistener"
+name = "HTTP listener"
+layer = "core"
+status = "planned"
+prompt = "CORE_http-listener"
+summary = "The TCP and TLS listener with the request guard in front. HTTP submission is the submit operation on the ingest surface."
+uses = ["daemon", "guard"]
+
+[[components]]
+id = "sysops"
+name = "System operations"
+layer = "core"
+status = "planned"
+prompt = "CORE_system-operations"
+summary = "init, doctor, status, stats, config and plugin operations: what an operator needs to set up and watch Trunk."
+uses = ["registry"]
+
+[[components]]
+id = "audit"
+name = "Audit and jobs"
+layer = "core"
+status = "planned"
+prompt = "CORE_audit-and-jobs"
+summary = "A content-free audit log, a stats rollup, and the job runner with the lease reaper, in a small SQLite file beside the spool."
+uses = ["registry"]
 
 [[components]]
 id = "supervisor"
 name = "Supervisor and workers"
 layer = "core"
 status = "planned"
-prompt = "10"
+prompt = "CORE_multi-worker"
 summary = "Opens the sockets, runs the worker processes, hands out batched credits for global limits and restarts crashed workers."
 uses = ["engine"]
 
@@ -77,7 +112,7 @@ id = "guard"
 name = "Request guard and authenticators"
 layer = "core"
 status = "planned"
-prompt = "18"
+prompt = "CORE_request-guard"
 summary = "One guard in front of every HTTP surface that refuses unsigned, stale, replayed or cross-surface requests before any route runs. The signing scheme is an authenticator plugin chosen per surface."
 uses = ["plugin-base"]
 untrusted = true
@@ -87,7 +122,7 @@ id = "mailauth"
 name = "Mail authentication"
 layer = "core"
 status = "planned"
-prompt = "19"
+prompt = "CORE_mail-authentication"
 summary = "Native DKIM verification and signing, with SPF, DMARC and ARC where the client address is known. Holds only the header block in memory and hashes the body as it streams."
 uses = ["plugin-base"]
 untrusted = true
@@ -97,7 +132,7 @@ id = "host"
 name = "Plugin host"
 layer = "core"
 status = "planned"
-prompt = "04"
+prompt = "CORE_plugin-host"
 summary = "Discovers plugins through entry points and runs their lifecycle, health and doctor checks."
 uses = ["plugin-base"]
 
@@ -106,7 +141,7 @@ id = "plugin-base"
 name = "Plugin base classes and contract suites"
 layer = "plugins"
 status = "planned"
-prompt = "04"
+prompt = "CORE_plugin-host"
 summary = "BaseIngestor, BaseSpool and BaseSender, with capabilities inferred from overridden methods, plus the shared contract test suites."
 uses = []
 
@@ -115,7 +150,7 @@ id = "spool-dir"
 name = "Directory spool"
 layer = "plugins"
 status = "planned"
-prompt = "03"
+prompt = "PLUGIN_directory-spool"
 summary = "The default spool: one file per message, atomic rename, fsync by durability mode, lease by rename."
 uses = ["plugin-base"]
 
@@ -124,7 +159,7 @@ id = "spool-redis"
 name = "Redis spool"
 layer = "plugins"
 status = "planned"
-prompt = "12"
+prompt = "PLUGIN_redis-spool"
 summary = "Redis stream and consumer groups mapped onto lease, ack and nack."
 uses = ["plugin-base"]
 
@@ -133,7 +168,7 @@ id = "spool-s3-sqs"
 name = "S3 + SQS spool"
 layer = "plugins"
 status = "planned"
-prompt = "13"
+prompt = "PLUGIN_s3-sqs-spool"
 summary = "S3 objects for bodies and SQS visibility timeouts for leases."
 uses = ["plugin-base"]
 
@@ -142,7 +177,7 @@ id = "send"
 name = "Outbound sender"
 layer = "plugins"
 status = "planned"
-prompt = "11"
+prompt = "CORE_send"
 summary = "Drains the outbound spool with per-domain limits, backoff and bounces."
 uses = ["plugin-base"]
 
@@ -151,16 +186,16 @@ id = "cli"
 name = "CLI"
 layer = "clients"
 status = "planned"
-prompt = "06"
-summary = "The `oaken-trunk` command, a thin client of the operation registry. Every operation has a command, and it can run in-process against the spool."
-uses = ["engine"]
+prompt = "CLI_client"
+summary = "The `steamer` command, a thin client of the API. Every operation has a command. In-process mode is an explicit flag for offline operations only."
+uses = ["daemon"]
 
 [[components]]
 id = "webui"
 name = "Management UI"
 layer = "clients"
 status = "planned"
-prompt = "16"
+prompt = "WEBUI_management-ui"
 summary = "A separate web app on its own port for the operator, built only on operations the CLI already has. Off by default."
 uses = ["cli"]
 
@@ -169,7 +204,7 @@ id = "statsmcp"
 name = "MCP door"
 layer = "clients"
 status = "planned"
-prompt = "17"
+prompt = "MCP_mcp-door"
 summary = "Optional MCP door generated from the whole operation registry and gated by a caller class the mount sets. Statistics tier by default, a confirm gate for state changes, and never message data or send, delete and the lease/ack verbs."
 uses = ["cli"]
 untrusted = true

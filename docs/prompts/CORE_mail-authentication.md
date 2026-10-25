@@ -1,6 +1,8 @@
-# 19 - Mail authentication
+# Mail authentication
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 03, 07.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
+**Depends on:** [CORE_contracts-and-core](CORE_contracts-and-core.md), [CORE_plugin-host](CORE_plugin-host.md).
+**Delivers:** Native inbound DKIM, SPF, DMARC, ARC without buffering a message
 
 ## Goal
 
@@ -14,7 +16,7 @@ Native inbound DKIM, SPF, DMARC and ARC handling (ADR 0011), without holding a w
 4. Stamp `Authentication-Results` (RFC 8601); strip one arriving from outside unless it is from a trusted hop; record results in the envelope.
 5. `mailauth.dmarc` = `off`, `record` (default) or `enforce`; `enforce` answers a published `reject` with a permanent 5xx at the protocol edge.
 6. DNS lookups through an injectable resolver so tests use fakes; no real DNS in tests. Bounded lookups and timeouts, and a lookup failure is a temporary failure, never a pass.
-7. Plugin hooks for key lookup and policy. Outbound signing is built in prompt 11.
+7. Plugin hooks for key lookup and policy. Outbound signing is built in CORE_send.
 
 ## Acceptance criteria
 
@@ -25,4 +27,4 @@ Native inbound DKIM, SPF, DMARC and ARC handling (ADR 0011), without holding a w
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

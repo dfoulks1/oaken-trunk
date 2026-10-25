@@ -1,0 +1,216 @@
+# Prompt manifest: identity, dependencies and status only. Content lives in each prompt's own file.
+# A prompt is docs/prompts/<name>.md. Run `uv run python docs/tools/prompts.py sync` after editing.
+# status: Proposed | Open | Written | In progress | Partly built | Built
+# built, tested: "—" | "partly" | "yes"    released: "—" or a version such as 0.1.0
+# Order is computed from depends (target 0.1 first); this list only breaks ties.
+
+[[prompt]]
+name = "CORE_bootstrap"
+depends = []
+status = "Open"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_contracts-and-core"
+depends = ["CORE_bootstrap"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_operation-registry"
+depends = ["CORE_contracts-and-core"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_daemon"
+depends = ["CORE_operation-registry"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CLI_client"
+depends = ["CORE_daemon"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_system-operations"
+depends = ["CORE_daemon"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_audit-and-jobs"
+depends = ["CORE_daemon", "CORE_system-operations"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_plugin-host"
+depends = ["CORE_system-operations"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "PLUGIN_directory-spool"
+depends = ["CORE_plugin-host"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_consumer-api"
+depends = ["PLUGIN_directory-spool"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "PLUGIN_lmtp-ingest"
+depends = ["CORE_plugin-host", "CORE_daemon"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_request-guard"
+depends = ["CORE_plugin-host"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_http-listener"
+depends = ["CORE_daemon", "CORE_request-guard"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_security-hardening"
+depends = ["PLUGIN_lmtp-ingest", "CORE_consumer-api", "CORE_http-listener"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "DOCS_docs-site"
+depends = ["CORE_bootstrap", "CORE_operation-registry", "CORE_daemon"]
+status = "Partly built"
+built = "partly"
+tested = "partly"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "WEBUI_management-ui"
+depends = ["CORE_system-operations", "CORE_audit-and-jobs", "CORE_http-listener"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_mail-authentication"
+depends = ["CORE_contracts-and-core", "CORE_plugin-host"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[prompt]]
+name = "CORE_send"
+depends = ["CORE_consumer-api", "CORE_request-guard"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[prompt]]
+name = "PLUGIN_smtp-ingest"
+depends = ["PLUGIN_lmtp-ingest"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[prompt]]
+name = "CORE_multi-worker"
+depends = ["PLUGIN_directory-spool", "CORE_daemon"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[prompt]]
+name = "PLUGIN_redis-spool"
+depends = ["PLUGIN_directory-spool", "CORE_plugin-host"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[prompt]]
+name = "PLUGIN_s3-sqs-spool"
+depends = ["PLUGIN_directory-spool", "CORE_plugin-host"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[prompt]]
+name = "MCP_mcp-door"
+depends = ["CORE_operation-registry", "CORE_system-operations", "CORE_http-listener"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[retired]]
+name = "PLUGIN_http-ingest"
+merged_into = "CORE_http-listener"

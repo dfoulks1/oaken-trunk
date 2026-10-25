@@ -1,6 +1,8 @@
-# 08 - Consumer api
+# Consumer API
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 05, 06, 18.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
+**Depends on:** [PLUGIN_directory-spool](PLUGIN_directory-spool.md).
+**Delivers:** Lease, fetch, ack, nack over HTTP with CLI parity and wake-up
 
 ## Goal
 
@@ -20,4 +22,4 @@ Lease, fetch, ack, nack over HTTP, with CLI parity.
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

@@ -23,7 +23,7 @@ order = 80
 | Tier | A model can see | Status |
 |---|---|---|
 | 0 | Nothing. All AI surfaces off. | The default |
-| 1 | Statistics: counts, depths, usage, health, `doctor` results | The default when MCP is on (prompt 17, ADR 0008) |
+| 1 | Statistics: counts, depths, usage, health, `doctor` results | The default when MCP is on (MCP_mcp-door, ADR 0008) |
 | 2 | Envelope metadata, wrapped as untrusted and truncated | Not planned. Needs its own ADR |
 | 3 | Message bodies | Not planned. Needs its own ADR and an opt-in per consumer |
 

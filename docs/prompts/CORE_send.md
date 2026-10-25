@@ -1,6 +1,8 @@
-# 11 - Send
+# Send
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 08.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
+**Depends on:** [CORE_consumer-api](CORE_consumer-api.md), [CORE_request-guard](CORE_request-guard.md).
+**Delivers:** Outbound spool, the Sender plugin kind, DKIM signing
 
 ## Goal
 
@@ -22,4 +24,4 @@ Outbound spool and the Sender plugin kind.
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.

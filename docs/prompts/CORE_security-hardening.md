@@ -1,6 +1,8 @@
-# 14 - Security hardening
+# Security hardening
 
-**Read first:** `docs/prompts/00-context.md`. **Depends on:** 05, 07, 08, 09.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
+**Depends on:** [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_consumer-api](CORE_consumer-api.md), [CORE_http-listener](CORE_http-listener.md).
+**Delivers:** Injection, auth and open-relay test pass across every ingestor
 
 ## Goal
 
@@ -22,4 +24,4 @@ The dedicated pass.
 
 ## Checkpoint
 
-Use the report format from `00-context.md`, then stop.
+Use the report format from `CONTEXT.md`, then stop.
