@@ -13,7 +13,7 @@ listener events. Prove it end to end with fakes.
 
 ## Decided
 
-- One worker, one I/O thread (`workers`, `threads_per_worker`; default 1; higher is refused).
+- One worker, one I/O thread (`workers.count`, `workers.thread_count`; default 1; a higher count is refused until CORE_supervisor, higher threads until tested).
 - Every error carries three codes: SMTP, HTTP, and a `submit` exit code (75 temporary, 65 or 77 permanent).
 - Listener events: `envelope`, `headers`, `end` (inline, time-bounded), `stored` (after durable).
   Listeners see headers and digests, never the body. They annotate only.
@@ -25,7 +25,7 @@ listener events. Prove it end to end with fakes.
 ## Not in scope
 
 Registry, API, daemon (CORE_operation-registry, CORE_daemon, CORE_http-listener). Plugin discovery (CORE_plugin-host). Directory spool (PLUGIN_directory-spool). DKIM canonicalisation and
-the mail-authentication listeners (CORE_mail-authentication). Supervisor (CORE_multi-worker). Audit and stats. Any ingest protocol.
+the mail-authentication listeners (CORE_mail-authentication). Supervisor (CORE_supervisor). Audit and stats. Any ingest protocol.
 
 ## Requirements
 
@@ -47,7 +47,7 @@ the mail-authentication listeners (CORE_mail-authentication). Supervisor (CORE_m
    with the message.
 6. **Errors.** One table in code maps each condition to (SMTP, HTTP, exit): inflight limit, too large, spool
    full, spool unavailable, malformed, refused recipient, unauthorised. A test fails if any lacks a code.
-7. **Limiter.** `max_inflight` behind a small `Credits` interface (CORE_multi-worker swaps in the supervisor's). Take
+7. **Limiter.** `max_inflight` behind a small `Credits` interface (CORE_supervisor swaps in the supervisor's). Take
    a slot before the first chunk. Release on success, failure and cancellation. Over the limit is the
    retryable error with `retry_after_seconds`.
 8. **Engine.** `ingest(envelope, chunks)` (what `submit` will call) assigns the id, re-chunks to at most 64 KiB (a constant), stops
@@ -75,7 +75,7 @@ the mail-authentication listeners (CORE_mail-authentication). Supervisor (CORE_m
   listeners have run and `commit` returns.
 - `max_inflight + 1` concurrent ingests refuse the extra one with `retry_after_seconds`. The slot is free
   after success, failure and cancellation.
-- An unknown nested key, a secret-named key and `workers = 2` are each refused with a readable message.
+- An unknown nested key, a secret-named key and `workers.count = 2` are each refused with a readable message.
   Environment beats file beats default.
 - 10,000 ids are unique and sort by creation time. A world-writable directory is refused.
 - A slow inline listener times out, the timeout is recorded, ingestion succeeds. A failing `stored` listener

@@ -47,8 +47,8 @@ registry, so every endpoint has a command. A separate management UI on its own p
 
 ## Configuration and data
 
-Same home system as Oaken Mail, with its own variable. `OAKEN_TRUNK_HOME` relocates everything
-(`<dir>/config/config.toml`, `<dir>/data`). Without it, platform folders are used
-(`~/.config/oaken-trunk/config.toml` on Linux). Precedence: defaults < `config.toml` <
+Installed as a service it uses `/etc/oaken-trunk`, `/var/lib/oaken-trunk` and `/run/oaken-trunk`.
+In development, platform folders are used, and `OAKEN_TRUNK_HOME` relocates everything
+(`<dir>/config/config.toml`, `<dir>/data`). Precedence: defaults < `config.toml` <
 `OAKEN_TRUNK_*` environment variables. Secrets never go in `config.toml`.
 See [`config.example.toml`](config.example.toml).

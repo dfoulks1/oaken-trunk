@@ -13,7 +13,7 @@ No network listener yet.
 
 ## Decided
 
-- One worker, one I/O thread. Starlette and uvicorn are core dependencies.
+- One worker, one I/O thread (the defaults in CORE_supervisor). Starlette and uvicorn are core dependencies.
 - Local only. A Unix socket gated by a built-in peer-credential check. TCP, TLS and the guard are
   CORE_http-listener.
 - Routes are generated from the registry. No hand-written per-operation route.
@@ -24,7 +24,7 @@ No network listener yet.
 
 TCP, TLS, the guard and authenticators (CORE_http-listener, CORE_request-guard). The operations
 (CORE_system-operations, CORE_audit-and-jobs, CORE_consumer-api). Plugin loading (CORE_plugin-host extends
-the composition root). Multi-worker (CORE_multi-worker). The UI.
+the composition root). Multiple workers (CORE_supervisor). The UI.
 
 ## Requirements
 

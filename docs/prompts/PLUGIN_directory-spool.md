@@ -20,7 +20,7 @@ The default spool. Maildir-style, no dependencies, survives a crash at any step.
 
 ## Not in scope
 
-Cross-process quota and shared counters (CORE_multi-worker). Redis and S3 (PLUGIN_redis-spool, PLUGIN_s3-sqs-spool). Reading annotations to stamp headers (CORE_mail-authentication).
+Cross-process quota and shared counters (CORE_supervisor). Redis and S3 (PLUGIN_redis-spool, PLUGIN_s3-sqs-spool). Reading annotations to stamp headers (CORE_mail-authentication).
 
 ## Layout
 

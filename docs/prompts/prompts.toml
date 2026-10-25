@@ -41,6 +41,15 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
+name = "CORE_supervisor"
+depends = ["CORE_daemon"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
 name = "CLI_client"
 depends = ["CORE_daemon"]
 status = "Written"
@@ -51,7 +60,7 @@ target = "0.1"
 
 [[prompt]]
 name = "CORE_system-operations"
-depends = ["CORE_daemon"]
+depends = ["CORE_daemon", "CORE_supervisor"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -105,7 +114,7 @@ target = "0.1"
 
 [[prompt]]
 name = "CORE_request-guard"
-depends = ["CORE_plugin-host"]
+depends = ["CORE_plugin-host", "CORE_supervisor"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -169,15 +178,6 @@ target = "later"
 [[prompt]]
 name = "PLUGIN_smtp-ingest"
 depends = ["PLUGIN_lmtp-ingest"]
-status = "Written"
-built = "—"
-tested = "—"
-released = "—"
-target = "later"
-
-[[prompt]]
-name = "CORE_multi-worker"
-depends = ["PLUGIN_directory-spool", "CORE_daemon"]
 status = "Written"
 built = "—"
 tested = "—"

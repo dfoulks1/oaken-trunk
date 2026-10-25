@@ -72,8 +72,10 @@
   </header>
 <p>asyncio runs on one thread, so one process uses about one core. Ingest is mostly socket-to-disk
 I/O, but TLS, MIME parsing and compression are CPU work and <code>fsync</code> blocks (ADR 0005).</p>
+<p>By default (<code>workers.count = 1</code>, <code>workers.thread_count = 1</code>) the supervisor and the worker are one process: no child,
+no pipe, counters in memory. It acts like a single process until you raise the counts.</p>
 <div class="code"><pre class="highlight"><code>supervisor  (opens the listening sockets, restarts crashed workers)
-   |-- worker 1: one event loop + thread pool (threads_per_worker)
+   |-- worker 1: one event loop + thread pool (workers.thread_count)
    |-- worker 2: one event loop + thread pool
    `-- worker N
 </code></pre></div>
@@ -88,20 +90,20 @@ I/O, but TLS, MIME parsing and compression are CPU work and <code>fsync</code> b
 </thead>
 <tbody>
 <tr>
-<td><code>workers</code></td>
-<td>Number of processes, or <code>auto</code> (usable CPUs, honouring cgroup limits and affinity).</td>
+<td><code>workers.count</code></td>
+<td>Number of processes. Fixed; there is no auto-scaling yet.</td>
 </tr>
 <tr>
-<td><code>max_workers</code></td>
-<td>Ceiling for <code>auto</code> and any explicit value.</td>
+<td><code>workers.max_count</code></td>
+<td>Ceiling on <code>workers.count</code>.</td>
 </tr>
 <tr>
-<td><code>threads_per_worker</code></td>
+<td><code>workers.thread_count</code></td>
 <td>Blocking-I/O threads in each worker.</td>
 </tr>
 <tr>
-<td><code>max_threads</code></td>
-<td>Ceiling on <code>workers * threads_per_worker</code>. Startup refuses more.</td>
+<td><code>workers.max_threads</code></td>
+<td>Ceiling on <code>workers.count * workers.thread_count</code>. Startup refuses more.</td>
 </tr>
 <tr>
 <td><code>max_inflight</code></td>

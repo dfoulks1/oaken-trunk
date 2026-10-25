@@ -12,14 +12,22 @@ Everything Oaken Trunk can be extended with is a plugin: a small class registere
 point. Start from a base class, override what your plugin does, and run the contract suite. This is
 the same model as Oaken Mail's plugins, so the habits carry over.
 
-## The four kinds
+## The five kinds, and the plain plugin
 
 | Kind | Entry-point group | Base class | What it does |
 |---|---|---|---|
 | Ingestor | `oaken_trunk.ingestors` | `BaseIngestor` | Speaks a protocol and hands core a byte stream and an envelope. |
 | Spool | `oaken_trunk.spools` | `BaseSpool` | Stores messages and runs lease, ack and nack. |
 | Sender | `oaken_trunk.senders` | `BaseSender` | Relays an outbound message to its destination. |
-| Authenticator | `oaken_trunk.authenticators` | `BaseAuthenticator` | Decides whether a request or connection is who it claims to be: signed requests, SMTP AUTH, mTLS. |
+| Authenticator | `oaken_trunk.authenticators` | `BaseAuthenticator` | Verifies a request or connection: signed requests, SMTP AUTH, mTLS. Core owns freshness, replay and the default deny. |
+| Listener | `oaken_trunk.listeners` | `BaseListener` | Watches the `envelope`, `headers`, `end` and `stored` events. Sees headers and digests only, annotates, never removes a core protection. |
+
+Every base class extends `BasePlugin`, which gives the context, lifecycle, health, `@command` and
+`ctx.ops` (the operations the plugin declared in `calls`). A plugin that fits no kind, such as an
+autoscaler, extends `BasePlugin` directly and registers in `oaken_trunk.plugins`. It has no kind-specific
+role, so its only power is the commands it exposes and the operations it declared.
+
+Import them from `oaken_trunk.plugins.base`, or from `oaken_trunk.plugins`, which re-exports them.
 
 First-party plugins (`oaken_trunk_*`) register exactly as a third party's would. The exact signatures
 are on the generated plugin contracts page.
@@ -34,6 +42,13 @@ are on the generated plugin contracts page.
 - Lenient return types: a dict, tuple or plain value is coerced to the strict contract type, and a
   mistake produces a readable message such as `spool 'mine': lease() returned 3 ids for limit 2`.
 - Isolation: an error fails that one message or operation and is logged. It never stops core.
+
+## Commands
+
+Mark a method with `@command` and it becomes the operation `plugin.verb`, with typed input and output,
+a permission (`read` or `mutate`) and an mcp setting (`off` or `never`). The CLI, HTTP API, web UI and
+MCP all take it from the registry. An unmarked method is unreachable, and a plugin cannot take a core
+name. The decorator limits what a plugin exposes, not what its code can do.
 
 Plugins run in-process and are not sandboxed in v1. Core never imports a plugin, and a plugin never
 touches core's counters or another plugin's storage; it returns data and receives streams.
@@ -86,11 +101,11 @@ class MySpool(BaseSpool):
 from oaken_trunk.plugins.base import BaseIngestor
 
 class MyIngestor(BaseIngestor):
-    async def listen(self, sink):
+    async def listen(self, submit):
         async for conn in self.accept():
-            # sink.submit streams the body into the spool under core's limits and raises a
+            # submit streams the body into the spool under core's limits and raises a
             # typed error (TooLarge, Overloaded, Rejected) you map to your protocol's reply.
-            await sink.submit(conn.body_chunks(), conn.envelope)
+            await submit(conn.body_chunks(), conn.envelope)
 ```
 
 Raise `oaken_trunk.core.errors.AuthError` when credentials are refused. Core records it and your
@@ -98,7 +113,7 @@ protocol replies with its auth failure; other ingestors carry on.
 
 | You write | You gain |
 |---|---|
-| `listen(sink)` | A working ingestor (required) |
+| `listen(submit)` | A working ingestor (required) |
 | `authenticate(ctx, credentials)` | `auth` capability |
 | `tls_context()` | `tls` capability (STARTTLS or implicit) |
 
@@ -132,10 +147,25 @@ class MyAuthenticator(BaseAuthenticator):
 The guard runs it before any route, enforces freshness and replay protection around it, and fails closed on
 any error. See [Security](architecture/security.md) and ADR 0010.
 
+## A listener in one screen
+
+```python
+from oaken_trunk.plugins.base import BaseListener
+
+class MyListener(BaseListener):
+    adds_headers = ["X-My-Check"]          # declared up front; anything else is refused
+
+    async def on_headers(self, event):     # inline and time-bounded; may record a result
+        return self.annotate("my-check", "pass")
+```
+
+`stored` fires after the message is durable and cannot delay acceptance. Mail authentication (DKIM,
+SPF, DMARC, ARC) will ship as a listener bundle.
+
 ## Testing a plugin
 
 The shared contract suites live in `oaken_trunk.testing.contracts` (`SpoolContract`, `IngestorContract`,
-`SenderContract`, `AuthenticatorContract`). Subclass one, point it at your plugin, and run `pytest`. The suites cover required
+`SenderContract`, `AuthenticatorContract`, `ListenerContract`). Subclass one, point it at your plugin, and run `pytest`. The suites cover required
 behaviour, lease expiry, crash recovery for spools, the streaming and memory rule, and the
 backpressure replies. Tests never use the network, Docker, Redis or AWS: use fakes (`FakeSpool`,
 `FakeIngestor`, `FakeSender`) and synthetic fixtures.

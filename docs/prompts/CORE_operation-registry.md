@@ -72,6 +72,7 @@ For the API layer. This prompt builds `version`, `submit`, `reload` and `stop`.
 |---|---|
 | CORE_operation-registry | `version`, `submit`, `reload`, `stop` |
 | CORE_system-operations | `init`, `doctor`, `status`, `stats`, `get_config`, `check_config`, `save_config` |
+| CORE_supervisor | `list_workers`, `get_worker`, `add_worker`, `delete_worker`, `start_worker`, `stop_worker`, `restart_worker`, `run_on_worker` |
 | CORE_plugin-host | `list_plugins`, `plugin_health`, `set_plugin_enabled` |
 | CORE_audit-and-jobs | `audit`, `list_jobs` |
 | CORE_consumer-api | `lease`, `fetch`, `ack`, `nack`, `list`, `delete` |

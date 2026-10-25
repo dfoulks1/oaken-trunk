@@ -59,15 +59,17 @@
     <div class="gh"><div class="label">GitHub</div>
       <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
     <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
-      <a class="nav-link" href="#the-four-kinds"><span class="num">1</span>The four kinds</a>
+      <a class="nav-link" href="#the-five-kinds-and-the-plain-plugin"><span class="num">1</span>The five kinds, and the plain plugin</a>
       <a class="nav-link" href="#what-every-base-class-gives-you"><span class="num">2</span>What every base class gives you</a>
-      <a class="nav-link" href="#memory-rule-for-plugin-authors"><span class="num">3</span>Memory rule for plugin authors</a>
-      <a class="nav-link" href="#a-spool-in-one-screen"><span class="num">4</span>A spool in one screen</a>
-      <a class="nav-link" href="#an-ingestor-in-one-screen"><span class="num">5</span>An ingestor in one screen</a>
-      <a class="nav-link" href="#a-sender-in-one-screen"><span class="num">6</span>A sender in one screen</a>
-      <a class="nav-link" href="#an-authenticator-in-one-screen"><span class="num">7</span>An authenticator in one screen</a>
-      <a class="nav-link" href="#testing-a-plugin"><span class="num">8</span>Testing a plugin</a>
-      <a class="nav-link" href="#registering"><span class="num">9</span>Registering</a>
+      <a class="nav-link" href="#commands"><span class="num">3</span>Commands</a>
+      <a class="nav-link" href="#memory-rule-for-plugin-authors"><span class="num">4</span>Memory rule for plugin authors</a>
+      <a class="nav-link" href="#a-spool-in-one-screen"><span class="num">5</span>A spool in one screen</a>
+      <a class="nav-link" href="#an-ingestor-in-one-screen"><span class="num">6</span>An ingestor in one screen</a>
+      <a class="nav-link" href="#a-sender-in-one-screen"><span class="num">7</span>A sender in one screen</a>
+      <a class="nav-link" href="#an-authenticator-in-one-screen"><span class="num">8</span>An authenticator in one screen</a>
+      <a class="nav-link" href="#a-listener-in-one-screen"><span class="num">9</span>A listener in one screen</a>
+      <a class="nav-link" href="#testing-a-plugin"><span class="num">10</span>Testing a plugin</a>
+      <a class="nav-link" href="#registering"><span class="num">11</span>Registering</a>
     </nav></div>
   </div></div>
 </nav>
@@ -81,7 +83,7 @@
 point. Start from a base class, override what your plugin does, and run the contract suite. This is
 the same model as Oaken Mail's plugins, so the habits carry over.</p>
 
-<section id="the-four-kinds" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>The four kinds</h2></div>
+<section id="the-five-kinds-and-the-plain-plugin" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>The five kinds, and the plain plugin</h2></div>
 <div class="table-responsive"><table class="table table-sm table-striped align-middle">
 <thead>
 <tr>
@@ -114,10 +116,21 @@ the same model as Oaken Mail's plugins, so the habits carry over.</p>
 <td>Authenticator</td>
 <td><code>oaken_trunk.authenticators</code></td>
 <td><code>BaseAuthenticator</code></td>
-<td>Decides whether a request or connection is who it claims to be: signed requests, SMTP AUTH, mTLS.</td>
+<td>Verifies a request or connection: signed requests, SMTP AUTH, mTLS. Core owns freshness, replay and the default deny.</td>
+</tr>
+<tr>
+<td>Listener</td>
+<td><code>oaken_trunk.listeners</code></td>
+<td><code>BaseListener</code></td>
+<td>Watches the <code>envelope</code>, <code>headers</code>, <code>end</code> and <code>stored</code> events. Sees headers and digests only, annotates, never removes a core protection.</td>
 </tr>
 </tbody>
 </table></div>
+<p>Every base class extends <code>BasePlugin</code>, which gives the context, lifecycle, health, <code>@command</code> and
+<code>ctx.ops</code> (the operations the plugin declared in <code>calls</code>). A plugin that fits no kind, such as an
+autoscaler, extends <code>BasePlugin</code> directly and registers in <code>oaken_trunk.plugins</code>. It has no kind-specific
+role, so its only power is the commands it exposes and the operations it declared.</p>
+<p>Import them from <code>oaken_trunk.plugins.base</code>, or from <code>oaken_trunk.plugins</code>, which re-exports them.</p>
 <p>First-party plugins (<code>oaken_trunk_*</code>) register exactly as a third party's would. The exact signatures
 are on the generated plugin contracts page.</p>
 </section>
@@ -132,15 +145,21 @@ from the environment or files, never from config.</li>
 mistake produces a readable message such as <code>spool 'mine': lease() returned 3 ids for limit 2</code>.</li>
 <li>Isolation: an error fails that one message or operation and is logged. It never stops core.</li>
 </ul>
+</section>
+<section id="commands" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Commands</h2></div>
+<p>Mark a method with <code>@command</code> and it becomes the operation <code>plugin.verb</code>, with typed input and output,
+a permission (<code>read</code> or <code>mutate</code>) and an mcp setting (<code>off</code> or <code>never</code>). The CLI, HTTP API, web UI and
+MCP all take it from the registry. An unmarked method is unreachable, and a plugin cannot take a core
+name. The decorator limits what a plugin exposes, not what its code can do.</p>
 <p>Plugins run in-process and are not sandboxed in v1. Core never imports a plugin, and a plugin never
 touches core's counters or another plugin's storage; it returns data and receives streams.</p>
 </section>
-<section id="memory-rule-for-plugin-authors" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Memory rule for plugin authors</h2></div>
+<section id="memory-rule-for-plugin-authors" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>Memory rule for plugin authors</h2></div>
 <p>Never read a whole message into memory. Bodies arrive and leave as async iterators of bounded
 chunks. A plugin that buffers a message breaks the gateway's memory guarantee and fails the contract
 suite's streaming test.</p>
 </section>
-<section id="a-spool-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>A spool in one screen</h2></div>
+<section id="a-spool-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>A spool in one screen</h2></div>
 <div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseSpool</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leased</span>
 
@@ -196,15 +215,15 @@ suite's streaming test.</p>
 </tbody>
 </table></div>
 </section>
-<section id="an-ingestor-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>An ingestor in one screen</h2></div>
+<section id="an-ingestor-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">6</span><h2>An ingestor in one screen</h2></div>
 <div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseIngestor</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MyIngestor</span><span class="p">(</span><span class="n">BaseIngestor</span><span class="p">):</span>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sink</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">submit</span><span class="p">):</span>
         <span class="k">async</span> <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">():</span>
-            <span class="c1"># sink.submit streams the body into the spool under core's limits and raises a</span>
+            <span class="c1"># submit streams the body into the spool under core's limits and raises a</span>
             <span class="c1"># typed error (TooLarge, Overloaded, Rejected) you map to your protocol's reply.</span>
-            <span class="k">await</span> <span class="n">sink</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">body_chunks</span><span class="p">(),</span> <span class="n">conn</span><span class="o">.</span><span class="n">envelope</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">submit</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">body_chunks</span><span class="p">(),</span> <span class="n">conn</span><span class="o">.</span><span class="n">envelope</span><span class="p">)</span>
 </code></pre></div>
 <p>Raise <code>oaken_trunk.core.errors.AuthError</code> when credentials are refused. Core records it and your
 protocol replies with its auth failure; other ingestors carry on.</p>
@@ -217,7 +236,7 @@ protocol replies with its auth failure; other ingestors carry on.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>listen(sink)</code></td>
+<td><code>listen(submit)</code></td>
 <td>A working ingestor (required)</td>
 </tr>
 <tr>
@@ -231,12 +250,12 @@ protocol replies with its auth failure; other ingestors carry on.</p>
 </tbody>
 </table></div>
 </section>
-<section id="a-sender-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">6</span><h2>A sender in one screen</h2></div>
+<section id="a-sender-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">7</span><h2>A sender in one screen</h2></div>
 <p>A sender implements <code>send(envelope, chunks)</code> and returns a result: delivered, temporary failure
 (retry with backoff) or permanent failure (bounce). Per-domain limits and retries belong to the host,
 not the plugin.</p>
 </section>
-<section id="an-authenticator-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">7</span><h2>An authenticator in one screen</h2></div>
+<section id="an-authenticator-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">8</span><h2>An authenticator in one screen</h2></div>
 <div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAuthenticator</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MyAuthenticator</span><span class="p">(</span><span class="n">BaseAuthenticator</span><span class="p">):</span>
@@ -273,14 +292,26 @@ not the plugin.</p>
 <p>The guard runs it before any route, enforces freshness and replay protection around it, and fails closed on
 any error. See <a href="architecture/security.html">Security</a> and ADR 0010.</p>
 </section>
-<section id="testing-a-plugin" class="doc-section"><div class="section-head"><span class="section-num">8</span><h2>Testing a plugin</h2></div>
+<section id="a-listener-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">9</span><h2>A listener in one screen</h2></div>
+<div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseListener</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyListener</span><span class="p">(</span><span class="n">BaseListener</span><span class="p">):</span>
+    <span class="n">adds_headers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"X-My-Check"</span><span class="p">]</span>          <span class="c1"># declared up front; anything else is refused</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_headers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>     <span class="c1"># inline and time-bounded; may record a result</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">"my-check"</span><span class="p">,</span> <span class="s2">"pass"</span><span class="p">)</span>
+</code></pre></div>
+<p><code>stored</code> fires after the message is durable and cannot delay acceptance. Mail authentication (DKIM,
+SPF, DMARC, ARC) will ship as a listener bundle.</p>
+</section>
+<section id="testing-a-plugin" class="doc-section"><div class="section-head"><span class="section-num">10</span><h2>Testing a plugin</h2></div>
 <p>The shared contract suites live in <code>oaken_trunk.testing.contracts</code> (<code>SpoolContract</code>, <code>IngestorContract</code>,
-<code>SenderContract</code>, <code>AuthenticatorContract</code>). Subclass one, point it at your plugin, and run <code>pytest</code>. The suites cover required
+<code>SenderContract</code>, <code>AuthenticatorContract</code>, <code>ListenerContract</code>). Subclass one, point it at your plugin, and run <code>pytest</code>. The suites cover required
 behaviour, lease expiry, crash recovery for spools, the streaming and memory rule, and the
 backpressure replies. Tests never use the network, Docker, Redis or AWS: use fakes (<code>FakeSpool</code>,
 <code>FakeIngestor</code>, <code>FakeSender</code>) and synthetic fixtures.</p>
 </section>
-<section id="registering" class="doc-section"><div class="section-head"><span class="section-num">9</span><h2>Registering</h2></div>
+<section id="registering" class="doc-section"><div class="section-head"><span class="section-num">11</span><h2>Registering</h2></div>
 <div class="code"><pre class="highlight"><code class="language-toml"><span class="k">[project.entry-points.</span><span class="s2">"oaken_trunk.spools"</span><span class="k">]</span>
 <span class="n">mine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_package:MySpool"</span>
 </code></pre></div>

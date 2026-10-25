@@ -2,7 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/security.md`,
 ADR 0010.
-**Depends on:** [CORE_plugin-host](CORE_plugin-host.md).
+**Depends on:** [CORE_plugin-host](CORE_plugin-host.md), [CORE_supervisor](CORE_supervisor.md).
 **Track:** `CORE_`. Model: oaken-mail's `oaken/api/guard.py` (its ADR 0005). Tested on a bare ASGI app, so
 **Delivers:** Signed-requests guard and the authenticator plugin kind
 this needs no daemon.
@@ -48,7 +48,7 @@ Listeners and routes (CORE_http-listener, CORE_daemon). mTLS (needs the listener
    request, and for `submit` aborts the writer so nothing becomes visible.
 6. **Freshness and replay.** `created` must be within `max_clock_skew_seconds`. A nonce seen twice in the
    window is refused. The nonce cache is in memory, bounded to rate times window, behind a `NonceStore`
-   interface (CORE_multi-worker moves it). When full it refuses new nonces.
+   interface (CORE_supervisor moves it). When full it refuses new nonces.
 
 `compact`
 

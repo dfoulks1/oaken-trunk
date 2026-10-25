@@ -29,5 +29,5 @@ order of events and the commit.
 - Logs carry no content, and no door returns them (ADR 0012).
 
 **Processes**
-- 0.1 runs one worker with one I/O thread. `workers` and `threads_per_worker` are keys from the start,
-  default 1, higher refused until a prompt tests it (ADR 0005).
+- 0.1 runs one worker with one I/O thread. `workers.count` and `workers.thread_count` are keys from the start,
+  default 1. A count above 1 is refused until CORE_supervisor, and threads above 1 until a prompt tests them (ADR 0005).

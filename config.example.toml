@@ -3,14 +3,16 @@
 # Secrets (SMTP AUTH passwords, API tokens, S3/Redis credentials) never go here.
 version = 1
 
+[workers]                   # one worker = one process = one engine and event loop
+count = 1                   # a fixed number of workers, 1..max_count
+thread_count = 1            # blocking-I/O threads (fsync, file writes) per worker; 1 until tested
+max_count = 8               # hard ceiling on count
+max_threads = 32            # hard ceiling on count * thread_count; startup fails above it
+
 [server]
 host = "127.0.0.1"          # bind loopback unless you opt in to more (non-loopback needs TLS and a signed scheme)
 port = 8080                 # the one HTTP listener; surfaces come from the key and the operation
-workers = 1                 # worker processes, each with its own event loop. 1..N or "auto"
-                            # "auto" = usable CPUs (cgroup and affinity aware), capped by max_workers
-max_workers = 8             # hard ceiling for "auto" and for any explicit value
-threads_per_worker = 1      # blocking-I/O threads (fsync, file writes) per worker; 1 until tested
-max_threads = 32            # hard ceiling on workers * threads_per_worker; startup fails above it
+max_header_bytes = "64KiB"  # the only part of a message held in memory
 max_inflight = 64           # messages being received at once across ALL workers (exact: the
                             # supervisor hands workers batched credits)
 max_message_size = "25MiB"  # over this, 552 / HTTP 413
@@ -72,7 +74,6 @@ tier = "stats"              # stats by default; wider tiers need a deliberate ch
 dkim_verify = true
 spf = true                  # evaluated only when the client address is known
 dmarc = "record"            # off | record | enforce
-max_header_bytes = "64KiB"  # the only part of a message held in memory
 trusted_hops = []           # upstream MTAs whose client address and Authentication-Results we trust
 
 [mailauth.sign]             # outbound DKIM; private keys are owner-only files, never in this file

@@ -103,7 +103,7 @@ id = "supervisor"
 name = "Supervisor and workers"
 layer = "core"
 status = "planned"
-prompt = "CORE_multi-worker"
+prompt = "CORE_supervisor"
 summary = "Opens the sockets, runs the worker processes, hands out batched credits for global limits and restarts crashed workers."
 uses = ["engine"]
 

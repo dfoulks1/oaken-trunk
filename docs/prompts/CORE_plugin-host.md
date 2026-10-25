@@ -14,12 +14,21 @@ never stops core.
 ## Decided
 
 - The loader populates the registry. Core ships only the operations the product needs.
-- Kinds: ingestor, spool, listener here. Sender is 11. Authenticator is 18.
+- Import path: `oaken_trunk.plugins.base` (as oaken-mail), re-exported from `oaken_trunk.plugins`. That, and the
+  contract types, is all a plugin may import from core.
+- `BasePlugin` is the root. Each kind extends it. A plugin that is none of the kinds (an autoscaler, a
+  reporter) extends it directly, in the group `oaken_trunk.plugins`: lifecycle, `@command` and `ctx.ops`, and
+  nothing else. Its only power is its declared `calls` and its commands.
+- Kinds: ingestor, spool, listener here. Sender is CORE_send. Authenticator is CORE_request-guard.
 - A listener has up to four methods, `on_envelope`, `on_headers`, `on_end`, `on_stored`. Capabilities
   come from which are overridden.
+- A plugin calls operations through `ctx.ops`, not an import. The host builds it at load from the registry:
+  `ctx.ops.add_worker(...)`, typed like the operation. It lists the operations it may call (`calls = [...]`)
+  and gets only those. A call goes through the same permission check and audit as an operator's, under the
+  plugin's name. `submit` for ingestors is the first case.
 - Plugins are trusted in-process code. The decorator limits what is exposed, not what the code can do.
 
-**Operations added:** none. This prompt is the mechanism. The core list is in 20.
+**Operations added:** none. This prompt is the mechanism. The core list is in CORE_operation-registry.
 
 ## Not in scope
 
@@ -32,9 +41,9 @@ Stop at each `compact` line: checks green, status block updated, then compact th
 
 **A. Loader and bridge**
 
-1. **Shared base.** `ctx` (settings, logger, clock, limits), `start`, `stop`, `health`, capabilities
+1. **`BasePlugin`.** The root of every kind, and usable alone. `ctx` (settings, logger, clock, limits, `ops`), `start`, `stop`, `health`, capabilities
    inferred from overrides, lenient returns with readable errors.
-2. **Loader.** Entry points `oaken_trunk.ingestors`, `.spools`, `.listeners`. First-party plugins register
+2. **Loader.** Entry points `oaken_trunk.plugins`, `.ingestors`, `.spools`, `.listeners`. First-party plugins register
    as a third party's would. A plugin that fails to load adds nothing, and `doctor` says why.
 3. **Contract version.** A plugin states the contract it targets. A mismatch is refused with a clear message.
 4. **`@command`.** A marked method becomes `plugin.verb`: typed input and output, `permission`, `mcp` (`off`

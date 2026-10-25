@@ -11,9 +11,12 @@ order = 30
 asyncio runs on one thread, so one process uses about one core. Ingest is mostly socket-to-disk
 I/O, but TLS, MIME parsing and compression are CPU work and `fsync` blocks (ADR 0005).
 
+By default (`workers.count = 1`, `workers.thread_count = 1`) the supervisor and the worker are one process: no child,
+no pipe, counters in memory. It acts like a single process until you raise the counts.
+
 ```
 supervisor  (opens the listening sockets, restarts crashed workers)
-   |-- worker 1: one event loop + thread pool (threads_per_worker)
+   |-- worker 1: one event loop + thread pool (workers.thread_count)
    |-- worker 2: one event loop + thread pool
    `-- worker N
 ```
@@ -22,10 +25,10 @@ supervisor  (opens the listening sockets, restarts crashed workers)
 
 | Setting | Meaning |
 |---|---|
-| `workers` | Number of processes, or `auto` (usable CPUs, honouring cgroup limits and affinity). |
-| `max_workers` | Ceiling for `auto` and any explicit value. |
-| `threads_per_worker` | Blocking-I/O threads in each worker. |
-| `max_threads` | Ceiling on `workers * threads_per_worker`. Startup refuses more. |
+| `workers.count` | Number of processes. Fixed; there is no auto-scaling yet. |
+| `workers.max_count` | Ceiling on `workers.count`. |
+| `workers.thread_count` | Blocking-I/O threads in each worker. |
+| `workers.max_threads` | Ceiling on `workers.count * workers.thread_count`. Startup refuses more. |
 | `max_inflight` | Global, enforced exactly through supervisor credits. |
 
 The supervisor passes sockets to workers, which works on every OS and avoids `SO_REUSEPORT`'s uneven

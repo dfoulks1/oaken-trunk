@@ -2,7 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/api-and-cli.md`,
 `docs/architecture/logging.md`.
-**Depends on:** [CORE_daemon](CORE_daemon.md).
+**Depends on:** [CORE_daemon](CORE_daemon.md), [CORE_supervisor](CORE_supervisor.md).
 **Track:** `CORE_`. Model: oaken-mail's `core/operations/builtin/` and `core/config_edit.py`.
 **Delivers:** `init`, `doctor`, `status`, `stats` and the config operations
 

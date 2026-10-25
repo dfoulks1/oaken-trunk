@@ -117,14 +117,15 @@ The table is generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts.t
 | [CORE_contracts-and-core](docs/prompts/CORE_contracts-and-core.md) | Written | — | — | — | CORE_bootstrap |
 | [CORE_operation-registry](docs/prompts/CORE_operation-registry.md) | Written | — | — | — | CORE_contracts-and-core |
 | [CORE_daemon](docs/prompts/CORE_daemon.md) | Written | — | — | — | CORE_operation-registry |
+| [CORE_supervisor](docs/prompts/CORE_supervisor.md) | Written | — | — | — | CORE_daemon |
 | [CLI_client](docs/prompts/CLI_client.md) | Written | — | — | — | CORE_daemon |
-| [CORE_system-operations](docs/prompts/CORE_system-operations.md) | Written | — | — | — | CORE_daemon |
+| [CORE_system-operations](docs/prompts/CORE_system-operations.md) | Written | — | — | — | CORE_daemon, CORE_supervisor |
 | [CORE_audit-and-jobs](docs/prompts/CORE_audit-and-jobs.md) | Written | — | — | — | CORE_daemon, CORE_system-operations |
 | [CORE_plugin-host](docs/prompts/CORE_plugin-host.md) | Written | — | — | — | CORE_system-operations |
 | [PLUGIN_directory-spool](docs/prompts/PLUGIN_directory-spool.md) | Written | — | — | — | CORE_plugin-host |
 | [CORE_consumer-api](docs/prompts/CORE_consumer-api.md) | Written | — | — | — | PLUGIN_directory-spool |
 | [PLUGIN_lmtp-ingest](docs/prompts/PLUGIN_lmtp-ingest.md) | Written | — | — | — | CORE_plugin-host, CORE_daemon |
-| [CORE_request-guard](docs/prompts/CORE_request-guard.md) | Written | — | — | — | CORE_plugin-host |
+| [CORE_request-guard](docs/prompts/CORE_request-guard.md) | Written | — | — | — | CORE_plugin-host, CORE_supervisor |
 | [CORE_http-listener](docs/prompts/CORE_http-listener.md) | Written | — | — | — | CORE_daemon, CORE_request-guard |
 | [CORE_security-hardening](docs/prompts/CORE_security-hardening.md) | Written | — | — | — | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener |
 | [DOCS_docs-site](docs/prompts/DOCS_docs-site.md) | Partly built | partly | partly | — | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
@@ -132,7 +133,6 @@ The table is generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts.t
 | [CORE_mail-authentication](docs/prompts/CORE_mail-authentication.md) | Written | — | — | — | CORE_contracts-and-core, CORE_plugin-host |
 | [CORE_send](docs/prompts/CORE_send.md) | Written | — | — | — | CORE_consumer-api, CORE_request-guard |
 | [PLUGIN_smtp-ingest](docs/prompts/PLUGIN_smtp-ingest.md) | Written | — | — | — | PLUGIN_lmtp-ingest |
-| [CORE_multi-worker](docs/prompts/CORE_multi-worker.md) | Written | — | — | — | PLUGIN_directory-spool, CORE_daemon |
 | [PLUGIN_redis-spool](docs/prompts/PLUGIN_redis-spool.md) | Written | — | — | — | PLUGIN_directory-spool, CORE_plugin-host |
 | [PLUGIN_s3-sqs-spool](docs/prompts/PLUGIN_s3-sqs-spool.md) | Written | — | — | — | PLUGIN_directory-spool, CORE_plugin-host |
 | [MCP_mcp-door](docs/prompts/MCP_mcp-door.md) | Written | — | — | — | CORE_operation-registry, CORE_system-operations, CORE_http-listener |
