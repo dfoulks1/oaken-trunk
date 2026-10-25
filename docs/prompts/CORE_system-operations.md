@@ -26,7 +26,8 @@ The audit store and jobs (CORE_audit-and-jobs). Keys (CORE_request-guard). Consu
 1. **`init`** (offline). Write a documented `config.toml` from `config.example.toml`, create the directories
    owner-only, never overwrite an existing config.
 2. **`doctor`.** Check the config, permissions, listeners, spool path and free space, plugin health, and each
-   surface's guard. Report each problem with the fix. Works offline for the checks that need no daemon.
+   surface's guard. It also checks: key and socket permissions, the delivering uids on the peer allow-list, an
+   empty `local_domains`, and a backlog near the spool quota. Report each problem with the fix. Works offline for the checks that need no daemon.
 3. **`status`.** Queue depth, bytes, quota, leases, listeners, plugin health, version, uptime.
 4. **`stats`.** In-memory counters: accepted, refused (by reason), bytes, leases, acks, nacks. Reset on start.
 5. **Config.** `get_config` (secrets absent), `check_config` (validate a candidate, report errors), `save_config`

@@ -141,7 +141,7 @@
 <section id="addresses" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Addresses</h2></div>
 <p>Postfix or qmail resolves aliases and virtual maps, then hands over the envelope. Trunk keeps no mailbox.
 Each recipient becomes its own delivery (<code>&lt;id&gt;-&lt;n&gt;</code>) sharing one body. A recipient outside <code>[mail] local_domains</code>
-is refused (65). A <code>consume</code> key is scoped to a domain list.</p>
+is refused (65). A <code>consume</code> key is scoped to a list of addresses or <code>@domain</code>.</p>
 </section>
 <section id="postfix-and-qmail" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Postfix and qmail</h2></div>
 <p>Postfix: <code>virtual_transport = lmtp:unix:/path/to/run/lmtp.sock</code>. qmail: a <code>.qmail</code> line piping to

@@ -17,6 +17,9 @@ small plugin.
   only. The base supplies `submit`, which calls core `submit` and nothing else. It only maps the MTA's conventions.
 - The conventions are data in the command's `cli` metadata: env defaults and the exit map. No client code.
 - qmail: `SENDER` and `RECIPIENT` from the environment. Exit 0 accepted, 111 temporary, 100 permanent.
+  An empty `SENDER` is the null sender (a bounce) and is accepted. `RECIPIENT` is stored as qmail resolved it,
+  extension included, and kept as `original_recipient`. The bytes are never changed: qmail's `Return-Path:` and
+  `Delivered-To:` lines stay.
 - Postfix: sender and recipient from arguments (`${sender}` `${recipient}`). Exit as sysexits.
 - Another MTA is a third-party plugin of the same shape.
 
@@ -36,7 +39,8 @@ Delivery or queue handling. The LMTP target (PLUGIN_lmtp-ingest). The guides (DO
 
 - With the daemon down, `steamer qmail submit` exits 111 and `steamer postfix submit` exits 75. A refused
   recipient exits 100 and 65. An accepted message exits 0 for both.
-- The qmail command reads `SENDER` and `RECIPIENT` when the flags are absent.
+- The qmail command reads `SENDER` and `RECIPIENT` when the flags are absent. An empty sender is accepted. The
+  stored bytes equal the bytes on stdin.
 - A `BaseMTA` subclass cannot call any operation but `submit`. Standard checks pass.
 
 ## Open questions (defaults in bold)

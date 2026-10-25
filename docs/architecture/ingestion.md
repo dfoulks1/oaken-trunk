@@ -32,7 +32,7 @@ A 4xx is retryable, so the sender's own queue holds the backlog, not ours.
 
 Postfix or qmail resolves aliases and virtual maps, then hands over the envelope. Trunk keeps no mailbox.
 Each recipient becomes its own delivery (`<id>-<n>`) sharing one body. A recipient outside `[mail] local_domains`
-is refused (65). A `consume` key is scoped to a domain list.
+is refused (65). A `consume` key is scoped to a list of addresses or `@domain`.
 
 ## Postfix and qmail
 

@@ -45,17 +45,23 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
 7. **Poison.** A message nacked or expired `max_attempts` times (default 10) moves to a dead state and shows
    in `list`. It is not delivered again until an operator releases it.
 8. **Limits.** Per-consumer open leases (default 1000). Over it is a retryable error.
-9. **Docs.** An example consumer (CLI loop and a webhook relay), `api-and-cli.md`, softmap, status table. The
+9. **Examples.** A CLI loop, a webhook relay, and an LMTP relay: lease, fetch, stream to an LMTP socket
+   (Dovecot), ack only on accept, nack on any failure. A configurable rule maps the stored recipient to the
+   IMAP user (strip `-ext` or `+tag`), and the original stays in `original_recipient`. Each is a tested script, not a product.
+10. **Docs.** `api-and-cli.md`, softmap, status table. The
    Oaken Mail provider is built in the oaken-mail repo.
 
 ## Acceptance criteria
 
 - A fake consumer leases, crashes, and the message returns after expiry with the same id.
-- A key scoped to `a.com` never leases, fetches, lists or acks a `b.com` delivery. An out-of-scope id looks
+- A key scoped to `@a.com` never leases, fetches, lists or acks a `b.com` delivery, and one scoped to
+  `ann@a.com` never sees `bob@a.com`'s. An out-of-scope id looks
   like a missing one.
 - Two consumers never get the same message. Ack of an expired lease is `lease_invalid`.
 - A message that fails `max_attempts` times is dead and not leased again.
 - A 1 GB body fetches with flat memory. A body sentinel never reaches a log or error.
+- The LMTP relay against a fake LMTP server acks on accept and nacks when the server is down, and the message
+  comes back.
 - `lease` with `wait` returns within a second of a commit.
 - Standard checks pass. No network, Docker or real mail in tests.
 
@@ -64,6 +70,7 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
 1. Does `fetch` return annotations with the body? **Yes, as headers before the stream.**
 2. Is a dead message kept forever? **Until an operator deletes or releases it.**
 3. Can one key consume many names? **No, one key is one consumer.**
+4. Is a key scoped to addresses as well as domains? **Yes, a list of addresses or `@domain`.**
 
 ## Report-back checkpoint
 

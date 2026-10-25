@@ -18,7 +18,8 @@ authenticator plugin. Core owns the policy, the plugin owns the primitive.
 - Core owns freshness, replay, the default deny and the failure mode. An authenticator only implements
   `verify(request)` and returns a `Principal` or raises `AuthError`. (Tentative.)
 - A surface belongs to the key and to the operation, not to a path or a port.
-- A `consume` key carries a domain list. It reaches only deliveries to those domains.
+- A `consume` key carries a recipient list: addresses or `@domain`, the same syntax as the `lease` filter. It
+  reaches only deliveries to those recipients.
 - The Unix socket is gated by CORE_daemon's built-in peer check. It is not an authenticator plugin.
 - One first-party package, `oaken_trunk_auth`, ships `ed25519`, `hmac` and `bearer`. mTLS is later.
 - Core depends on `cryptography` (Ed25519 now, DKIM later).
@@ -64,7 +65,7 @@ Listeners and routes (CORE_http-listener, CORE_daemon). mTLS (needs the listener
 
 **D. Keys and close**
 
-9. **Key operations.** `keys_add`, `keys_list`, `keys_revoke` per surface. `keys_add` takes `--domains` for a `consume` key. It writes the private key
+9. **Key operations.** `keys_add`, `keys_list`, `keys_revoke` per surface. `keys_add` takes `--recipients` for a `consume` key. It writes the private key
    once to `--out`, mode 0600 from the first byte. The server keeps public keys in `<config>/keys/<surface>`.
    A change takes effect without a restart.
 10. **Config and `doctor`.** `[security.<surface>] scheme = "..."`. `doctor` checks each surface and refuses a
@@ -76,7 +77,7 @@ Listeners and routes (CORE_http-listener, CORE_daemon). mTLS (needs the listener
 
 - With every scheme, a request that is unsigned, badly signed, stale, replayed, for another surface or from a
   revoked key is refused before any route. A spy engine is never called.
-- A `consume` key sees only its own domains. `keys_add --surface consume` with no `--domains` is refused.
+- A `consume` key sees only its own recipients. `keys_add --surface consume` with no `--recipients` is refused.
 - A body changed after signing is detected at the end of the stream, and nothing is committed.
 - A full nonce cache refuses a new nonce. A different `alg`, a missing component or an extra one is refused.
 - A raising or slow authenticator fails closed. `bearer` on a non-loopback bind is refused.

@@ -46,7 +46,7 @@ the composition root). Multiple workers (CORE_supervisor). The UI.
 
 4. **Routes.** `POST /v1/ops/{name}` (JSON body is the input; a streaming operation takes its fields in
    headers and the body as the stream), `GET /v1/ops`, `GET /v1/openapi.json`.
-5. **Unix socket.** `<run>/trunk.sock`, mode 0600. A built-in peer check against a uid allow-list (default:
+5. **Unix socket.** `<run>/steamer.sock`, mode 0600. A built-in peer check against a uid allow-list (default:
    the daemon's uid and root). Caller class `local`. Windows: loopback with an owner-only key, same gate.
 6. **Backpressure.** The engine slot is taken before the first body chunk. Core errors map to HTTP codes
    through the table in CORE_foundations, with `Retry-After`.
