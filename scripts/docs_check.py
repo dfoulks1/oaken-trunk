@@ -51,4 +51,4 @@ STEPS: list[tuple[str, list[str]]] = [
 ]
 
 if __name__ == "__main__":
-    run(Path(".docs_check.lastrun"), "docs", STEPS)
+    run(Path(__file__).parent / ".docs_check.lastrun", "docs", STEPS)
