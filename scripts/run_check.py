@@ -139,8 +139,8 @@ def _parse_args(argv: list[str]) -> tuple[Path, str, list[tuple[str, list[str]]]
 # main
 # ---------------------------------------------------------------------------
 
-def main() -> None:
-    dotfile, label, steps = _parse_args(sys.argv[1:])
+def run(dotfile: Path, label: str, steps: list[tuple[str, list[str]]]) -> None:
+    """Run a named check, writing results to dotfile. Exits non-zero on failure."""
 
     # -- show last run ---------------------------------------------------------
     last = _read_lastrun(dotfile)
@@ -181,6 +181,11 @@ def main() -> None:
         sys.exit(1)
 
     print(f"\nAll {label} checks passed.")
+
+
+def main() -> None:
+    dotfile, label, steps = _parse_args(sys.argv[1:])
+    run(dotfile, label, steps)
 
 
 if __name__ == "__main__":
