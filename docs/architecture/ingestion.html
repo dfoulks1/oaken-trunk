@@ -60,7 +60,8 @@
       <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
     <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
       <a class="nav-link" href="#backpressure"><span class="num">1</span>Backpressure</a>
-      <a class="nav-link" href="#postfix-and-qmail"><span class="num">2</span>Postfix and qmail</a>
+      <a class="nav-link" href="#addresses"><span class="num">2</span>Addresses</a>
+      <a class="nav-link" href="#postfix-and-qmail"><span class="num">3</span>Postfix and qmail</a>
     </nav></div>
   </div></div>
 </nav>
@@ -137,9 +138,16 @@
 </table></div>
 <p>A 4xx is retryable, so the sender's own queue holds the backlog, not ours.</p>
 </section>
-<section id="postfix-and-qmail" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Postfix and qmail</h2></div>
+<section id="addresses" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Addresses</h2></div>
+<p>Postfix or qmail resolves aliases and virtual maps, then hands over the envelope. Trunk keeps no mailbox.
+Each recipient becomes its own delivery (<code>&lt;id&gt;-&lt;n&gt;</code>) sharing one body. A recipient outside <code>[mail] local_domains</code>
+is refused (65). A <code>consume</code> key is scoped to a domain list.</p>
+</section>
+<section id="postfix-and-qmail" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Postfix and qmail</h2></div>
 <p>Postfix: <code>virtual_transport = lmtp:unix:/path/to/run/lmtp.sock</code>. qmail: a <code>.qmail</code> line piping to
-<code>steamer submit</code>. Exact snippets belong in the docs deliverables of <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_bootstrap.md">CORE_bootstrap</a> and <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_lmtp-ingest.md">PLUGIN_lmtp-ingest</a>.</p>
+<code>steamer submit</code>. Postfix uses the LMTP ingestor or <code>steamer postfix submit</code>, and qmail uses <code>steamer qmail submit</code>. Each is a
+small first-party plugin (PLUGIN_mta-adapters) that wraps <code>submit</code> with that MTA's exit codes and environment.
+The guides are <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/DOCS_mta-guides.md">DOCS_mta-guides</a>.</p>
 </section>
   <footer>Oaken Trunk dev · Apache-2.0</footer>
 </main>

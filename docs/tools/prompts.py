@@ -21,7 +21,7 @@ from pathlib import Path
 TRACKS = ("CORE", "PLUGIN", "CLI", "WEBUI", "MCP", "DOCS")
 NAME = re.compile(rf"^(?:{'|'.join(TRACKS)})_[a-z0-9]+(?:-[a-z0-9]+)*$")
 MENTION = re.compile(rf"(?<![A-Za-z0-9_])((?:{'|'.join(TRACKS)})_[a-z0-9]+(?:-[a-z0-9]+)*)")
-STATUSES = ("Proposed", "Open", "Written", "In progress", "Partly built", "Built")
+STATUSES = ("Proposed", "Open", "Written", "Reviewed", "In progress", "Partly built", "Built")
 LEVELS = {"—": 0, "partly": 1, "yes": 2}
 LIFTS = ("S", "M", "L", "XL")
 RESERVED = {"CONTEXT.md", "INDEX.md", "README.md", "TEMPLATE.md"}
@@ -105,14 +105,26 @@ def render_master(m: Manifest, root: Path) -> str:
     return "\n".join(rows)
 
 
-def render_status(m: Manifest) -> str:
-    rows = ["| Prompt | Status | Built | Tested | Released | Depends on |", "|---|---|---|---|---|---|"]
-    for p in m.prompts:
-        rows.append(
-            f"| [{p.name}](docs/prompts/{p.name}.md) | {p.status} | {p.built} | {p.tested} | "
-            f"{p.released} | {', '.join(p.depends) or '—'} |"
-        )
-    return "\n".join(rows)
+def render_status(m: Manifest, root: Path) -> str:
+    """One table per track, in build order, so a contributor sees their own track and its dependencies."""
+    out: list[str] = []
+    for track in TRACKS:
+        mine = [p for p in order(m) if p.name.split("_", 1)[0] == track]
+        if not mine:
+            continue
+        out += [
+            f"#### {track}",
+            "",
+            "| Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |",
+            "|---|---|---|---|---|---|---|---|",
+        ]
+        for p in mine:
+            out.append(
+                f"| [{p.name}](docs/prompts/{p.name}.md) | {p.target} | {lift(root, p.name)} | {p.status} | "
+                f"{p.built} | {p.tested} | {p.released} | {', '.join(p.depends) or '—'} |"
+            )
+        out.append("")
+    return "\n".join(out).rstrip("\n")
 
 
 def render_order(m: Manifest) -> str:
@@ -128,7 +140,7 @@ def render_order(m: Manifest) -> str:
 
 BLOCKS = {  # file -> tag -> renderer(manifest, root)
     "docs/prompts/INDEX.md": {"master": render_master, "order": lambda m, r: render_order(m)},
-    "CONTRIBUTING.md": {"status": lambda m, r: render_status(m)},
+    "CONTRIBUTING.md": {"status": render_status},
 }
 
 
@@ -278,7 +290,7 @@ def _milestones(p: Prompt) -> list[str]:
         out.append(f"{p.name}: tested is ahead of built")
     if p.released != "—" and (p.built, p.tested) != ("yes", "yes"):
         out.append(f"{p.name}: released needs built and tested yes")
-    if p.status in ("Written", "Open", "Proposed") and (p.built, p.tested) != ("—", "—"):
+    if p.status in ("Reviewed", "Written", "Open", "Proposed") and (p.built, p.tested) != ("—", "—"):
         out.append(f"{p.name}: {p.status} but built or tested is set")
     if p.status == "Built" and (p.built, p.tested) != ("yes", "yes"):
         out.append(f"{p.name}: Built needs built and tested yes")

@@ -11,9 +11,9 @@
 
 ## Steps
 
-1. LMTP over a Unix socket (and optional TCP); per-recipient replies as the protocol requires.
+1. LMTP over a Unix socket (and optional TCP); per-recipient replies from the engine's per-recipient results (CORE_engine).
 2. Stream DATA into the engine; map backpressure to 451/452/552.
-3. Docs deliverable: Postfix `virtual_transport` snippet and the qmail pipe line.
+3. Docs: the guides are DOCS_mta-guides.
 
 ## Acceptance criteria
 

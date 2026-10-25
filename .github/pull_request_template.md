@@ -1,6 +1,6 @@
 ## What and why
 
-<!-- Which prompt(s) does this run? e.g. CORE_contracts-and-core. A small fix needs none. -->
+<!-- Which prompt(s) does this run? e.g. CORE_engine. A small fix needs none. -->
 
 **Prompts covered:**
 

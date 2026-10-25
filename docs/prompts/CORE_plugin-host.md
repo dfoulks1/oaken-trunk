@@ -20,7 +20,7 @@ never stops core.
 - `BasePlugin` is the root. Each kind extends it. A plugin that is none of the kinds (an autoscaler, a
   reporter) extends it directly, in the group `oaken_trunk.plugins`: lifecycle, `@command` and `ctx.ops`, and
   nothing else. Its only power is its declared `calls` and its commands.
-- Kinds: ingestor, spool, listener here. Sender is CORE_send. Authenticator is CORE_request-guard.
+- Kinds: ingestor, spool, listener, mta here. Sender is CORE_send. Authenticator is CORE_request-guard.
 - A listener has up to four methods, `on_envelope`, `on_headers`, `on_end`, `on_stored`. Capabilities
   come from which are overridden.
 - A plugin calls operations through `ctx.ops`, not an import. The host builds it at load from the registry:
@@ -44,11 +44,12 @@ Stop at each `compact` line: checks green, status block updated, then compact th
 
 1. **`BasePlugin`.** The root of every kind, and usable alone. `ctx` (settings, logger, clock, limits, `ops`), `start`, `stop`, `health`, capabilities
    inferred from overrides, lenient returns with readable errors.
-2. **Loader.** Entry points `oaken_trunk.plugins`, `.ingestors`, `.spools`, `.listeners`. First-party plugins register
+2. **Loader.** Entry points `oaken_trunk.plugins`, `.ingestors`, `.spools`, `.listeners`, `.mtas`. First-party plugins register
    as a third party's would. A plugin that fails to load adds nothing, and `doctor` says why.
 3. **Contract version.** A plugin states the contract it targets. A mismatch is refused with a clear message.
 4. **`@command`.** A marked method becomes `plugin.verb`: typed input and output, `permission`, `mcp` (`off`
-   or `never`), optional `preview`. Default surface `admin`. A core name cannot be taken. An unmarked method
+   or `never`), optional `preview`, optional `cli` (env defaults for inputs, an exit map by class, a stdin input: data only, the
+   CLI applies it). Default surface `admin`. A core name cannot be taken. An unmarked method
    is unreachable.
 5. **Seal.** Plugin operations register until startup ends, then the registry seals. Enable and disable apply
    by reload, which rebuilds it in one step. A disabled plugin's operation is refused at call time.
@@ -77,15 +78,19 @@ Stop at each `compact` line: checks green, status block updated, then compact th
 **D. Listener**
 
 10. **`BaseListener`.** Up to four methods, `on_envelope`, `on_headers`, `on_end`, `on_stored`. The adapter
-    calls them in order with the timeouts of CORE_contracts-and-core, validates each structured result, and allows a header only
+    calls them in order with the timeouts of CORE_engine, validates each structured result, and allows a header only
     if the listener declared its name. `ListenerContract` covers the same.
 
 `compact`
 
 **E. Close**
 
-11. **Import contracts.** Plugins import only the contract layer. Core imports no plugin.
-12. **Docs.** `plugins.md` (five kinds, `@command`, writer shape, `listen(submit)`), ADR 0006 amended,
+11. **`BaseMTA`.** Declarative: class attributes `sender_env`, `recipient_env`, `args` and an `exit` map by
+    class (`ok`, `temporary`, `permanent`). The base supplies the `submit` command with `calls = ["submit"]`,
+    fixed, and the `cli` metadata built from the attributes. `MTAContract`. An author may override
+    `normalise(sender, recipients)` for an MTA's quirks.
+12. **Import contracts.** Plugins import only the contract layer. Core imports no plugin.
+13. **Docs.** `plugins.md` (six kinds, `@command`, writer shape, `listen(submit)`), ADR 0006 amended,
     softmap, status table.
 
 ## Acceptance criteria

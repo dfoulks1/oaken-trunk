@@ -155,22 +155,26 @@ one prompt is an ADR in <code>docs/adr/</code>. After it is built a prompt is a 
 the code deviates and describe how the thing works now in <code>docs/architecture/</code>. A prompt is reviewed like
 code: it must not tell an AI to fetch from the network, run an unreviewed script, or skip a check.</p>
 <h3 id="status-of-the-prompts">Status of the prompts</h3>
-<p><em>As of 2026-10-24.</em> <strong>Proposed</strong> is a feature request with a prompt in it, waiting for approval (it is not in this table yet). <strong>Open</strong> is approved and free to take. <strong>In progress</strong> has someone on it. <strong>Built</strong> means the prompt's deliverables are in <code>main</code> with tests. <strong>Partly built</strong> says what is done and what is left. A <strong>Written</strong> prompt has a plan and no code yet.</p>
+<p><em>As of 2026-10-24.</em> <strong>Proposed</strong> is a feature request with a prompt in it, waiting for approval (it is not in this table yet). <strong>Open</strong> is approved and free to take. <strong>In progress</strong> has someone on it. <strong>Built</strong> means the prompt's deliverables are in <code>main</code> with tests. <strong>Partly built</strong> says what is done and what is left. A <strong>Written</strong> prompt has a plan and no code yet. A <strong>Reviewed</strong> prompt has been walked through with a maintainer for accuracy and assumptions, and its open questions have answers. Review comes before building.</p>
 <p><strong>Built, Tested and Released</strong> record the evidence behind the status:</p>
 <ul>
 <li><strong>Built:</strong> <code>—</code> (no code), <code>partly</code>, or <code>yes</code> (the deliverables are merged to <code>main</code>).</li>
 <li><strong>Tested:</strong> <code>—</code>, <code>partly</code>, or <code>yes</code> (every acceptance criterion passes in CI on all platforms).</li>
 <li><strong>Released:</strong> <code>—</code>, or the first version that ships it, such as <code>0.1.0</code>. A maintainer sets it at release.</li>
 </ul>
-<p><strong>Built</strong> needs built <code>yes</code> and tested <code>yes</code>. <strong>Written</strong>, <strong>Open</strong> and <strong>Proposed</strong> need both <code>—</code>. Tested
+<p><strong>Built</strong> needs built <code>yes</code> and tested <code>yes</code>. <strong>Reviewed</strong>, <strong>Written</strong>, <strong>Open</strong> and <strong>Proposed</strong> need both <code>—</code>. Tested
 cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs.py</code> fails on a row that says otherwise.</p>
-<p>The table is generated from <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/prompts.toml"><code>docs/prompts/prompts.toml</code></a>. Edit that and run
-<code>uv run python docs/tools/prompts.py sync</code>. Do not edit the table.</p>
+<p>One table per track, each in build order. The order across all tracks is in <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/INDEX.md">INDEX.md</a>.
+The tables are generated from <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/prompts.toml"><code>docs/prompts/prompts.toml</code></a>. Edit that and run
+<code>uv run python docs/tools/prompts.py sync</code>. Do not edit the tables.</p>
 <!-- prompts:status -->
+<h4 id="core">CORE</h4>
 <div class="table-responsive"><table class="table table-sm table-striped align-middle">
 <thead>
 <tr>
 <th>Prompt</th>
+<th>Target</th>
+<th>Lift</th>
 <th>Status</th>
 <th>Built</th>
 <th>Tested</th>
@@ -181,6 +185,8 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 <tbody>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_bootstrap.md">CORE_bootstrap</a></td>
+<td>0.1</td>
+<td>M</td>
 <td>Open</td>
 <td>—</td>
 <td>—</td>
@@ -188,7 +194,9 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 <td>—</td>
 </tr>
 <tr>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_contracts-and-core.md">CORE_contracts-and-core</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_foundations.md">CORE_foundations</a></td>
+<td>0.1</td>
+<td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -196,15 +204,39 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_bootstrap.md">CORE_bootstrap</a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_operation-registry.md">CORE_operation-registry</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_contracts.md">CORE_contracts</a></td>
+<td>0.1</td>
+<td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_contracts-and-core.md">CORE_contracts-and-core</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_foundations.md">CORE_foundations</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_engine.md">CORE_engine</a></td>
+<td>0.1</td>
+<td>L</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_contracts.md">CORE_contracts</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_operation-registry.md">CORE_operation-registry</a></td>
+<td>0.1</td>
+<td>L</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_engine.md">CORE_engine</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
+<td>0.1</td>
+<td>L</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -213,14 +245,8 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_supervisor.md">CORE_supervisor</a></td>
-<td>Written</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
-</tr>
-<tr>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CLI_client.md">CLI_client</a></td>
+<td>0.1</td>
+<td>L</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -229,6 +255,8 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_system-operations.md">CORE_system-operations</a></td>
+<td>0.1</td>
+<td>L</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -237,6 +265,8 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_audit-and-jobs.md">CORE_audit-and-jobs</a></td>
+<td>0.1</td>
+<td>L</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -245,6 +275,8 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
+<td>0.1</td>
+<td>XL</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -252,31 +284,19 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_system-operations.md">CORE_system-operations</a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a></td>
-<td>Written</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
-</tr>
-<tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_consumer-api.md">CORE_consumer-api</a></td>
+<td>0.1</td>
+<td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a></td>
-</tr>
-<tr>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_lmtp-ingest.md">PLUGIN_lmtp-ingest</a></td>
-<td>Written</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_request-guard.md">CORE_request-guard</a></td>
+<td>0.1</td>
+<td>XL</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -285,6 +305,8 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_http-listener.md">CORE_http-listener</a></td>
+<td>0.1</td>
+<td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -293,6 +315,8 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_security-hardening.md">CORE_security-hardening</a></td>
+<td>0.1</td>
+<td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -300,39 +324,76 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_lmtp-ingest.md">PLUGIN_lmtp-ingest</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_consumer-api.md">CORE_consumer-api</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_http-listener.md">CORE_http-listener</a></td>
 </tr>
 <tr>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/DOCS_docs-site.md">DOCS_docs-site</a></td>
-<td>Partly built</td>
-<td>partly</td>
-<td>partly</td>
-<td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_bootstrap.md">CORE_bootstrap</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_operation-registry.md">CORE_operation-registry</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
-</tr>
-<tr>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/WEBUI_management-ui.md">WEBUI_management-ui</a></td>
-<td>Written</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_system-operations.md">CORE_system-operations</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_audit-and-jobs.md">CORE_audit-and-jobs</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_http-listener.md">CORE_http-listener</a></td>
-</tr>
-<tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_mail-authentication.md">CORE_mail-authentication</a></td>
+<td>later</td>
+<td>XL</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_contracts-and-core.md">CORE_contracts-and-core</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_engine.md">CORE_engine</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_send.md">CORE_send</a></td>
+<td>later</td>
+<td>L</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_consumer-api.md">CORE_consumer-api</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_request-guard.md">CORE_request-guard</a></td>
 </tr>
+</tbody>
+</table></div>
+<h4 id="plugin">PLUGIN</h4>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Prompt</th>
+<th>Target</th>
+<th>Lift</th>
+<th>Status</th>
+<th>Built</th>
+<th>Tested</th>
+<th>Released</th>
+<th>Depends on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a></td>
+<td>0.1</td>
+<td>L</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_lmtp-ingest.md">PLUGIN_lmtp-ingest</a></td>
+<td>0.1</td>
+<td>M</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_mta-adapters.md">PLUGIN_mta-adapters</a></td>
+<td>0.1</td>
+<td>S</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CLI_client.md">CLI_client</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_operation-registry.md">CORE_operation-registry</a></td>
+</tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_smtp-ingest.md">PLUGIN_smtp-ingest</a></td>
+<td>later</td>
+<td>L</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -341,6 +402,8 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_redis-spool.md">PLUGIN_redis-spool</a></td>
+<td>later</td>
+<td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -349,19 +412,131 @@ cannot be ahead of built. Released needs both <code>yes</code>. <code>check_docs
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_s3-sqs-spool.md">PLUGIN_s3-sqs-spool</a></td>
+<td>later</td>
+<td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
 </tr>
+</tbody>
+</table></div>
+<h4 id="cli">CLI</h4>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Prompt</th>
+<th>Target</th>
+<th>Lift</th>
+<th>Status</th>
+<th>Built</th>
+<th>Tested</th>
+<th>Released</th>
+<th>Depends on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CLI_client.md">CLI_client</a></td>
+<td>0.1</td>
+<td>M</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="webui">WEBUI</h4>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Prompt</th>
+<th>Target</th>
+<th>Lift</th>
+<th>Status</th>
+<th>Built</th>
+<th>Tested</th>
+<th>Released</th>
+<th>Depends on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/WEBUI_management-ui.md">WEBUI_management-ui</a></td>
+<td>0.1</td>
+<td>XL</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_system-operations.md">CORE_system-operations</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_audit-and-jobs.md">CORE_audit-and-jobs</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_http-listener.md">CORE_http-listener</a></td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="mcp">MCP</h4>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Prompt</th>
+<th>Target</th>
+<th>Lift</th>
+<th>Status</th>
+<th>Built</th>
+<th>Tested</th>
+<th>Released</th>
+<th>Depends on</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/MCP_mcp-door.md">MCP_mcp-door</a></td>
+<td>later</td>
+<td>L</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_operation-registry.md">CORE_operation-registry</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_system-operations.md">CORE_system-operations</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_http-listener.md">CORE_http-listener</a></td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="docs">DOCS</h4>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+<thead>
+<tr>
+<th>Prompt</th>
+<th>Target</th>
+<th>Lift</th>
+<th>Status</th>
+<th>Built</th>
+<th>Tested</th>
+<th>Released</th>
+<th>Depends on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/DOCS_docs-site.md">DOCS_docs-site</a></td>
+<td>0.1</td>
+<td>S</td>
+<td>Partly built</td>
+<td>partly</td>
+<td>partly</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_bootstrap.md">CORE_bootstrap</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_operation-registry.md">CORE_operation-registry</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/DOCS_mta-guides.md">DOCS_mta-guides</a></td>
+<td>0.1</td>
+<td>M</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_mta-adapters.md">PLUGIN_mta-adapters</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_lmtp-ingest.md">PLUGIN_lmtp-ingest</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_request-guard.md">CORE_request-guard</a></td>
 </tr>
 </tbody>
 </table></div>

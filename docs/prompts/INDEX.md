@@ -9,8 +9,10 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | Prompt | Status | Target | Lift | Delivers | Depends on |
 |---|---|---|---|---|---|
 | [CORE_bootstrap](CORE_bootstrap.md) | Open | 0.1 | M | uv workspace, tooling, legal files, a green empty project | — |
-| [CORE_contracts-and-core](CORE_contracts-and-core.md) | Written | 0.1 | XL | Ingestor and Spool contracts, envelope, ids, settings, paths, errors, the streaming engine under limits, listener events | CORE_bootstrap |
-| [CORE_operation-registry](CORE_operation-registry.md) | Written | 0.1 | L | Typed operations, surfaces, confirm gate, schemas, `submit` and `version`; the command path | CORE_contracts-and-core |
+| [CORE_foundations](CORE_foundations.md) | Written | 0.1 | M | Paths, settings, the envelope, message ids and the error table | CORE_bootstrap |
+| [CORE_contracts](CORE_contracts.md) | Written | 0.1 | M | Ingestor and Spool contracts with the writer, listener event types, `Credits`, and the test doubles | CORE_foundations |
+| [CORE_engine](CORE_engine.md) | Written | 0.1 | L | The engine: limiter, ingest pipeline, header block and digest, listener dispatch and the commit | CORE_contracts |
+| [CORE_operation-registry](CORE_operation-registry.md) | Written | 0.1 | L | Typed operations, surfaces, confirm gate, schemas, `submit` and `version`; the command path | CORE_engine |
 | [CORE_daemon](CORE_daemon.md) | Written | 0.1 | L | The daemon: composition root, lifecycle, and the registry served over a local Unix socket | CORE_operation-registry |
 | [CORE_supervisor](CORE_supervisor.md) | Written | 0.1 | L | The supervisor and worker management, running in-process at `workers.count = 1` | CORE_daemon |
 | [CLI_client](CLI_client.md) | Written | 0.1 | M | The `steamer` command: start, stop, reload, a generic runner and verbs generated from schemas | CORE_daemon |
@@ -24,8 +26,10 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | [CORE_http-listener](CORE_http-listener.md) | Written | 0.1 | M | The TCP and TLS listener with the request guard in front, and HTTP submission on the ingest surface | CORE_daemon, CORE_request-guard |
 | [CORE_security-hardening](CORE_security-hardening.md) | Written | 0.1 | M | Injection, auth and open-relay test pass across every ingestor | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener |
 | [DOCS_docs-site](DOCS_docs-site.md) | Partly built | 0.1 | S | Docs site tooling | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
+| [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md) | Written | 0.1 | S | First-party qmail and Postfix commands that wrap `submit` with each MTA's conventions | CORE_plugin-host, CLI_client, CORE_operation-registry |
+| [DOCS_mta-guides](DOCS_mta-guides.md) | Written | 0.1 | M | Tested guides for handing mail from qmail and Postfix to Trunk | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard |
 | [WEBUI_management-ui](WEBUI_management-ui.md) | Written | 0.1 | XL | Operator web app on its own port, built only on operations the CLI has | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
-| [CORE_mail-authentication](CORE_mail-authentication.md) | Written | later | XL | Native inbound DKIM, SPF, DMARC, ARC without buffering a message | CORE_contracts-and-core, CORE_plugin-host |
+| [CORE_mail-authentication](CORE_mail-authentication.md) | Written | later | XL | Native inbound DKIM, SPF, DMARC, ARC without buffering a message | CORE_engine, CORE_plugin-host |
 | [CORE_send](CORE_send.md) | Written | later | L | Outbound spool, the Sender plugin kind, DKIM signing | CORE_consumer-api, CORE_request-guard |
 | [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md) | Written | later | L | SMTP on 25 and 587: STARTTLS, AUTH, recipient allowlist | PLUGIN_lmtp-ingest |
 | [PLUGIN_redis-spool](PLUGIN_redis-spool.md) | Written | later | M | Redis stream spool, consumer groups mapped to lease/ack | PLUGIN_directory-spool, CORE_plugin-host |
@@ -41,29 +45,33 @@ Computed from `depends`, so it cannot contradict them. Target 0.1 comes first.
 **Target 0.1**
 
 1. [CORE_bootstrap](CORE_bootstrap.md)
-2. [CORE_contracts-and-core](CORE_contracts-and-core.md)
-3. [CORE_operation-registry](CORE_operation-registry.md)
-4. [CORE_daemon](CORE_daemon.md)
-5. [CORE_supervisor](CORE_supervisor.md)
-6. [CLI_client](CLI_client.md)
-7. [CORE_system-operations](CORE_system-operations.md)
-8. [CORE_audit-and-jobs](CORE_audit-and-jobs.md)
-9. [CORE_plugin-host](CORE_plugin-host.md)
-10. [PLUGIN_directory-spool](PLUGIN_directory-spool.md)
-11. [CORE_consumer-api](CORE_consumer-api.md)
-12. [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md)
-13. [CORE_request-guard](CORE_request-guard.md)
-14. [CORE_http-listener](CORE_http-listener.md)
-15. [CORE_security-hardening](CORE_security-hardening.md)
-16. [DOCS_docs-site](DOCS_docs-site.md)
-17. [WEBUI_management-ui](WEBUI_management-ui.md)
+2. [CORE_foundations](CORE_foundations.md)
+3. [CORE_contracts](CORE_contracts.md)
+4. [CORE_engine](CORE_engine.md)
+5. [CORE_operation-registry](CORE_operation-registry.md)
+6. [CORE_daemon](CORE_daemon.md)
+7. [CORE_supervisor](CORE_supervisor.md)
+8. [CLI_client](CLI_client.md)
+9. [CORE_system-operations](CORE_system-operations.md)
+10. [CORE_audit-and-jobs](CORE_audit-and-jobs.md)
+11. [CORE_plugin-host](CORE_plugin-host.md)
+12. [PLUGIN_directory-spool](PLUGIN_directory-spool.md)
+13. [CORE_consumer-api](CORE_consumer-api.md)
+14. [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md)
+15. [CORE_request-guard](CORE_request-guard.md)
+16. [CORE_http-listener](CORE_http-listener.md)
+17. [CORE_security-hardening](CORE_security-hardening.md)
+18. [DOCS_docs-site](DOCS_docs-site.md)
+19. [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md)
+20. [DOCS_mta-guides](DOCS_mta-guides.md)
+21. [WEBUI_management-ui](WEBUI_management-ui.md)
 
 **Target later**
 
-18. [CORE_mail-authentication](CORE_mail-authentication.md)
-19. [CORE_send](CORE_send.md)
-20. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
-21. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
-22. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
-23. [MCP_mcp-door](MCP_mcp-door.md)
+22. [CORE_mail-authentication](CORE_mail-authentication.md)
+23. [CORE_send](CORE_send.md)
+24. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
+25. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
+26. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
+27. [MCP_mcp-door](MCP_mcp-door.md)
 <!-- /prompts:order -->

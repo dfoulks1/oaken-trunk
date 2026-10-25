@@ -15,7 +15,7 @@ How a consumer takes mail out. At-least-once, never buffered, same operations on
 - Six operations plus `renew`. Surface `consume`, set by the key, never by the caller.
 - A consumer is named by its key id. Leases belong to that name.
 - Bodies stream out in bounded chunks. Core never holds a whole message.
-- Expired leases return to the queue. Consumers dedupe on the message id (ADR 0004).
+- Expired leases return to the queue. Consumers dedupe on the delivery id (ADR 0004).
 - `delete` is audited. Lease, ack and nack are counted in stats, not audited.
 
 ## Not in scope
@@ -26,14 +26,14 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
 
 **A. Operations**
 
-1. **`lease`.** `limit` (default 10, max 100) and `seconds` (default 60, max 3600). Returns ids and tokens. No
+1. **`lease`.** Optional `recipient` (an address or `@domain`), inside the key's scope. `limit` (default 10, max 100) and `seconds` (default 60, max 3600). Returns ids and tokens. No
    mail returns an empty list, not an error.
 2. **`fetch`.** Streams a leased message with its envelope and annotations. A wrong or expired token is
    `lease_invalid`.
 3. **`ack` and `nack`.** A wrong or expired token is `lease_invalid`. A repeat ack of a message already gone
    succeeds quietly. `nack` returns it to the queue at once.
 4. **`renew`.** Extends a live lease up to `max_lease_total` (default 1 hour). Never an expired one.
-5. **`list` and `delete`.** `list` shows id, size, age, state (`ready` or `leased`) and never content. `delete`
+5. **`list` and `delete`.** `list` shows id, recipient, size, age, state (`ready` or `leased`) and never content. `delete`
    removes regardless of lease and is audited.
 
 `compact`
@@ -51,6 +51,8 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
 ## Acceptance criteria
 
 - A fake consumer leases, crashes, and the message returns after expiry with the same id.
+- A key scoped to `a.com` never leases, fetches, lists or acks a `b.com` delivery. An out-of-scope id looks
+  like a missing one.
 - Two consumers never get the same message. Ack of an expired lease is `lease_invalid`.
 - A message that fails `max_attempts` times is dead and not leased again.
 - A 1 GB body fetches with flat memory. A body sentinel never reaches a log or error.

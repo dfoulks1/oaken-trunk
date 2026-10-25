@@ -2,7 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/api-and-cli.md`,
 `docs/architecture/ai-safety.md`, ADR 0008 and 0009.
-**Depends on:** [CORE_contracts-and-core](CORE_contracts-and-core.md).
+**Depends on:** [CORE_engine](CORE_engine.md).
 **Track:** `CORE_`. Model: oaken-mail's `oaken/core/operations/` (`registry`, `gate`, `exposure`,
 **Lift:** L
 **Delivers:** Typed operations, surfaces, confirm gate, schemas, `submit` and `version`; the command path
@@ -41,7 +41,7 @@ operations themselves, except `version` and `submit` (CORE_system-operations, CO
 6. **Schemas.** JSON Schema and an OpenAPI 3.1 fragment come from the models. A snapshot test fails when an
    operation's schema changes until the snapshot is regenerated.
 7. **Streams.** An operation can take or return an async chunk stream (`submit`, `fetch`) with no buffering.
-8. **Errors.** The registry maps the error table of CORE_contracts-and-core to each door's code. An unexpected exception becomes an
+8. **Errors.** The registry maps the error table of CORE_foundations to each door's code. An unexpected exception becomes an
    `internal` error with a correlation id and no content.
 9. **Audit hook.** Calls go to an `AuditSink` (a no-op here, SQLite in CORE_audit-and-jobs): operation, caller class,
    principal, outcome. Mail-flow successes (`submit`, `lease`, `ack`, `nack`) are counted in stats, not
@@ -57,7 +57,7 @@ operations themselves, except `version` and `submit` (CORE_system-operations, CO
 - A duplicate name is refused. A plugin operation named like a core one is refused.
 - A `mutate` call without confirmation changes nothing and returns a proposal. The token works once, expires,
   and fails for a different input.
-- `submit` streams 100 MiB through the registry into `FakeSpool` with the memory bound of CORE_contracts-and-core.
+- `submit` streams 100 MiB through the registry into `FakeSpool` with the memory bound of CORE_engine.
 - An audit record is written for every audited call (control operations and every refusal). A sentinel placed in a message body and in a secret input never
   appears in it.
 - No input field can change the caller class.

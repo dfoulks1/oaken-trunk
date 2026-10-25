@@ -6,7 +6,7 @@
 **Context.** Trunk must be extensible around a solid core, and the plugin model should feel like
 Oaken Mail's so contributors need to learn it once.
 
-**Decision.** Every kind extends a common `BasePlugin` (context, lifecycle, health, `@command`, declared operation calls); a plugin that fits no kind extends it directly. Each plugin kind (ingestor, spool, sender, authenticator, listener) has a base class in `oaken_trunk.plugins.base`
+**Decision.** Every kind extends a common `BasePlugin` (context, lifecycle, health, `@command`, declared operation calls); a plugin that fits no kind extends it directly. Each plugin kind (ingestor, spool, sender, authenticator, listener, mta) has a base class in `oaken_trunk.plugins.base`
 that provides the context, lifecycle, health, lenient return coercion and capability inference from the
 methods a plugin overrides. Plugins register through entry points in `oaken_trunk.*` groups, and each
 kind has a contract test suite in `oaken_trunk.testing.contracts` that first-party and third-party

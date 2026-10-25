@@ -1,0 +1,51 @@
+{
+  "label": "docs",
+  "sha": "b061b10",
+  "timestamp": 1792896085,
+  "passed": true,
+  "steps": [
+    {
+      "step": "sync",
+      "cmd": [
+        "uv",
+        "sync",
+        "--quiet"
+      ],
+      "ok": true,
+      "output": ""
+    },
+    {
+      "step": "build the site",
+      "cmd": [
+        "uv",
+        "run",
+        "python",
+        "docs/tools/build_site.py"
+      ],
+      "ok": true,
+      "output": "Built 30 files into /home/dfoulks/local/oaken-trunk/docs\n"
+    },
+    {
+      "step": "check links/anchors",
+      "cmd": [
+        "uv",
+        "run",
+        "python",
+        "docs/tools/check_docs.py"
+      ],
+      "ok": true,
+      "output": "Docs OK: built twice with identical output; links, anchors and hosts check out.\n"
+    },
+    {
+      "step": "tooling tests",
+      "cmd": [
+        "uv",
+        "run",
+        "pytest",
+        "-q"
+      ],
+      "ok": true,
+      "output": "........................................................................ [ 92%]\n......                                                                   [100%]\n78 passed in 6.54s\n"
+    }
+  ]
+}

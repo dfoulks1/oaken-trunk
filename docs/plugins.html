@@ -59,7 +59,7 @@
     <div class="gh"><div class="label">GitHub</div>
       <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
     <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
-      <a class="nav-link" href="#the-five-kinds-and-the-plain-plugin"><span class="num">1</span>The five kinds, and the plain plugin</a>
+      <a class="nav-link" href="#the-six-kinds-and-the-plain-plugin"><span class="num">1</span>The six kinds, and the plain plugin</a>
       <a class="nav-link" href="#what-every-base-class-gives-you"><span class="num">2</span>What every base class gives you</a>
       <a class="nav-link" href="#commands"><span class="num">3</span>Commands</a>
       <a class="nav-link" href="#memory-rule-for-plugin-authors"><span class="num">4</span>Memory rule for plugin authors</a>
@@ -83,7 +83,7 @@
 point. Start from a base class, override what your plugin does, and run the contract suite. This is
 the same model as Oaken Mail's plugins, so the habits carry over.</p>
 
-<section id="the-five-kinds-and-the-plain-plugin" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>The five kinds, and the plain plugin</h2></div>
+<section id="the-six-kinds-and-the-plain-plugin" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>The six kinds, and the plain plugin</h2></div>
 <div class="table-responsive"><table class="table table-sm table-striped align-middle">
 <thead>
 <tr>
@@ -117,6 +117,12 @@ the same model as Oaken Mail's plugins, so the habits carry over.</p>
 <td><code>oaken_trunk.authenticators</code></td>
 <td><code>BaseAuthenticator</code></td>
 <td>Verifies a request or connection: signed requests, SMTP AUTH, mTLS. Core owns freshness, replay and the default deny.</td>
+</tr>
+<tr>
+<td>MTA</td>
+<td><code>oaken_trunk.mtas</code></td>
+<td><code>BaseMTA</code></td>
+<td>Declares how an MTA hands over mail: env names, arguments, exit codes. The base supplies <code>steamer NAME submit</code>.</td>
 </tr>
 <tr>
 <td>Listener</td>

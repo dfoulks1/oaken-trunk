@@ -26,7 +26,7 @@ Oaken Mail is one consumer, through a plugin in its own repository. Apache-2.0.
 ## Master list and build order
 
 In [INDEX.md](INDEX.md), generated from [`prompts.toml`](prompts.toml). Status words: **Built** (in `main`
-with tests), **Open** (free to take), **Written** (a plan, waiting on its dependencies).
+with tests), **Open** (free to take), **Written** (a plan, not yet reviewed), **Reviewed** (checked with a maintainer, ready to build once its dependencies are).
 
 ## How the files are named
 

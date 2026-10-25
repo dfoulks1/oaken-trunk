@@ -33,17 +33,16 @@ unique, so consumers dedupe on them.
 
 ## Directory driver (default)
 
-Maildir-like, one file per message: the first line is the JSON envelope, the rest is the raw
-RFC 822 bytes.
+Maildir-like. One body file of raw RFC 822 bytes, and one delivery per recipient, each a hard link to the body.
 
 ```
 spool/tmp/<id>.msg                       being written
-spool/new/<id>.msg                       ready
-spool/leased/<id>.<expiry>.<token>.msg   leased; the name carries the lease
-spool/ann/<id>.ann                       annotations (absent means none); never moves
+spool/new/<id>-<n>.msg                   ready (a hard link per recipient)
+spool/leased/<id>-<n>.<expiry>.<token>.msg leased; the name carries the lease
+spool/meta/<id>-<n>.json                 envelope and annotations; never moves
 ```
 
-- **Write and commit:** write to `tmp/`; on `commit`, write any annotations to `ann/`, fsync (per durability), rename into `new/`, fsync the
+- **Write and commit:** write to `tmp/`; on `commit`, write each delivery's `meta/` file, fsync (per durability), rename into `new/`, fsync the
   directory, ack.
 - **Lease:** atomic rename `new/` to `leased/` with expiry and token in the name. Two consumers
   cannot lease the same file.

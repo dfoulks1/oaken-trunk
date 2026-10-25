@@ -124,15 +124,14 @@ directory driver).</p>
 unique, so consumers dedupe on them.</p>
 </section>
 <section id="directory-driver-default" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Directory driver (default)</h2></div>
-<p>Maildir-like, one file per message: the first line is the JSON envelope, the rest is the raw
-RFC 822 bytes.</p>
+<p>Maildir-like. One body file of raw RFC 822 bytes, and one delivery per recipient, each a hard link to the body.</p>
 <div class="code"><pre class="highlight"><code>spool/tmp/&lt;id&gt;.msg                       being written
-spool/new/&lt;id&gt;.msg                       ready
-spool/leased/&lt;id&gt;.&lt;expiry&gt;.&lt;token&gt;.msg   leased; the name carries the lease
-spool/ann/&lt;id&gt;.ann                       annotations (absent means none); never moves
+spool/new/&lt;id&gt;-&lt;n&gt;.msg                   ready (a hard link per recipient)
+spool/leased/&lt;id&gt;-&lt;n&gt;.&lt;expiry&gt;.&lt;token&gt;.msg leased; the name carries the lease
+spool/meta/&lt;id&gt;-&lt;n&gt;.json                 envelope and annotations; never moves
 </code></pre></div>
 <ul>
-<li><strong>Write and commit:</strong> write to <code>tmp/</code>; on <code>commit</code>, write any annotations to <code>ann/</code>, fsync (per durability), rename into <code>new/</code>, fsync the
+<li><strong>Write and commit:</strong> write to <code>tmp/</code>; on <code>commit</code>, write each delivery's <code>meta/</code> file, fsync (per durability), rename into <code>new/</code>, fsync the
 directory, ack.</li>
 <li><strong>Lease:</strong> atomic rename <code>new/</code> to <code>leased/</code> with expiry and token in the name. Two consumers
 cannot lease the same file.</li>

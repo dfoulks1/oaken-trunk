@@ -31,7 +31,11 @@ Remote (TCP, signed) use. Hand-written verbs for operations later prompts add: t
 5. **Socket client.** Find the socket from the runtime file or `--socket`. HTTP over the Unix socket. No logic.
 6. **Output and exit codes.** `--json` on any command. Codes 0 to 5 as in `context/CLI.md`. A mutating
    operation needs `--yes`, or exits 5.
-7. **`submit`.** Streams stdin. Exit 0, 75 or 65 and 77, as in `context/CLI.md`.
+7. **`submit`.** Streams stdin. `--sender` and `--recipient` (repeatable) default to `$SENDER` and `$RECIPIENT`.
+   Target: `--socket PATH` (default, local) or `--host H --port P` with `--key FILE` and `--ca FILE`
+   (remote, signed, TLS, no `--insecure`). `--timeout S`. Exit codes as in `context/CLI.md`. A plugin command may declare `cli` metadata (env
+   defaults for inputs, an exit map by class `ok`, `temporary`, `permanent`, a stdin input) and the CLI
+   applies it as data, never plugin code. Remote needs CORE_request-guard and CORE_http-listener.
 8. **Offline.** `init`, `version` and the offline part of `doctor` run with no daemon. `--in-process` is an
    explicit flag for offline operations only. `submit` refuses it.
 9. **Docs.** The CLI reference is generated from the registry. `api-and-cli.md`, softmap, status table.
@@ -39,7 +43,8 @@ Remote (TCP, signed) use. Hand-written verbs for operations later prompts add: t
 ## Acceptance criteria
 
 - `steamer version` runs offline. `steamer stop` with no daemon exits 3.
-- `steamer submit` with the daemon down exits 75 and writes nothing anywhere.
+- `steamer submit` with the daemon down exits 75 and writes nothing anywhere. A permanent refusal exits 65.
+- A test command with `cli` metadata takes its env defaults and exits by its map (111 and 100 as in the qmail case).
 - A test operation registered with no CLI code appears as a verb with the right flags.
 - A secret field has no value flag. A mutate without `--yes` exits 5.
 - `--in-process` on `submit` is refused. `--help` and `--version` import no daemon code.

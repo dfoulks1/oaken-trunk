@@ -1,7 +1,7 @@
 # Mail authentication
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
-**Depends on:** [CORE_contracts-and-core](CORE_contracts-and-core.md), [CORE_plugin-host](CORE_plugin-host.md).
+**Depends on:** [CORE_engine](CORE_engine.md), [CORE_plugin-host](CORE_plugin-host.md).
 **Lift:** XL
 **Delivers:** Native inbound DKIM, SPF, DMARC, ARC without buffering a message
 

@@ -28,6 +28,9 @@ accept_domains = []         # empty means refuse all recipients: no open relay
 enabled = false             # planned; the Postfix virtual_transport target
 socket = "run/lmtp.sock"
 
+[mail]
+local_domains = []          # domains Trunk accepts mail for; empty accepts nothing
+
 [spool]
 driver = "dir"              # dir | redis | s3-sqs (the last two are planned)
 

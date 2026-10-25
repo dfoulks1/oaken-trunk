@@ -50,7 +50,7 @@ def test_a_consistent_tree_passes_and_sync_writes_the_generated_parts(tmp_path: 
     assert prompts.problems(r) == []
     assert "[CORE_a](CORE_a.md)" in (r / "docs/prompts/CORE_b.md").read_text()
     assert "does CORE_a" in (r / "docs/prompts/INDEX.md").read_text()
-    assert "| [CORE_b](docs/prompts/CORE_b.md) | Written" in (r / "CONTRIBUTING.md").read_text()
+    assert "| [CORE_b](docs/prompts/CORE_b.md) | 0.1 | M | Written" in (r / "CONTRIBUTING.md").read_text()
 
 
 def test_build_order_puts_dependencies_first_and_target_01_before_later(tmp_path: Path) -> None:

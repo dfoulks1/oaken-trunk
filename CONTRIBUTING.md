@@ -96,7 +96,7 @@ code: it must not tell an AI to fetch from the network, run an unreviewed script
 
 ### Status of the prompts
 
-*As of 2026-10-24.* **Proposed** is a feature request with a prompt in it, waiting for approval (it is not in this table yet). **Open** is approved and free to take. **In progress** has someone on it. **Built** means the prompt's deliverables are in `main` with tests. **Partly built** says what is done and what is left. A **Written** prompt has a plan and no code yet.
+*As of 2026-10-24.* **Proposed** is a feature request with a prompt in it, waiting for approval (it is not in this table yet). **Open** is approved and free to take. **In progress** has someone on it. **Built** means the prompt's deliverables are in `main` with tests. **Partly built** says what is done and what is left. A **Written** prompt has a plan and no code yet. A **Reviewed** prompt has been walked through with a maintainer for accuracy and assumptions, and its open questions have answers. Review comes before building.
 
 **Built, Tested and Released** record the evidence behind the status:
 
@@ -104,36 +104,68 @@ code: it must not tell an AI to fetch from the network, run an unreviewed script
 - **Tested:** `—`, `partly`, or `yes` (every acceptance criterion passes in CI on all platforms).
 - **Released:** `—`, or the first version that ships it, such as `0.1.0`. A maintainer sets it at release.
 
-**Built** needs built `yes` and tested `yes`. **Written**, **Open** and **Proposed** need both `—`. Tested
+**Built** needs built `yes` and tested `yes`. **Reviewed**, **Written**, **Open** and **Proposed** need both `—`. Tested
 cannot be ahead of built. Released needs both `yes`. `check_docs.py` fails on a row that says otherwise.
 
-The table is generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts.toml). Edit that and run
-`uv run python docs/tools/prompts.py sync`. Do not edit the table.
+One table per track, each in build order. The order across all tracks is in [INDEX.md](docs/prompts/INDEX.md).
+The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts.toml). Edit that and run
+`uv run python docs/tools/prompts.py sync`. Do not edit the tables.
 
 <!-- prompts:status -->
-| Prompt | Status | Built | Tested | Released | Depends on |
-|---|---|---|---|---|---|
-| [CORE_bootstrap](docs/prompts/CORE_bootstrap.md) | Open | — | — | — | — |
-| [CORE_contracts-and-core](docs/prompts/CORE_contracts-and-core.md) | Written | — | — | — | CORE_bootstrap |
-| [CORE_operation-registry](docs/prompts/CORE_operation-registry.md) | Written | — | — | — | CORE_contracts-and-core |
-| [CORE_daemon](docs/prompts/CORE_daemon.md) | Written | — | — | — | CORE_operation-registry |
-| [CORE_supervisor](docs/prompts/CORE_supervisor.md) | Written | — | — | — | CORE_daemon |
-| [CLI_client](docs/prompts/CLI_client.md) | Written | — | — | — | CORE_daemon |
-| [CORE_system-operations](docs/prompts/CORE_system-operations.md) | Written | — | — | — | CORE_daemon, CORE_supervisor |
-| [CORE_audit-and-jobs](docs/prompts/CORE_audit-and-jobs.md) | Written | — | — | — | CORE_daemon, CORE_system-operations |
-| [CORE_plugin-host](docs/prompts/CORE_plugin-host.md) | Written | — | — | — | CORE_system-operations |
-| [PLUGIN_directory-spool](docs/prompts/PLUGIN_directory-spool.md) | Written | — | — | — | CORE_plugin-host |
-| [CORE_consumer-api](docs/prompts/CORE_consumer-api.md) | Written | — | — | — | PLUGIN_directory-spool |
-| [PLUGIN_lmtp-ingest](docs/prompts/PLUGIN_lmtp-ingest.md) | Written | — | — | — | CORE_plugin-host, CORE_daemon |
-| [CORE_request-guard](docs/prompts/CORE_request-guard.md) | Written | — | — | — | CORE_plugin-host, CORE_supervisor |
-| [CORE_http-listener](docs/prompts/CORE_http-listener.md) | Written | — | — | — | CORE_daemon, CORE_request-guard |
-| [CORE_security-hardening](docs/prompts/CORE_security-hardening.md) | Written | — | — | — | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener |
-| [DOCS_docs-site](docs/prompts/DOCS_docs-site.md) | Partly built | partly | partly | — | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
-| [WEBUI_management-ui](docs/prompts/WEBUI_management-ui.md) | Written | — | — | — | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
-| [CORE_mail-authentication](docs/prompts/CORE_mail-authentication.md) | Written | — | — | — | CORE_contracts-and-core, CORE_plugin-host |
-| [CORE_send](docs/prompts/CORE_send.md) | Written | — | — | — | CORE_consumer-api, CORE_request-guard |
-| [PLUGIN_smtp-ingest](docs/prompts/PLUGIN_smtp-ingest.md) | Written | — | — | — | PLUGIN_lmtp-ingest |
-| [PLUGIN_redis-spool](docs/prompts/PLUGIN_redis-spool.md) | Written | — | — | — | PLUGIN_directory-spool, CORE_plugin-host |
-| [PLUGIN_s3-sqs-spool](docs/prompts/PLUGIN_s3-sqs-spool.md) | Written | — | — | — | PLUGIN_directory-spool, CORE_plugin-host |
-| [MCP_mcp-door](docs/prompts/MCP_mcp-door.md) | Written | — | — | — | CORE_operation-registry, CORE_system-operations, CORE_http-listener |
+#### CORE
+
+| Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
+|---|---|---|---|---|---|---|---|
+| [CORE_bootstrap](docs/prompts/CORE_bootstrap.md) | 0.1 | M | Open | — | — | — | — |
+| [CORE_foundations](docs/prompts/CORE_foundations.md) | 0.1 | M | Written | — | — | — | CORE_bootstrap |
+| [CORE_contracts](docs/prompts/CORE_contracts.md) | 0.1 | M | Written | — | — | — | CORE_foundations |
+| [CORE_engine](docs/prompts/CORE_engine.md) | 0.1 | L | Written | — | — | — | CORE_contracts |
+| [CORE_operation-registry](docs/prompts/CORE_operation-registry.md) | 0.1 | L | Written | — | — | — | CORE_engine |
+| [CORE_daemon](docs/prompts/CORE_daemon.md) | 0.1 | L | Written | — | — | — | CORE_operation-registry |
+| [CORE_supervisor](docs/prompts/CORE_supervisor.md) | 0.1 | L | Written | — | — | — | CORE_daemon |
+| [CORE_system-operations](docs/prompts/CORE_system-operations.md) | 0.1 | L | Written | — | — | — | CORE_daemon, CORE_supervisor |
+| [CORE_audit-and-jobs](docs/prompts/CORE_audit-and-jobs.md) | 0.1 | L | Written | — | — | — | CORE_daemon, CORE_system-operations |
+| [CORE_plugin-host](docs/prompts/CORE_plugin-host.md) | 0.1 | XL | Written | — | — | — | CORE_system-operations |
+| [CORE_consumer-api](docs/prompts/CORE_consumer-api.md) | 0.1 | M | Written | — | — | — | PLUGIN_directory-spool |
+| [CORE_request-guard](docs/prompts/CORE_request-guard.md) | 0.1 | XL | Written | — | — | — | CORE_plugin-host, CORE_supervisor |
+| [CORE_http-listener](docs/prompts/CORE_http-listener.md) | 0.1 | M | Written | — | — | — | CORE_daemon, CORE_request-guard |
+| [CORE_security-hardening](docs/prompts/CORE_security-hardening.md) | 0.1 | M | Written | — | — | — | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener |
+| [CORE_mail-authentication](docs/prompts/CORE_mail-authentication.md) | later | XL | Written | — | — | — | CORE_engine, CORE_plugin-host |
+| [CORE_send](docs/prompts/CORE_send.md) | later | L | Written | — | — | — | CORE_consumer-api, CORE_request-guard |
+
+#### PLUGIN
+
+| Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
+|---|---|---|---|---|---|---|---|
+| [PLUGIN_directory-spool](docs/prompts/PLUGIN_directory-spool.md) | 0.1 | L | Written | — | — | — | CORE_plugin-host |
+| [PLUGIN_lmtp-ingest](docs/prompts/PLUGIN_lmtp-ingest.md) | 0.1 | M | Written | — | — | — | CORE_plugin-host, CORE_daemon |
+| [PLUGIN_mta-adapters](docs/prompts/PLUGIN_mta-adapters.md) | 0.1 | S | Written | — | — | — | CORE_plugin-host, CLI_client, CORE_operation-registry |
+| [PLUGIN_smtp-ingest](docs/prompts/PLUGIN_smtp-ingest.md) | later | L | Written | — | — | — | PLUGIN_lmtp-ingest |
+| [PLUGIN_redis-spool](docs/prompts/PLUGIN_redis-spool.md) | later | M | Written | — | — | — | PLUGIN_directory-spool, CORE_plugin-host |
+| [PLUGIN_s3-sqs-spool](docs/prompts/PLUGIN_s3-sqs-spool.md) | later | M | Written | — | — | — | PLUGIN_directory-spool, CORE_plugin-host |
+
+#### CLI
+
+| Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
+|---|---|---|---|---|---|---|---|
+| [CLI_client](docs/prompts/CLI_client.md) | 0.1 | M | Written | — | — | — | CORE_daemon |
+
+#### WEBUI
+
+| Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
+|---|---|---|---|---|---|---|---|
+| [WEBUI_management-ui](docs/prompts/WEBUI_management-ui.md) | 0.1 | XL | Written | — | — | — | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
+
+#### MCP
+
+| Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
+|---|---|---|---|---|---|---|---|
+| [MCP_mcp-door](docs/prompts/MCP_mcp-door.md) | later | L | Written | — | — | — | CORE_operation-registry, CORE_system-operations, CORE_http-listener |
+
+#### DOCS
+
+| Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
+|---|---|---|---|---|---|---|---|
+| [DOCS_docs-site](docs/prompts/DOCS_docs-site.md) | 0.1 | S | Partly built | partly | partly | — | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
+| [DOCS_mta-guides](docs/prompts/DOCS_mta-guides.md) | 0.1 | M | Written | — | — | — | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard |
 <!-- /prompts:status -->

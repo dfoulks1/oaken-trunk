@@ -10,7 +10,9 @@ Read with [CONTEXT.md](../CONTEXT.md). The `steamer` command (the project stays 
 - **Offline.** `init`, `version` and the offline part of `doctor` need no daemon. In-process is an explicit
   flag, never a fallback, and `submit` refuses it.
 - **Exit codes:** 0 ok, 1 error, 2 usage, 3 not running, 4 authentication failed, 5 needs confirmation.
-- **`submit`** reads stdin and is the qmail and Postfix pipe target. 0 accepted. 75 (`EX_TEMPFAIL`) for any
-  temporary failure, daemon down included, so the sender retries. 65 or 77 for a permanent refusal. No
-  direct-to-spool bypass. Check the codes against Postfix `pipe(8)` and qmail when documenting.
+- **`submit`** reads stdin and is the qmail and Postfix pipe target. Core `submit` exits as sysexits:
+  0 accepted, 75 temporary (daemon down included), 65 or 77 permanent. An MTA with other rules gets its own
+  command from a plugin: `steamer qmail submit` (0, 111 temporary, 100 permanent) and `steamer postfix submit`.
+  The plugin declares the exit map as data, and the CLI applies it. No direct-to-spool bypass. Verify the tables
+  against `pipe(8)` and `qmail-command(8)` when documenting.
 - Reference: `architecture/api-and-cli.md`.

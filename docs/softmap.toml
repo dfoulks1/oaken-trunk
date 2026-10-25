@@ -49,7 +49,7 @@ id = "engine"
 name = "Engine"
 layer = "core"
 status = "planned"
-prompt = "CORE_contracts-and-core"
+prompt = "CORE_engine"
 summary = "The data path. Applies limits, assigns a message id, streams the body into a spool through a writer in bounded chunks, fires listener events in order, and commits."
 uses = ["host", "plugin-base"]
 

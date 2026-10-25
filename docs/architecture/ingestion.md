@@ -28,7 +28,15 @@ An ingestor speaks one protocol and gives core a byte stream and an envelope. Co
 
 A 4xx is retryable, so the sender's own queue holds the backlog, not ours.
 
+## Addresses
+
+Postfix or qmail resolves aliases and virtual maps, then hands over the envelope. Trunk keeps no mailbox.
+Each recipient becomes its own delivery (`<id>-<n>`) sharing one body. A recipient outside `[mail] local_domains`
+is refused (65). A `consume` key is scoped to a domain list.
+
 ## Postfix and qmail
 
 Postfix: `virtual_transport = lmtp:unix:/path/to/run/lmtp.sock`. qmail: a `.qmail` line piping to
-`steamer submit`. Exact snippets belong in the docs deliverables of CORE_bootstrap and PLUGIN_lmtp-ingest.
+`steamer submit`. Postfix uses the LMTP ingestor or `steamer postfix submit`, and qmail uses `steamer qmail submit`. Each is a
+small first-party plugin (PLUGIN_mta-adapters) that wraps `submit` with that MTA's exit codes and environment.
+The guides are DOCS_mta-guides.

@@ -31,7 +31,7 @@ prints the version, and CI proves it on Linux, macOS and Windows. Nothing here r
 
 ## Not in scope
 
-Any engine, spool, ingestor, API or CLI verb other than `--version` (CORE_contracts-and-core onward); releases,
+Any engine, spool, ingestor, API or CLI verb other than `--version` (CORE_foundations onward); releases,
 a container image and distribution packages (not planned yet, see ROADMAP); the docs site (DOCS_docs-site).
 
 ## Requirements
