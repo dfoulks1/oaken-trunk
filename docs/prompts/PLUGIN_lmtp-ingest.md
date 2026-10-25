@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`.
 **Depends on:** [CORE_plugin-host](CORE_plugin-host.md), [CORE_daemon](CORE_daemon.md).
+**Lift:** M
 **Delivers:** LMTP over a Unix socket: the Postfix delivery target
 
 ## Goal

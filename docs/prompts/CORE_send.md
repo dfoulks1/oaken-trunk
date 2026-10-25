@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
 **Depends on:** [CORE_consumer-api](CORE_consumer-api.md), [CORE_request-guard](CORE_request-guard.md).
+**Lift:** L
 **Delivers:** Outbound spool, the Sender plugin kind, DKIM signing
 
 ## Goal

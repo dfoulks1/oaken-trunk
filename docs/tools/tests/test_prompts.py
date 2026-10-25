@@ -33,7 +33,7 @@ def tree(tmp: Path, entries: list[str], files: dict[str, str] | None = None) -> 
         put(
             f"docs/prompts/{name}.md",
             "# t\n\n**Read first:** `docs/prompts/context/CORE.md`.\n**Depends on:** x\n"
-            f"**Delivers:** does {name}\n",
+            f"**Lift:** M\n**Delivers:** does {name}\n",
         )
     for rel, text in (files or {}).items():
         put(rel, text)

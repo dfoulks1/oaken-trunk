@@ -63,7 +63,8 @@
       <a class="nav-link" href="#the-guard"><span class="num">2</span>The guard</a>
       <a class="nav-link" href="#schemes"><span class="num">3</span>Schemes</a>
       <a class="nav-link" href="#keys-and-replay"><span class="num">4</span>Keys and replay</a>
-      <a class="nav-link" href="#other-protocols"><span class="num">5</span>Other protocols</a>
+      <a class="nav-link" href="#the-local-cli"><span class="num">5</span>The local CLI</a>
+      <a class="nav-link" href="#other-protocols"><span class="num">6</span>Other protocols</a>
     </nav></div>
   </div></div>
 </nav>
@@ -77,14 +78,15 @@
 <section id="secure-by-default" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>Secure by default</h2></div>
 <p>Decisions are in <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/adr/0010-signed-requests-by-default.md">ADR 0010</a>. The short version:</p>
 <ul>
-<li>Each HTTP surface (ingest, consume, admin, MCP) has its own guard, keys, limits and caller class.</li>
+<li>One guard sits in front of every HTTP surface (ingest, consume, admin, MCP). A key opens only the surfaces it
+was issued for, and each operation declares its surface. The surface sets the limits and caller class.</li>
 <li>An unsigned, badly signed, stale, replayed or cross-surface request is refused before any route exists.</li>
 <li>Only a health route is open, and it answers <code>ok</code> and nothing else.</li>
 <li>A setting that is missing or invalid fails closed. A non-loopback surface with no authenticator will not start.</li>
 </ul>
 </section>
 <section id="the-guard" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>The guard</h2></div>
-<p>In the order a request meets it: Host, Origin and content type; the surface's authenticator; then per-client
+<p>Core owns freshness, replay and the default deny. An authenticator only verifies, and cannot weaken them. In the order a request meets it: Host, Origin and content type; the surface's authenticator; then per-client
 rate, body size and concurrency limits. The surface sets the caller class and a client cannot raise it.</p>
 </section>
 <section id="schemes" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Schemes</h2></div>
@@ -98,7 +100,7 @@ rate, body size and concurrency limits. The surface sets the caller class and a 
 <tbody>
 <tr>
 <td><code>ed25519</code></td>
-<td>Default. RFC 9421 HTTP Message Signatures with <code>Content-Digest</code>, timestamp and nonce. The server stores public keys only.</td>
+<td>Default. A strict RFC 9421 profile with <code>Content-Digest</code> checked as the body streams (a mismatch aborts the write), timestamp and nonce. The server stores public keys only.</td>
 </tr>
 <tr>
 <td><code>hmac</code></td>
@@ -106,7 +108,7 @@ rate, body size and concurrency limits. The surface sets the caller class and a 
 </tr>
 <tr>
 <td><code>mtls</code></td>
-<td>Client certificates at the TLS layer.</td>
+<td>Later. Client certificates at the TLS layer.</td>
 </tr>
 <tr>
 <td><code>bearer</code></td>
@@ -121,12 +123,17 @@ authenticator plugin (<a href="../plugins.html">Writing a plugin</a>).</p>
 <ul>
 <li><code>steamer keys add|list|revoke --surface NAME</code> manages keys. Private keys go to the client and are never
 kept on the server. Key files are created mode 0600 from the first byte.</li>
-<li>A timestamp window (<code>max_clock_skew_seconds</code>) and a nonce cache shared across workers through the
-supervisor stop replays. If the supervisor is unreachable, the guard refuses requests.</li>
+<li>A timestamp window (<code>max_clock_skew_seconds</code>) and a bounded in-memory nonce cache stop replays. It is in-process at one worker, and held by the supervisor
+with more (a restart empties it, and the window bounds replay). With more than one worker, an unreachable
+supervisor makes the guard refuse requests.</li>
 <li>Signatures, keys and message content are never logged.</li>
 </ul>
 </section>
-<section id="other-protocols" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>Other protocols</h2></div>
+<section id="the-local-cli" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>The local CLI</h2></div>
+<p><code>steamer</code> talks to the daemon over a Unix socket, gated by a built-in peer-credential check. It is not an
+authenticator and never meets the network guard. Windows uses loopback and an owner-only key.</p>
+</section>
+<section id="other-protocols" class="doc-section"><div class="section-head"><span class="section-num">6</span><h2>Other protocols</h2></div>
 <p>SMTP uses STARTTLS and AUTH over TLS, with a recipient allowlist and no open relay. LMTP uses a Unix socket
 with file permissions and peer credentials. Each is an authenticator, not a signed HTTP request.</p>
 </section>

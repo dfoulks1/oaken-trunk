@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
 **Depends on:** [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_consumer-api](CORE_consumer-api.md), [CORE_http-listener](CORE_http-listener.md).
+**Lift:** M
 **Delivers:** Injection, auth and open-relay test pass across every ingestor
 
 ## Goal

@@ -4,6 +4,7 @@
 ADR 0010.
 **Depends on:** [CORE_plugin-host](CORE_plugin-host.md), [CORE_supervisor](CORE_supervisor.md).
 **Track:** `CORE_`. Model: oaken-mail's `oaken/api/guard.py` (its ADR 0005). Tested on a bare ASGI app, so
+**Lift:** XL
 **Delivers:** Signed-requests guard and the authenticator plugin kind
 this needs no daemon.
 

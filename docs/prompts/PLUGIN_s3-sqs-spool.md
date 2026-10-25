@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`.
 **Depends on:** [PLUGIN_directory-spool](PLUGIN_directory-spool.md), [CORE_plugin-host](CORE_plugin-host.md).
+**Lift:** M
 **Delivers:** S3 bodies, SQS visibility timeouts as leases
 
 ## Goal

@@ -3,6 +3,7 @@
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/MCP.md`.
 **Depends on:** [CORE_operation-registry](CORE_operation-registry.md), [CORE_system-operations](CORE_system-operations.md), [CORE_http-listener](CORE_http-listener.md).
 **Not part of 0.1.**
+**Lift:** L
 **Delivers:** Optional MCP door gated by caller class. Not part of 0.1
 
 ## Goal

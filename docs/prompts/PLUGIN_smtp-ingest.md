@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`.
 **Depends on:** [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md).
+**Lift:** L
 **Delivers:** SMTP on 25 and 587: STARTTLS, AUTH, recipient allowlist
 
 ## Goal

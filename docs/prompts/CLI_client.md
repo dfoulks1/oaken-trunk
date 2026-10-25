@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CLI.md`, `docs/architecture/api-and-cli.md`.
 **Depends on:** [CORE_daemon](CORE_daemon.md).
+**Lift:** M
 **Delivers:** The `steamer` command: start, stop, reload, a generic runner and verbs generated from schemas
 **Track:** `CLI_`. Model: oaken-mail's CLI.
 

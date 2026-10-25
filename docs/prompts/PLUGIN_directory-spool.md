@@ -4,6 +4,7 @@
 
 **Depends on:** [CORE_plugin-host](CORE_plugin-host.md).
 **Track:** `PLUGIN_`. Package `oaken_trunk_spool_dir`, shipped in the core wheel. Core changes: none.
+**Lift:** L
 **Delivers:** Default spool: Maildir-style store, lease by rename, strict/batched/volatile durability
 
 ## Goal

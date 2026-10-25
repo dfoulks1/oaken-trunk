@@ -3,6 +3,7 @@
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/api-and-cli.md`,
 `docs/architecture/process-model.md`.
 **Depends on:** [CORE_operation-registry](CORE_operation-registry.md).
+**Lift:** L
 **Delivers:** The daemon: composition root, lifecycle, and the registry served over a local Unix socket
 **Track:** `CORE_`. Model: oaken-mail's `oaken/daemon/` and `oaken/api/`.
 

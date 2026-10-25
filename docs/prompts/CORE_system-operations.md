@@ -4,6 +4,7 @@
 `docs/architecture/logging.md`.
 **Depends on:** [CORE_daemon](CORE_daemon.md), [CORE_supervisor](CORE_supervisor.md).
 **Track:** `CORE_`. Model: oaken-mail's `core/operations/builtin/` and `core/config_edit.py`.
+**Lift:** L
 **Delivers:** `init`, `doctor`, `status`, `stats` and the config operations
 
 ## Goal

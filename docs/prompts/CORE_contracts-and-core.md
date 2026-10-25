@@ -4,6 +4,7 @@
 `docs/architecture/ingestion.md`.
 **Depends on:** [CORE_bootstrap](CORE_bootstrap.md).
 **Track:** `CORE_`. The engine knows nothing of HTTP, the CLI or the registry (CORE_operation-registry, CORE_daemon).
+**Lift:** XL
 **Delivers:** Ingestor and Spool contracts, envelope, ids, settings, paths, errors, the streaming engine under limits, listener events
 
 ## Goal

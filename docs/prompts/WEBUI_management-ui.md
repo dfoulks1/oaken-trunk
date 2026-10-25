@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/WEBUI.md`.
 **Depends on:** [CORE_system-operations](CORE_system-operations.md), [CORE_audit-and-jobs](CORE_audit-and-jobs.md), [CORE_http-listener](CORE_http-listener.md).
+**Lift:** XL
 **Delivers:** Operator web app on its own port, built only on operations the CLI has
 
 ## Goal

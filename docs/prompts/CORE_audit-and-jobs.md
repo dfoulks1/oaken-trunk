@@ -4,6 +4,7 @@
 `docs/architecture/logging.md`, ADR 0012.
 **Depends on:** [CORE_daemon](CORE_daemon.md), [CORE_system-operations](CORE_system-operations.md).
 **Track:** `CORE_`. Model: oaken-mail's `core/jobs.py` and `core/eventlog.py`.
+**Lift:** L
 **Delivers:** Content-free audit log, stats rollup, the lease reaper and job runner
 
 ## Goal

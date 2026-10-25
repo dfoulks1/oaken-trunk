@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/DOCS.md`.
 **Depends on:** [CORE_bootstrap](CORE_bootstrap.md), [CORE_operation-registry](CORE_operation-registry.md), [CORE_daemon](CORE_daemon.md).
+**Lift:** S
 **Delivers:** Docs site tooling
 
 ## Goal

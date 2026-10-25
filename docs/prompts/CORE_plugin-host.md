@@ -4,6 +4,7 @@
 `docs/plugins.md`, ADR 0006.
 **Depends on:** [CORE_system-operations](CORE_system-operations.md).
 **Track:** `CORE_`. Model: oaken-mail's `oaken/plugins/` (`base`, `host`, `contracts`, `plugin_ops`).
+**Lift:** XL
 **Delivers:** Entry-point discovery, base classes, lifecycle, contract suites
 
 ## Goal

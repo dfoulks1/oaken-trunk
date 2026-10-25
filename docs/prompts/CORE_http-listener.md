@@ -3,6 +3,7 @@
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/security.md`,
 `docs/architecture/ingestion.md`, ADR 0010.
 **Depends on:** [CORE_daemon](CORE_daemon.md), [CORE_request-guard](CORE_request-guard.md).
+**Lift:** M
 **Delivers:** The TCP and TLS listener with the request guard in front, and HTTP submission on the ingest surface
 **Track:** `CORE_`. Replaces the old HTTP ingest plugin: there is no separate ingestor.
 

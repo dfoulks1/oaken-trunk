@@ -3,6 +3,7 @@
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
 **Depends on:** nothing.
 **Track:** `CORE_`. It creates the empty packages and the checks; it adds no gateway behaviour.
+**Lift:** M
 **Delivers:** uv workspace, tooling, legal files, a green empty project
 
 ## Goal

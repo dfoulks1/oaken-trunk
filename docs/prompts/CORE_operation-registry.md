@@ -4,6 +4,7 @@
 `docs/architecture/ai-safety.md`, ADR 0008 and 0009.
 **Depends on:** [CORE_contracts-and-core](CORE_contracts-and-core.md).
 **Track:** `CORE_`. Model: oaken-mail's `oaken/core/operations/` (`registry`, `gate`, `exposure`,
+**Lift:** L
 **Delivers:** Typed operations, surfaces, confirm gate, schemas, `submit` and `version`; the command path
 `caller`, `context`, `client`). The registry imports no API, CLI or UI module.
 
@@ -75,7 +76,7 @@ For the API layer. This prompt builds `version`, `submit`, `reload` and `stop`.
 | CORE_supervisor | `list_workers`, `get_worker`, `add_worker`, `delete_worker`, `start_worker`, `stop_worker`, `restart_worker`, `run_on_worker` |
 | CORE_plugin-host | `list_plugins`, `plugin_health`, `set_plugin_enabled` |
 | CORE_audit-and-jobs | `audit`, `list_jobs` |
-| CORE_consumer-api | `lease`, `fetch`, `ack`, `nack`, `list`, `delete` |
+| CORE_consumer-api | `lease`, `fetch`, `ack`, `nack`, `renew`, `list`, `delete` |
 | CORE_request-guard | `keys_add`, `keys_list`, `keys_revoke` |
 
 ## Open questions (defaults in bold)

@@ -23,6 +23,7 @@ NAME = re.compile(rf"^(?:{'|'.join(TRACKS)})_[a-z0-9]+(?:-[a-z0-9]+)*$")
 MENTION = re.compile(rf"(?<![A-Za-z0-9_])((?:{'|'.join(TRACKS)})_[a-z0-9]+(?:-[a-z0-9]+)*)")
 STATUSES = ("Proposed", "Open", "Written", "In progress", "Partly built", "Built")
 LEVELS = {"—": 0, "partly": 1, "yes": 2}
+LIFTS = ("S", "M", "L", "XL")
 RESERVED = {"CONTEXT.md", "INDEX.md", "README.md", "TEMPLATE.md"}
 TEXT = {".md", ".py", ".toml", ".json", ".yml", ".yaml", ".txt"}
 
@@ -66,6 +67,12 @@ def delivers(root: Path, name: str) -> str:
     return hit.group(1).strip() if hit else ""
 
 
+def lift(root: Path, name: str) -> str:
+    text = (root / "docs/prompts" / f"{name}.md").read_text("utf-8")
+    hit = re.search(r"^\*\*Lift:\*\* (\S+)\s*$", text, re.M)
+    return hit.group(1) if hit else ""
+
+
 def order(m: Manifest) -> list[Prompt]:
     """Dependencies first. Target 0.1 before later; ties keep manifest order."""
     by = {p.name: p for p in m.prompts}
@@ -89,10 +96,10 @@ def _list(names: list[str]) -> str:
 
 
 def render_master(m: Manifest, root: Path) -> str:
-    rows = ["| Prompt | Status | Target | Delivers | Depends on |", "|---|---|---|---|---|"]
+    rows = ["| Prompt | Status | Target | Lift | Delivers | Depends on |", "|---|---|---|---|---|---|"]
     for p in m.prompts:
         rows.append(
-            f"| [{p.name}]({p.name}.md) | {p.status} | {p.target} | {delivers(root, p.name)} | "
+            f"| [{p.name}]({p.name}.md) | {p.status} | {p.target} | {lift(root, p.name)} | {delivers(root, p.name)} | "
             f"{', '.join(p.depends) or '—'} |"
         )
     return "\n".join(rows)
@@ -197,6 +204,8 @@ def problems(root: Path) -> list[str]:  # noqa: C901
             out.append(f"prompts.toml lists {p.name}, which has no file docs/prompts/{p.name}.md")
         elif not delivers(root, p.name):
             out.append(f"docs/prompts/{p.name}.md has no **Delivers:** line")
+        elif lift(root, p.name) not in LIFTS:
+            out.append(f"docs/prompts/{p.name}.md needs a **Lift:** line ({'/'.join(LIFTS)})")
         for d in p.depends:
             if d not in m.names():
                 out.append(f"{p.name} depends on {d}, which is not in prompts.toml")

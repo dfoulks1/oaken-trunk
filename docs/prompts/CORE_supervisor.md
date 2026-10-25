@@ -2,6 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/process-model.md`, ADR 0005.
 **Depends on:** [CORE_daemon](CORE_daemon.md).
+**Lift:** L
 **Delivers:** The supervisor and worker management, running in-process at `workers.count = 1`
 **Track:** `CORE_`.
 

@@ -12,23 +12,24 @@ order = 85
 
 Decisions are in [ADR 0010](repo:docs/adr/0010-signed-requests-by-default.md). The short version:
 
-- Each HTTP surface (ingest, consume, admin, MCP) has its own guard, keys, limits and caller class.
+- One guard sits in front of every HTTP surface (ingest, consume, admin, MCP). A key opens only the surfaces it
+  was issued for, and each operation declares its surface. The surface sets the limits and caller class.
 - An unsigned, badly signed, stale, replayed or cross-surface request is refused before any route exists.
 - Only a health route is open, and it answers `ok` and nothing else.
 - A setting that is missing or invalid fails closed. A non-loopback surface with no authenticator will not start.
 
 ## The guard
 
-In the order a request meets it: Host, Origin and content type; the surface's authenticator; then per-client
+Core owns freshness, replay and the default deny. An authenticator only verifies, and cannot weaken them. In the order a request meets it: Host, Origin and content type; the surface's authenticator; then per-client
 rate, body size and concurrency limits. The surface sets the caller class and a client cannot raise it.
 
 ## Schemes
 
 | Scheme | Notes |
 |---|---|
-| `ed25519` | Default. RFC 9421 HTTP Message Signatures with `Content-Digest`, timestamp and nonce. The server stores public keys only. |
+| `ed25519` | Default. A strict RFC 9421 profile with `Content-Digest` checked as the body streams (a mismatch aborts the write), timestamp and nonce. The server stores public keys only. |
 | `hmac` | SigV4-style shared secret. Simple, but the server holds every secret. |
-| `mtls` | Client certificates at the TLS layer. |
+| `mtls` | Later. Client certificates at the TLS layer. |
 | `bearer` | Off unless enabled, loopback only, and `doctor` warns. |
 
 Change it with one line per surface: `[security.ingest] scheme = "hmac"`. A third party can add a scheme as an
@@ -38,9 +39,15 @@ authenticator plugin ([Writing a plugin](../plugins.md)).
 
 - `steamer keys add|list|revoke --surface NAME` manages keys. Private keys go to the client and are never
   kept on the server. Key files are created mode 0600 from the first byte.
-- A timestamp window (`max_clock_skew_seconds`) and a nonce cache shared across workers through the
-  supervisor stop replays. If the supervisor is unreachable, the guard refuses requests.
+- A timestamp window (`max_clock_skew_seconds`) and a bounded in-memory nonce cache stop replays. It is in-process at one worker, and held by the supervisor
+  with more (a restart empties it, and the window bounds replay). With more than one worker, an unreachable
+  supervisor makes the guard refuse requests.
 - Signatures, keys and message content are never logged.
+
+## The local CLI
+
+`steamer` talks to the daemon over a Unix socket, gated by a built-in peer-credential check. It is not an
+authenticator and never meets the network guard. Windows uses loopback and an owner-only key.
 
 ## Other protocols
 

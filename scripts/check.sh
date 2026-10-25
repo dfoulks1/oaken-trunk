@@ -8,6 +8,17 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+LASTRUN_FILE=".check.lastrun"
+if [[ -f "$LASTRUN_FILE" ]]; then
+    read -r _sha _ts < "$LASTRUN_FILE"
+    _now=$(date +%s)
+    _elapsed=$(( _now - _ts ))
+    _h=$(( _elapsed / 3600 ))
+    _m=$(( (_elapsed % 3600) / 60 ))
+    _s=$(( _elapsed % 60 ))
+    echo "==> last run: ${_sha} (${_h}h ${_m}m ${_s}s ago)"
+fi
+
 echo "==> sync"
 uv sync --quiet
 
@@ -25,3 +36,5 @@ grep -rn "TODO(user)" --include=*.md . --exclude-dir=.venv --exclude-dir=.git | 
 
 echo
 echo "All checks passed."
+
+echo "$(git rev-parse --short HEAD) $(date +%s)" > "$LASTRUN_FILE"
