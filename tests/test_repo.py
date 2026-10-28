@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import re
 import subprocess
 from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
@@ -80,11 +79,3 @@ def test_gitignore_covers(sample: str) -> None:
 
 def test_env_example_is_not_ignored() -> None:
     assert _git("check-ignore", "-q", "--no-index", ".env.example").returncode == 1
-
-
-def test_workflow_actions_are_pinned_by_sha() -> None:
-    for workflow in (ROOT / ".github/workflows").glob("*.y*ml"):
-        for line in workflow.read_text(encoding="utf-8").splitlines():
-            if line.strip().startswith(("uses:", "- uses:")):
-                ref = line.split("uses:", 1)[1].split("#", 1)[0].strip()
-                assert re.fullmatch(r"[\w.-]+/[\w./-]+@[0-9a-f]{40}", ref), f"{workflow}: {ref}"

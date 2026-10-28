@@ -7,7 +7,7 @@ clients read over POP3 and the mail is gone once every device has it (ADR 0013).
 
 Oaken Mail is the client-side half of the family and Oaken Trunk is the server-side half: Trunk is run by an operator on a host that receives mail, and Oaken Mail (or anything else) consumes from it.
 
-**Status: pre-alpha. The workspace, checks and CI are in place (`steamer --version` works); the gateway itself is not built yet.**
+**Status: pre-alpha. The workspace and checks are in place (`steamer --version` works); the gateway itself is not built yet.**
 See the [roadmap](ROADMAP.md).
 
 - License: [Apache-2.0](LICENSE)

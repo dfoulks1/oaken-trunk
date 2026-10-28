@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Run every check CI runs, in one go.
+# Run every check, in one go. This is the gate: there is no CI.
 #
 #   scripts/check.sh
 #

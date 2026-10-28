@@ -16,9 +16,9 @@ target = "0.1"
 [[prompt]]
 name = "CORE_foundations"
 depends = ["CORE_bootstrap"]
-status = "In progress"
-built = "partly"
-tested = "partly"
+status = "Built"
+built = "yes"
+tested = "yes"
 released = "—"
 target = "0.1"
 

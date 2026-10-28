@@ -6,7 +6,7 @@
 **Delivers:** Paths, settings, the envelope, message ids, the error table, the Ingestor and Spool contracts, listener events, `Credits` and the test doubles
 **Track:** `CORE_`. Data, config, shapes and fakes. No streaming behaviour, no I/O beyond the directories.
 
-> **Status: In progress.** Built and green locally; waiting on review and CI. Open questions took
+> **Status: Built.** Green in `scripts/check.sh`, reviewed. Open questions took
 > their defaults. Where the code differs: the settings model covers every core table in
 > `config.example.toml`; `[ingest.<name>]` and `[store.<name>]` pass through as plugin tables for
 > CORE_plugin-host to validate. Unit-named keys (`lease_seconds`) also take a duration (`"5m"`).

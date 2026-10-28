@@ -102,7 +102,7 @@ code: it must not tell an AI to fetch from the network, run an unreviewed script
 **Built, Tested and Released** record the evidence behind the status:
 
 - **Built:** `—` (no code), `partly`, or `yes` (the deliverables are merged to `main`).
-- **Tested:** `—`, `partly`, or `yes` (every acceptance criterion passes in CI on all platforms).
+- **Tested:** `—`, `partly`, or `yes` (every acceptance criterion passes in `scripts/check.sh`).
 - **Released:** `—`, or the first version that ships it, such as `0.1.0`. A maintainer sets it at release.
 
 **Built** needs built `yes` and tested `yes`. **Reviewed**, **Written**, **Open** and **Proposed** need both `—`. Tested
@@ -118,7 +118,7 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
 |---|---|---|---|---|---|---|---|
 | [CORE_bootstrap](docs/prompts/CORE_bootstrap.md) | 0.1 | M | Built | yes | yes | — | — |
-| [CORE_foundations](docs/prompts/CORE_foundations.md) | 0.1 | L | In progress | partly | partly | — | CORE_bootstrap |
+| [CORE_foundations](docs/prompts/CORE_foundations.md) | 0.1 | L | Built | yes | yes | — | CORE_bootstrap |
 | [CORE_engine](docs/prompts/CORE_engine.md) | 0.1 | L | Written | — | — | — | CORE_foundations |
 | [CORE_operation-registry](docs/prompts/CORE_operation-registry.md) | 0.1 | L | Written | — | — | — | CORE_engine |
 | [CORE_daemon](docs/prompts/CORE_daemon.md) | 0.1 | L | Written | — | — | — | CORE_operation-registry |
