@@ -46,7 +46,7 @@ MANIFEST = ".site-manifest"
 
 DEMO_SRC = Path("apps/webui/oakenmail-templates")
 DEMO_OUT = "demo"
-_FONT_LINK = re.compile(r"[ \t]*<link[^>]*(?:fonts\.googleapis|fonts\.gstatic)[^>]*>\n")
+_FONT_LINK = re.compile(r"[ \t]*<link[^>]*(?:fonts\.googleapis|fonts\.gstatic)[^>]*>\r?\n")
 _CDN_LINK = re.compile(r'<link href="(https://cdn\.jsdelivr\.net/[^"]+)" rel="stylesheet">')
 _CDN_SCRIPT = re.compile(r'<script src="(https://cdn\.jsdelivr\.net/[^"]+)"></script>')
 

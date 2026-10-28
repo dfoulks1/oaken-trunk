@@ -249,7 +249,7 @@ def problems(root: Path) -> list[str]:  # noqa: C901
                 out.append(f"{p.name} does not name docs/prompts/context/{t}.md in Read first")
     for f, want in _expected(root, m).items():
         if f.read_text("utf-8") != want:
-            out.append(f"{f.relative_to(root)} is out of date; run: uv run python docs/tools/prompts.py sync")
+            out.append(f"{f.relative_to(root).as_posix()} is out of date; run: uv run python docs/tools/prompts.py sync")
     for rel, tags in BLOCKS.items():
         text = (root / rel).read_text("utf-8") if (root / rel).is_file() else ""
         for tag in tags:
@@ -258,7 +258,7 @@ def problems(root: Path) -> list[str]:  # noqa: C901
     for f in _tracked(root):
         for name in sorted(set(MENTION.findall(f.read_text("utf-8", errors="replace")))):
             if name not in known:
-                out.append(f"{f.relative_to(root)} mentions {name}, which is not a prompt")
+                out.append(f"{f.relative_to(root).as_posix()} mentions {name}, which is not a prompt")
     return out
 
 
