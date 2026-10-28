@@ -123,7 +123,7 @@ name = "Mail authentication"
 layer = "core"
 status = "planned"
 prompt = "CORE_mail-authentication"
-summary = "Native DKIM verification and signing, with SPF, DMARC and ARC where the client address is known. Holds only the header block in memory and hashes the body as it streams."
+summary = "The streaming authentication stage, an injectable resolver, Authentication-Results and DKIM verification. Holds only the header block in memory."
 uses = ["plugin-base"]
 untrusted = true
 
@@ -273,3 +273,30 @@ status = "planned"
 prompt = "CORE_diagnostics"
 summary = "Mail-path checks for doctor, and trace, devices, refusals and probe."
 uses = ["sysops", "audit", "store"]
+
+[[components]]
+id = "mailpolicy"
+name = "Mail policy"
+layer = "core"
+status = "planned"
+prompt = "CORE_mail-policy"
+summary = "SPF, DMARC (record or enforce) and ARC (record only) on the mail authentication stage."
+uses = ["mailauth"]
+
+[[components]]
+id = "keys"
+name = "Keys and tokens"
+layer = "core"
+status = "planned"
+prompt = "CORE_keys"
+summary = "apptoken and bearer authenticators, and key operations kept in the registry, live on every host."
+uses = ["guard", "store"]
+
+[[components]]
+id = "webui-actions"
+name = "Operator actions"
+layer = "clients"
+status = "planned"
+prompt = "WEBUI_operator-actions"
+summary = "Diagnostics pages and the CLI's mutating actions in the web UI, each confirmed and audited."
+uses = ["webui"]

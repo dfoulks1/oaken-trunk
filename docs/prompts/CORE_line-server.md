@@ -1,7 +1,7 @@
 # Line server: one base under every socket protocol
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, ADR 0010, ADR 0012, ADR 0013, ADR 0014.
-**Depends on:** [CORE_store](CORE_store.md), [CORE_request-guard](CORE_request-guard.md).
+**Depends on:** [CORE_store](CORE_store.md), [CORE_keys](CORE_keys.md).
 **Lift:** L
 **Delivers:** `BaseLineServer`, and `BaseIngestor` and `BaseRetriever` on top of it, with the retriever session as a transaction
 **Track:** `CORE_`. Protocol plugins (LMTP, SMTP, POP3, the SASL bridge) then map command words only.

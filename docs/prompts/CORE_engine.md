@@ -39,7 +39,7 @@ CORE_http-listener). Plugin discovery (CORE_plugin-host). The directory spool (P
    refusal. An empty `local_domains` accepts nothing, and `doctor` says so.
 4. **Header block and digest.** Keep the bytes up to the first blank line, bounded by `max_header_bytes`
    (default 64 KiB, over is a permanent refusal). Compute a raw SHA-256 of the body through named digest taps
-   (CORE_mail-authentication adds more).
+   (CORE_mail-authentication adds more; CORE_mail-policy builds on them).
 
 `compact`
 

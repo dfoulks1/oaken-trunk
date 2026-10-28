@@ -129,12 +129,14 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | [CORE_encryption](docs/prompts/CORE_encryption.md) | 0.1 | M | Written | — | — | — | CORE_store |
 | [CORE_consumer-api](docs/prompts/CORE_consumer-api.md) | 0.1 | M | Written | — | — | — | PLUGIN_directory-spool |
 | [CORE_diagnostics](docs/prompts/CORE_diagnostics.md) | 0.1 | M | Written | — | — | — | CORE_system-operations, CORE_audit-and-jobs, CORE_consumer-api |
-| [CORE_request-guard](docs/prompts/CORE_request-guard.md) | 0.1 | XL | Written | — | — | — | CORE_plugin-host, CORE_supervisor, CORE_store |
-| [CORE_line-server](docs/prompts/CORE_line-server.md) | 0.1 | L | Written | — | — | — | CORE_store, CORE_request-guard |
+| [CORE_request-guard](docs/prompts/CORE_request-guard.md) | 0.1 | L | Written | — | — | — | CORE_plugin-host, CORE_supervisor, CORE_store |
+| [CORE_keys](docs/prompts/CORE_keys.md) | 0.1 | M | Written | — | — | — | CORE_request-guard, CORE_store |
+| [CORE_line-server](docs/prompts/CORE_line-server.md) | 0.1 | L | Written | — | — | — | CORE_store, CORE_keys |
 | [CORE_http-listener](docs/prompts/CORE_http-listener.md) | 0.1 | M | Written | — | — | — | CORE_daemon, CORE_request-guard |
-| [CORE_enrollment](docs/prompts/CORE_enrollment.md) | 0.1 | M | Written | — | — | — | CORE_http-listener, CORE_store |
+| [CORE_enrollment](docs/prompts/CORE_enrollment.md) | 0.1 | M | Written | — | — | — | CORE_http-listener, CORE_keys |
 | [CORE_security-hardening](docs/prompts/CORE_security-hardening.md) | 0.1 | M | Written | — | — | — | PLUGIN_mail-protocols, CORE_consumer-api, CORE_http-listener |
-| [CORE_mail-authentication](docs/prompts/CORE_mail-authentication.md) | later | XL | Written | — | — | — | CORE_engine, CORE_plugin-host |
+| [CORE_mail-authentication](docs/prompts/CORE_mail-authentication.md) | later | L | Written | — | — | — | CORE_engine, CORE_plugin-host |
+| [CORE_mail-policy](docs/prompts/CORE_mail-policy.md) | later | M | Written | — | — | — | CORE_mail-authentication |
 | [CORE_send](docs/prompts/CORE_send.md) | later | L | Written | — | — | — | CORE_consumer-api, CORE_request-guard |
 
 #### PLUGIN
@@ -158,7 +160,8 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 
 | Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
 |---|---|---|---|---|---|---|---|
-| [WEBUI_management-ui](docs/prompts/WEBUI_management-ui.md) | later | XL | Written | — | — | — | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
+| [WEBUI_management-ui](docs/prompts/WEBUI_management-ui.md) | later | L | Written | — | — | — | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
+| [WEBUI_operator-actions](docs/prompts/WEBUI_operator-actions.md) | later | M | Written | — | — | — | WEBUI_management-ui, CORE_diagnostics, CORE_enrollment |
 
 #### MCP
 

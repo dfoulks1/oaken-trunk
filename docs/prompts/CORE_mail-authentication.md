@@ -1,31 +1,43 @@
-# Mail authentication
+# Mail authentication: the stage, the resolver and DKIM
 
-**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, ADR 0011.
 **Depends on:** [CORE_engine](CORE_engine.md), [CORE_plugin-host](CORE_plugin-host.md).
-**Lift:** XL
-**Delivers:** Native inbound DKIM, SPF, DMARC, ARC without buffering a message
+**Lift:** L
+**Delivers:** A streaming authentication stage, an injectable DNS resolver, `Authentication-Results`, and DKIM verification
+**Track:** `CORE_`. CORE_mail-policy adds SPF, DMARC and ARC on this stage.
 
 ## Goal
 
-Native inbound DKIM, SPF, DMARC and ARC handling (ADR 0011), without holding a whole message in memory.
+Native inbound DKIM (ADR 0011) without holding a whole message in memory, and the stage the other checks
+plug into.
 
-## Steps
+## Requirements
 
-1. A core stage that holds only the header block (`max_header_bytes`) and computes the DKIM body hash incrementally as the body streams to the spool.
-2. DKIM verification per RFC 6376 with the Ed25519 algorithm of RFC 8463; SPF per RFC 7208; DMARC per RFC 9989; ARC per RFC 8617, recorded only. Cite the RFCs in the docs.
-3. SPF and DMARC only when the client address is known (SMTP edge, or a trusted hop in `trusted_hops`); otherwise recorded as not evaluated, never as a pass.
-4. Stamp `Authentication-Results` (RFC 8601); strip one arriving from outside unless it is from a trusted hop; record results in the envelope.
-5. `mailauth.dmarc` = `off`, `record` (default) or `enforce`; `enforce` answers a published `reject` with a permanent 5xx at the protocol edge.
-6. DNS lookups through an injectable resolver so tests use fakes; no real DNS in tests. Bounded lookups and timeouts, and a lookup failure is a temporary failure, never a pass.
-7. Plugin hooks for key lookup and policy. Outbound signing is built in CORE_send.
+**A. Stage and resolver**
+
+1. **Stage.** Holds only the header block (`max_header_bytes`) and computes DKIM body hashes incrementally as
+   the body streams to the spool, through the engine's digest taps.
+2. **Resolver.** Injectable, so tests use fakes and never real DNS. Bounded lookups and timeouts. A lookup
+   failure is a temporary failure, never a pass.
+3. **`Authentication-Results`** (RFC 8601). Stamp one; strip one arriving from outside unless it is from a
+   host in `trusted_hops`. Results also go on the envelope.
+
+`compact`
+
+**B. DKIM**
+
+4. **Verify** per RFC 6376, with Ed25519 per RFC 8463. Every signature is evaluated; the result is recorded,
+   never used to refuse here.
+5. **Hooks.** Plugin hooks for key lookup. Outbound signing is CORE_send.
+6. **Docs.** `mail-authentication.md` citing the RFCs, softmap, status table.
 
 ## Acceptance criteria
 
-- Test vectors (synthetic keys and messages) pass and fail DKIM, SPF and DMARC as expected; a message larger than memory is verified with only the header block held.
-- A forged external `Authentication-Results` is stripped.
-- `ruff check`, `ruff format --check`, `mypy`, `lint-imports` and `pytest` pass; no network, Docker or real mail in tests.
-- Docs and `docs/softmap.toml` updated; the status table in `CONTRIBUTING.md` updated.
+- Synthetic keys and messages pass and fail DKIM as expected. A message larger than memory is verified with
+  only the header block held.
+- A forged external `Authentication-Results` is stripped; a trusted hop's is kept.
+- No real DNS in tests. Standard checks pass.
 
-## Checkpoint
+## Report-back checkpoint
 
-Use the report format from `CONTEXT.md`, then stop.
+End with the report from `CONTEXT.md`, naming the open questions that took the default. Then stop.

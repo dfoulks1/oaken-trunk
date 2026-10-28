@@ -28,11 +28,12 @@ rate, body size and concurrency limits. The surface sets the caller class and a 
 | Scheme | Notes |
 |---|---|
 | `ed25519` | Default. A strict RFC 9421 profile with `Content-Digest` checked as the body streams (a mismatch aborts the write), timestamp and nonce. The server stores public keys only. |
-| `hmac` | SigV4-style shared secret. Simple, but the server holds every secret. |
+| `apptoken` | Per-device `toaken_` tokens for POP3, the Dovecot-auth bridge and enrollment. Stored as scrypt hashes, with lockout. |
+| `hmac` | Later. SigV4-style shared secret; the server would hold every secret. |
 | `mtls` | Later. Client certificates at the TLS layer. |
 | `bearer` | Off unless enabled, loopback only, and `doctor` warns. |
 
-Change it with one line per surface: `[security.ingest] scheme = "hmac"`. A third party can add a scheme as an
+Change it with one line per surface: `[security.ingest] scheme = "ed25519"`. A third party can add a scheme as an
 authenticator plugin ([Writing a plugin](../plugins.md)).
 
 ## Keys and replay

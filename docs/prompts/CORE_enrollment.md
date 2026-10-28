@@ -1,7 +1,7 @@
 # Enrollment: users add and remove their own devices
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, ADR 0010, ADR 0013.
-**Depends on:** [CORE_http-listener](CORE_http-listener.md), [CORE_store](CORE_store.md).
+**Depends on:** [CORE_http-listener](CORE_http-listener.md), [CORE_keys](CORE_keys.md).
 **Lift:** M
 **Delivers:** Self-service device registration over HTTP: an authenticated request for a token for device `IDENTIFIER`
 **Track:** `CORE_`. Operations on a new `enroll` surface, behind the request guard. No new listener.

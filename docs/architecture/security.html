@@ -103,8 +103,12 @@ rate, body size and concurrency limits. The surface sets the caller class and a 
 <td>Default. A strict RFC 9421 profile with <code>Content-Digest</code> checked as the body streams (a mismatch aborts the write), timestamp and nonce. The server stores public keys only.</td>
 </tr>
 <tr>
+<td><code>apptoken</code></td>
+<td>Per-device <code>toaken_</code> tokens for POP3, the Dovecot-auth bridge and enrollment. Stored as scrypt hashes, with lockout.</td>
+</tr>
+<tr>
 <td><code>hmac</code></td>
-<td>SigV4-style shared secret. Simple, but the server holds every secret.</td>
+<td>Later. SigV4-style shared secret; the server would hold every secret.</td>
 </tr>
 <tr>
 <td><code>mtls</code></td>
@@ -116,7 +120,7 @@ rate, body size and concurrency limits. The surface sets the caller class and a 
 </tr>
 </tbody>
 </table></div>
-<p>Change it with one line per surface: <code>[security.ingest] scheme = &quot;hmac&quot;</code>. A third party can add a scheme as an
+<p>Change it with one line per surface: <code>[security.ingest] scheme = &quot;ed25519&quot;</code>. A third party can add a scheme as an
 authenticator plugin (<a href="../plugins.html">Writing a plugin</a>).</p>
 </section>
 <section id="keys-and-replay" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>Keys and replay</h2></div>

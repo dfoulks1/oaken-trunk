@@ -54,6 +54,7 @@ Settled while reviewing the prompts.
   (CORE_supervisor). A restart empties it, so the timestamp window is the bound on replay across a restart.
 - **Local CLI.** It uses the Unix socket, gated by the daemon's built-in peer-credential check. That is not an
   authenticator plugin, and it never reaches the network guard. Windows uses loopback plus an owner-only key.
-- **`mtls` is later.** `hmac` and `bearer` (loopback only) ship with `ed25519`.
+- **`mtls` and `hmac` are later.** `bearer` (loopback only) and `apptoken` (device logins, ADR 0013) ship with
+  `ed25519`. (Amended 2026-10-28: `hmac` moved later.)
 - **No supervisor outage in 0.1.** The supervisor is in-process at the defaults, so "supervisor unreachable"
   only exists with more than one worker.

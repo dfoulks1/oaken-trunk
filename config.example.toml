@@ -53,7 +53,7 @@ poll_interval_ms = 500
 # Every HTTP surface refuses unsigned requests before any route runs (ADR 0010).
 # One line per surface changes the scheme; `steamer keys add --surface ingest` makes a key.
 [security.ingest]
-scheme = "ed25519"          # ed25519 (RFC 9421, default) | hmac | mtls | bearer (loopback only, warned)
+scheme = "ed25519"          # ed25519 (RFC 9421, default) | apptoken | bearer (loopback only, warned); hmac, mtls later
 keys_dir = "config/keys/ingest"   # public keys only for ed25519; files are mode 0600
 max_clock_skew_seconds = 60
 

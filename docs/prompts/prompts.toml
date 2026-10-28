@@ -114,7 +114,7 @@ target = "0.1"
 
 [[prompt]]
 name = "CORE_line-server"
-depends = ["CORE_store", "CORE_request-guard"]
+depends = ["CORE_store", "CORE_keys"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -167,6 +167,15 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
+name = "CORE_keys"
+depends = ["CORE_request-guard", "CORE_store"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
 name = "CORE_http-listener"
 depends = ["CORE_daemon", "CORE_request-guard"]
 status = "Written"
@@ -177,7 +186,7 @@ target = "0.1"
 
 [[prompt]]
 name = "CORE_enrollment"
-depends = ["CORE_http-listener", "CORE_store"]
+depends = ["CORE_http-listener", "CORE_keys"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -230,8 +239,26 @@ released = "—"
 target = "later"
 
 [[prompt]]
+name = "WEBUI_operator-actions"
+depends = ["WEBUI_management-ui", "CORE_diagnostics", "CORE_enrollment"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[prompt]]
 name = "CORE_mail-authentication"
 depends = ["CORE_engine", "CORE_plugin-host"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "later"
+
+[[prompt]]
+name = "CORE_mail-policy"
+depends = ["CORE_mail-authentication"]
 status = "Written"
 built = "—"
 tested = "—"
