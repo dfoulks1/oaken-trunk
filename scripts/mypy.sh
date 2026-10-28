@@ -9,4 +9,4 @@ cd "$(dirname "$0")/.."
 
 uv run scripts/run_check.py .mypy.lastrun "mypy" -- \
     "sync"   uv sync --quiet  -- \
-    "mypy"   uv run mypy .
+    "mypy"   uv run mypy

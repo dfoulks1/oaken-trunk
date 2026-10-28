@@ -234,11 +234,24 @@ node_modules/
 site/
 .claude/settings.local.json
 
-# Synthetic test fixtures are committed (no real mail; see docs/architecture/parsing.md).
-!src/oaken_trunk/tests/fixtures/**/*.eml
-
 # A real config.toml holds local settings and must never be committed (use config.example.toml).
 config.toml
 
 # check script state
 .*.lastrun
+
+# Keys and certificates: TLS, DKIM (opendkim writes <selector>.private), signing keys.
+*.pem
+*.key
+*.p12
+*.pfx
+*.private
+*.gpg
+secring.*
+
+# Spool directories hold mail. The spool source package is code, not mail.
+spool/
+!src/**/spool/
+
+# import-linter cache
+.import_linter_cache/
