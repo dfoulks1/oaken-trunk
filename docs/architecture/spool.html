@@ -87,7 +87,7 @@ consumers see; where bytes live is the store's decision (ADR 0003).</p>
 <tbody>
 <tr>
 <td><code>writer(id, envelope)</code></td>
-<td>An async context manager: <code>write(chunk)</code> for each chunk, then <code>commit(annotations)</code>. The message is visible only after <code>commit</code>, which returns when it is durable per the driver's durability. Leaving the block without <code>commit</code> aborts and removes the partial data.</td>
+<td>An async context manager: <code>write(chunk)</code> for each chunk, then <code>commit(annotations)</code>. The message is visible only after <code>commit</code>, which returns its delivery ids (<code>&lt;id&gt;-&lt;n&gt;</code>, one per queue entry) when it is durable per the driver's durability. Leaving the block without <code>commit</code> aborts, removes the partial data and raises <code>StoreAborted</code>.</td>
 </tr>
 <tr>
 <td><code>lease(consumer, limit, seconds)</code></td>
@@ -95,7 +95,7 @@ consumers see; where bytes live is the store's decision (ADR 0003).</p>
 </tr>
 <tr>
 <td><code>open(id)</code></td>
-<td>Stream the bytes of a leased message.</td>
+<td>A leased delivery: its own envelope (one recipient), the message's annotations, and the bytes as a stream.</td>
 </tr>
 <tr>
 <td><code>ack(id, token)</code></td>
@@ -119,9 +119,10 @@ consumers see; where bytes live is the store's decision (ADR 0003).</p>
 </tr>
 </tbody>
 </table></div>
-<p><code>annotations</code> are results listeners recorded (empty until one does). The spool keeps them with the message
+<p><code>annotations</code> are results listeners recorded (empty until one does): a JSON value keyed by the listener's name. The spool keeps them with the message
 and hands them back with <code>open</code>. How a driver keeps them is its own business (PLUGIN_directory-spool settles it for the
 directory driver).</p>
+<p>The contract is the <code>Spool</code> protocol in <code>oaken_trunk.spool</code>; <code>oaken_trunk.testing.FakeSpool</code> is its in-memory double for tests.</p>
 <p>Delivery is at-least-once (ADR 0004). Expired leases return to the queue. Ids are time-ordered and
 unique, so consumers dedupe on them.</p>
 </section>

@@ -6,7 +6,10 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-dependencies = []
+dependencies = [
+    "platformdirs>=4.13.7",
+    "pydantic-settings>=2.16.2",
+]
 
 [project.scripts]
 steamer = "oaken_trunk.cli:main"
@@ -107,3 +110,31 @@ type = "glob_forbidden"
 importers = ["oaken_trunk*"]
 forbidden = ["oaken_trunk.testing", "oaken_trunk.testing.*"]
 allowed = ["oaken_trunk.testing", "oaken_trunk.testing.*", "*.tests", "*.tests.*"]
+
+[[tool.importlinter.contracts]]
+name = "Foundations import no HTTP, CLI, registry or plugin module"
+type = "glob_forbidden"
+importers = [
+    "oaken_trunk.credits",
+    "oaken_trunk.envelope",
+    "oaken_trunk.errors",
+    "oaken_trunk.events",
+    "oaken_trunk.ids",
+    "oaken_trunk.ingest",
+    "oaken_trunk.paths",
+    "oaken_trunk.settings",
+    "oaken_trunk.spool",
+]
+forbidden = [
+    "oaken_trunk.cli*",
+    "oaken_trunk.http*",
+    "oaken_trunk.registry*",
+    "oaken_trunk.plugins*",
+    "oaken_trunk_*",
+    "http",
+    "http.*",
+    "aiohttp*",
+    "httpx*",
+    "starlette*",
+    "urllib*",
+]

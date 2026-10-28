@@ -201,13 +201,23 @@ summary = "Lease, fetch, ack, nack and renew per device, with long-poll wake-up 
 uses = ["store"]
 
 [[components]]
+id = "foundations"
+name = "Foundations and contracts"
+layer = "core"
+status = "built"
+path = "src/oaken_trunk/settings.py"
+prompt = "CORE_foundations"
+summary = "Paths, strict settings, the envelope, message and delivery ids, the error table, and the `Spool`, `Ingestor`, listener-event and `Credits` contracts with their test doubles."
+uses = []
+
+[[components]]
 id = "engine"
 name = "Engine"
 layer = "core"
 status = "planned"
 prompt = "CORE_engine"
 summary = "The data path: limits, recipients, the header block and digests, listener events, and the commit into the spool in bounded chunks."
-uses = ["mailauth", "store", "host"]
+uses = ["mailauth", "store", "host", "foundations"]
 
 [[components]]
 id = "mailauth"

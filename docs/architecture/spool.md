@@ -17,18 +17,20 @@ consumers see; where bytes live is the store's decision (ADR 0003).
 
 | Operation | Meaning |
 |---|---|
-| `writer(id, envelope)` | An async context manager: `write(chunk)` for each chunk, then `commit(annotations)`. The message is visible only after `commit`, which returns when it is durable per the driver's durability. Leaving the block without `commit` aborts and removes the partial data. |
+| `writer(id, envelope)` | An async context manager: `write(chunk)` for each chunk, then `commit(annotations)`. The message is visible only after `commit`, which returns its delivery ids (`<id>-<n>`, one per queue entry) when it is durable per the driver's durability. Leaving the block without `commit` aborts, removes the partial data and raises `StoreAborted`. |
 | `lease(consumer, limit, seconds)` | Reserve up to `limit` of this device's deliveries for a visibility timeout. Returns delivery ids and lease tokens. |
-| `open(id)` | Stream the bytes of a leased message. |
+| `open(id)` | A leased delivery: its own envelope (one recipient), the message's annotations, and the bytes as a stream. |
 | `ack(id, token)` | The device is done; remove the delivery from its queue. The body goes when no queue holds it. |
 | `nack(id, token)` | Return the delivery to its queue. |
 | `delete(id)` | Remove regardless of lease (operator action, audited). |
 | `watch()` | Wake consumers: inotify on directories, a poll otherwise. Never an in-process-only event. |
 | `usage()` | Body bytes and delivery count, for the caps and `status`. |
 
-`annotations` are results listeners recorded (empty until one does). The spool keeps them with the message
+`annotations` are results listeners recorded (empty until one does): a JSON value keyed by the listener's name. The spool keeps them with the message
 and hands them back with `open`. How a driver keeps them is its own business (PLUGIN_directory-spool settles it for the
 directory driver).
+
+The contract is the `Spool` protocol in `oaken_trunk.spool`; `oaken_trunk.testing.FakeSpool` is its in-memory double for tests.
 
 Delivery is at-least-once (ADR 0004). Expired leases return to the queue. Ids are time-ordered and
 unique, so consumers dedupe on them.

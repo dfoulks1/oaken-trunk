@@ -9,3 +9,6 @@ All notable changes are listed here. The format follows Keep a Changelog.
   ruff, mypy, pytest, import-linter contracts, an SPDX check, repo-wide guards against tracked
   mail or secrets, synthetic test mail in `oaken_trunk.testing`, pre-commit with detect-secrets,
   and CI on Linux, macOS and Windows.
+- Foundations and contracts (CORE_foundations): paths, strict settings (pydantic-settings),
+  the envelope, time-ordered message ids, the error table, and the `Spool`, `Ingestor`, listener
+  event and `Credits` contracts with `FakeSpool`, `FakeIngestor` and `RecordingListenerHost`.

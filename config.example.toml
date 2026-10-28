@@ -1,11 +1,16 @@
 # Oaken Trunk: documented template. Copy to <config dir>/config.toml and edit what you change.
-# Every section has defaults. Unknown top-level keys are an error.
-# Secrets (SMTP AUTH passwords, API tokens, S3/Redis credentials) never go here.
+# Every section has defaults. An unknown key at any level is an error.
+# Precedence: defaults < this file < OAKEN_TRUNK_* (nested with __: OAKEN_TRUNK_SERVER__PORT=8090).
+# Sizes take units ("25MiB", "64KiB"). A key named in a unit (_seconds, _days, _ms) also takes
+# a duration in that unit's whole numbers ("5m" for lease_seconds).
+# Secrets (SMTP AUTH passwords, API tokens, S3/Redis credentials) never go here: a key named like
+# one (password, token, secret, private_key) is refused. Use a file or the environment.
+# [ingest.<name>] and [store.<name>] tables belong to their plugins, which validate them.
 version = 1
 
 [workers]                   # one worker = one process = one engine and event loop
-count = 1                   # a fixed number of workers, 1..max_count
-thread_count = 1            # blocking-I/O threads (fsync, file writes) per worker; 1 until tested
+count = 1                   # fixed worker count; above 1 is refused until the supervisor lands
+thread_count = 1            # blocking-I/O threads per worker (fsync, writes); above 1 refused
 max_count = 8               # hard ceiling on count
 max_threads = 32            # hard ceiling on count * thread_count; startup fails above it
 
@@ -29,7 +34,7 @@ enabled = false             # planned; the Postfix virtual_transport target
 socket = "run/lmtp.sock"
 
 [mail]
-local_domains = []          # domains Trunk accepts mail for; empty accepts nothing
+local_domains = []          # domains Trunk accepts mail for (lowercased); empty accepts nothing
 
 [spool]                     # core logic over the stores below (ADR 0014)
 max_spool_bytes = "20GiB"   # bodies; at the limit new mail gets a retryable 4xx / HTTP 507
