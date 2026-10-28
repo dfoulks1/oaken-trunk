@@ -11,7 +11,8 @@
 
 ## Steps
 
-1. Redis stream and consumer groups mapped to lease, ack, nack; AOF guidance in the docs.
+1. One stream per device (ADR 0013), mapped to lease, ack, nack; one body key per message with a reference
+   count, deleted at zero. AOF guidance in the docs.
 2. Streams bodies in bounded chunks; no whole-message buffering.
 3. Passes the spool contract suite using a fake or in-process server; tests never use a real Redis.
 

@@ -31,8 +31,8 @@ CORE_http-listener). Plugin discovery (CORE_plugin-host). The directory spool (P
 1. **Limiter.** `max_inflight` behind `Credits`, in memory here. Take a slot before the first chunk. Release on
    success, failure and cancellation. Over the limit is the retryable error with `retry_after_seconds`.
 2. **Ingest.** `ingest(envelope, chunks)` (what `submit` will call) assigns the id, re-chunks to at most 64 KiB,
-   stops reading at the first byte over `max_message_size`, checks `usage()` against `max_spool_bytes` before
-   writing, and holds at most one chunk plus the header block.
+   stops reading at the first byte over `max_message_size`, checks `usage()` against `max_spool_bytes` and
+   `max_deliveries` (ADR 0013) before writing, and holds at most one chunk plus the header block.
 3. **Recipients.** Each recipient is checked against `[mail] local_domains`. The result is per recipient,
    accepted or refused (65, refused recipient). Only accepted ones are committed. None accepted is the
    refusal. An empty `local_domains` accepts nothing, and `doctor` says so.

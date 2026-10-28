@@ -16,8 +16,9 @@ The default spool. Maildir-style, no dependencies, survives a crash at any step.
 - The author-facing methods are `write`, `commit`, `abort`, `lease`, `open`, `ack` (CORE_plugin-host). Optional: `nack`,
   `delete`, `watch`, `usage`.
 - One worker, one I/O thread. A message is visible only after `commit`.
-- One body, one delivery per recipient: each is a hard link to the body. The envelope (one recipient) and the
-  annotations live in `meta/<id>-<n>.json`, which never moves.
+- One body, one delivery per (recipient, device): each is a hard link to the body, so a device's queue is
+  its links (ADR 0013). The envelope (one recipient) and the annotations live in `meta/<id>-<n>.json`,
+  which never moves. Dropping an expired device unlinks its deliveries.
 - A tmpfs mount is the operator's choice for this driver, not another driver.
 
 ## Not in scope
@@ -28,7 +29,7 @@ Cross-process quota and shared counters (CORE_supervisor). Redis and S3 (PLUGIN_
 
 ```
 spool/tmp/<id>.msg                           body being written
-spool/new/<id>-<n>.msg                       ready: a hard link to the body, one per recipient
+spool/new/<id>-<n>-<device>.msg              ready: a hard link to the body, one per recipient and device
 spool/leased/<id>-<n>.<expiry>.<token>.msg   leased; the name carries the lease
 spool/meta/<id>-<n>.json                     envelope and annotations for that delivery
 ```
@@ -67,7 +68,7 @@ integer expiry seconds and base32 tokens. Unknown names are ignored.
 8. **Durability.** `strict`: fsync file and directory per message. `batched`: fsync each file, then one
    directory fsync for the group (not N). `volatile`: none. Windows has no directory fsync, so there
    `strict` is a file fsync and the weaker guarantee is documented.
-9. **Quota.** `usage()` counts each delivery at the body size (a safe overcount with links), from an in-memory count built by a scan at start, updated on commit, ack and
+9. **Quota.** `usage()` returns bytes and deliveries (links). Bytes count each delivery at the body size (a safe overcount with links), from an in-memory count built by a scan at start, updated on commit, ack and
    delete, with a periodic rescan to correct drift. Over `max_spool_bytes` gives `SpoolFull`.
 10. **Disk errors.** `ENOSPC` is `SpoolFull`. Other `OSError`s are `SpoolUnavailable`. Both map through the
     table of CORE_foundations.

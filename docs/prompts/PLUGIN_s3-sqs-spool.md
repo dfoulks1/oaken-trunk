@@ -11,9 +11,12 @@
 
 ## Steps
 
-1. S3 objects for bodies, SQS visibility timeouts for leases; multipart upload from the chunk stream.
-2. Credentials from the environment or instance role, never config.
-3. Passes the spool contract suite against a fake; tests never use AWS.
+1. One S3 object per body; one SQS queue per device (ADR 0013), visibility timeouts as leases; multipart
+   upload from the chunk stream. A body is deleted when no queue holds it; an S3 lifecycle rule is the backstop.
+2. SQS keeps a message at most 14 days, and mail must not expire: re-enqueue entries before retention ends,
+   or say why another design is needed. Verify the limit.
+3. Credentials from the environment or instance role, never config.
+4. Passes the spool contract suite against a fake; tests never use AWS.
 
 ## Acceptance criteria
 

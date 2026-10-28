@@ -24,10 +24,15 @@ Trunk is only the server side, and should not care which client connects.
   `QUIT` acks. A dropped session acks nothing and the claims time out. `UIDL` is the delivery id. IMAP is
   not shipped: its clients give no reliable "I have it" signal, and it invites server-side folders, uploads
   and search. It can be another plugin later, under this ADR.
-- **Every device is a consumer.** Each device has its own key and gets every message for its recipient. A
-  message is deleted once every registered device has acked it. A device unused for 30 days expires.
-- **Spools stay queues.** No folders, no flags, no uploads, no mailbox view in core or in any spool. Mail
-  waits until acked, bounded by the spool quota.
+- **Every device is a consumer.** Each device has its own key and gets every message for its recipient.
+- **Spools stay queues: one per device.** A body is stored once; each device has its own queue of
+  references to it, and an ack removes the device's entry. The body goes when no queue holds it. No
+  folders, no flags, no uploads, no per-account state.
+- **Devices go stale, mail does not.** Mail waits in a device's queue until acked. A device unused for
+  `device_expiry_days` (30) expires with its queue, and `doctor` reports what was dropped.
+- **Three caps, any backend.** `max_spool_bytes` (bodies), `max_deliveries` (queue entries: links, keys or
+  objects) and `max_devices`. At either of the first two, ingest refuses with a retryable error and the
+  sender's MTA retries and bounces; Trunk never bounces. At `max_devices`, adding a device is refused.
 - **Same guard.** A retriever authenticates through the authenticator plugins (ADR 0010), over TLS, with the
   key's recipient scope. Logs carry no content (ADR 0012).
 

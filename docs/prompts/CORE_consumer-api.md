@@ -14,9 +14,10 @@ How a consumer takes mail out. At-least-once, never buffered, same operations on
 
 - Six operations plus `renew`. Surface `consume`, set by the key, never by the caller.
 - A consumer is named by its key id (a device, for a mail client). Leases belong to that name.
-- Claims are exclusive within a consumer, not across them. Every consumer registered for a recipient
-  gets each message; it is deleted once all of them have acked. A consumer unused for `consumer_expiry`
-  (default 30 days) is dropped and `doctor` says so (ADR 0013).
+- Claims are exclusive within a consumer, not across them. Every consumer registered for a recipient has
+  its own queue and gets each message; the body goes when no queue holds it. Mail never expires. A
+  consumer unused for `device_expiry_days` (default 30) is dropped with its queue and `doctor` reports
+  it. At `max_devices`, `keys_add --device` is refused (ADR 0013).
 - Bodies stream out in bounded chunks. Core never holds a whole message.
 - Expired leases return to the queue. Consumers dedupe on the delivery id (ADR 0004).
 - `delete` is audited. Lease, ack and nack are counted in stats, not audited.
