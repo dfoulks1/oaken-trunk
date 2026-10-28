@@ -8,7 +8,8 @@ To run, request or change a prompt, see [CONTRIBUTING.md](../../CONTRIBUTING.md#
 
 **Oaken Trunk** is a small, stateless mail gateway. It takes mail in (SMTP, LMTP, HTTP, pipe), streams
 it to a spool on disk, and lets consumers lease, process and ack it. It replaces the local *delivery*
-step (the LDA role): no mailbox, no IMAP, no index. Light enough to run beside Postfix or qmail.
+step (the LDA role) and Dovecot's mailboxes: a no-server-side-mailbox spool, no index, no system mailboxes. Clients read through the consumer operations, or over IMAP
+through a retriever plugin that fetches and acks (ADR 0013). Light enough to run beside Postfix or qmail.
 Oaken Mail is one consumer, through a plugin in its own repository. Apache-2.0.
 
 ```text
@@ -26,7 +27,7 @@ Oaken Mail is one consumer, through a plugin in its own repository. Apache-2.0.
 ## Master list and build order
 
 In [INDEX.md](INDEX.md), generated from [`prompts.toml`](prompts.toml). Status words: **Built** (in `main`
-with tests), **Open** (free to take), **Written** (a plan, not yet reviewed), **Reviewed** (checked with a maintainer, ready to build once its dependencies are).
+with tests), **Open** (free to take), **Written** (a plan, waiting on its dependencies).
 
 ## How the files are named
 

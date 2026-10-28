@@ -12,11 +12,12 @@ Everything Oaken Trunk can be extended with is a plugin: a small class registere
 point. Start from a base class, override what your plugin does, and run the contract suite. This is
 the same model as Oaken Mail's plugins, so the habits carry over.
 
-## The six kinds, and the plain plugin
+## The seven kinds, and the plain plugin
 
 | Kind | Entry-point group | Base class | What it does |
 |---|---|---|---|
 | Ingestor | `oaken_trunk.ingestors` | `BaseIngestor` | Speaks a protocol and hands core a byte stream and an envelope. |
+| Retriever | `oaken_trunk.retrievers` | `BaseRetriever` | Speaks a read protocol (IMAP) and maps it onto list, lease, fetch and ack. Holds no store. |
 | Spool | `oaken_trunk.spools` | `BaseSpool` | Stores messages and runs lease, ack and nack. |
 | Sender | `oaken_trunk.senders` | `BaseSender` | Relays an outbound message to its destination. |
 | Authenticator | `oaken_trunk.authenticators` | `BaseAuthenticator` | Verifies a request or connection: signed requests, SMTP AUTH, mTLS. Core owns freshness, replay and the default deny. |

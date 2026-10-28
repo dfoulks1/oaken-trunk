@@ -9,7 +9,7 @@ description = "A lightweight, plugin-extensible mail gateway: ingest, spool, lea
 ## What it is for
 
 - **Server-side software.** Oaken Mail is the client; Oaken Trunk runs on the host that receives mail, is operated rather than used, binds to the network, and takes its secrets from files or the environment.
-- **Replace local delivery, not your MTA.** Postfix or qmail hand mail to Trunk over LMTP or a pipe. There is no IMAP and no mailbox.
+- **Replace local delivery, not your MTA.** Postfix or qmail hand mail to Trunk over LMTP or a pipe. Mail clients read over IMAP, and there is no mailbox: a fetched message is gone.
 - **Never holds a message in memory.** Bodies stream into the spool in fixed chunks, and overload gets a retryable 4xx.
 - **Accepted means durable.** The default spool syncs to disk before the sender is told yes.
 - **Consumers set their own pace.** They lease a message, process it and acknowledge it. Delivery is at-least-once.

@@ -27,7 +27,9 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | [CORE_security-hardening](CORE_security-hardening.md) | Written | 0.1 | M | Injection, auth and open-relay test pass across every ingestor | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener |
 | [DOCS_docs-site](DOCS_docs-site.md) | Partly built | 0.1 | S | Docs site tooling | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
 | [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md) | Written | 0.1 | S | First-party qmail and Postfix commands that wrap `submit` with each MTA's conventions | CORE_plugin-host, CLI_client, CORE_operation-registry |
-| [DOCS_mta-guides](DOCS_mta-guides.md) | Written | 0.1 | M | Tested guides for handing mail from qmail and Postfix to Trunk | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard |
+| [PLUGIN_imap-retriever](PLUGIN_imap-retriever.md) | Written | 0.1 | L | The default retriever: IMAP over TLS onto list, lease, fetch and ack, so a mail client reads Trunk | CORE_plugin-host, CORE_consumer-api, CORE_request-guard |
+| [PLUGIN_imap-compat](PLUGIN_imap-compat.md) | Written | 0.1 | L | The IMAP extensions, virtual folders, SEARCH and stable UIDs that real mail clients expect | PLUGIN_imap-retriever, CORE_engine |
+| [DOCS_mta-guides](DOCS_mta-guides.md) | Written | 0.1 | M | Tested guides for handing mail from qmail and Postfix to Trunk | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard, PLUGIN_imap-retriever |
 | [WEBUI_management-ui](WEBUI_management-ui.md) | Written | 0.1 | XL | Operator web app on its own port, built only on operations the CLI has | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
 | [CORE_mail-authentication](CORE_mail-authentication.md) | Written | later | XL | Native inbound DKIM, SPF, DMARC, ARC without buffering a message | CORE_engine, CORE_plugin-host |
 | [CORE_send](CORE_send.md) | Written | later | L | Outbound spool, the Sender plugin kind, DKIM signing | CORE_consumer-api, CORE_request-guard |
@@ -63,15 +65,17 @@ Computed from `depends`, so it cannot contradict them. Target 0.1 comes first.
 17. [CORE_security-hardening](CORE_security-hardening.md)
 18. [DOCS_docs-site](DOCS_docs-site.md)
 19. [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md)
-20. [DOCS_mta-guides](DOCS_mta-guides.md)
-21. [WEBUI_management-ui](WEBUI_management-ui.md)
+20. [PLUGIN_imap-retriever](PLUGIN_imap-retriever.md)
+21. [PLUGIN_imap-compat](PLUGIN_imap-compat.md)
+22. [DOCS_mta-guides](DOCS_mta-guides.md)
+23. [WEBUI_management-ui](WEBUI_management-ui.md)
 
 **Target later**
 
-22. [CORE_mail-authentication](CORE_mail-authentication.md)
-23. [CORE_send](CORE_send.md)
-24. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
-25. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
-26. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
-27. [MCP_mcp-door](MCP_mcp-door.md)
+24. [CORE_mail-authentication](CORE_mail-authentication.md)
+25. [CORE_send](CORE_send.md)
+26. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
+27. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
+28. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
+29. [MCP_mcp-door](MCP_mcp-door.md)
 <!-- /prompts:order -->

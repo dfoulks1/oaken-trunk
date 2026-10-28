@@ -1,7 +1,7 @@
 # MTA guides: qmail and Postfix
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/DOCS.md`, `docs/architecture/ingestion.md`.
-**Depends on:** [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md), [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_request-guard](CORE_request-guard.md).
+**Depends on:** [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md), [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_request-guard](CORE_request-guard.md), [PLUGIN_imap-retriever](PLUGIN_imap-retriever.md).
 **Lift:** M
 **Delivers:** Tested guides for handing mail from qmail and Postfix to Trunk
 **Track:** `DOCS_`. Pages and checked snippets only. No code.
@@ -36,8 +36,8 @@ Any code. Other MTAs.
 5. **Failure table.** Daemon down, spool full, refused recipient, bad signature: what each MTA does and what
    the admin sees. Include a consumer that is down: mail waits in the spool, the quota applies, and when it
    is full Trunk refuses with a retryable error.
-6. **Reading mail.** Trunk has no IMAP. Dovecot (or any IMAP server) is fed by the LMTP relay consumer, and a
-   mail client points at that. Oaken Mail pulls with its own Trunk source (built in the oaken-mail repo, link
+6. **Reading mail.** A mail client points at the IMAP retriever (PLUGIN_imap-retriever); fetching a body
+   removes it from Trunk. Oaken Mail pulls with its own Trunk source (built in the oaken-mail repo, link
    only). Show the consume key, its recipient scope and who can read the key file.
 
 ## Acceptance criteria

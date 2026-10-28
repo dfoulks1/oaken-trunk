@@ -26,7 +26,7 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
 
 **A. Operations**
 
-1. **`lease`.** Optional `recipient` (an address or `@domain`), inside the key's scope. `limit` (default 10, max 100) and `seconds` (default 60, max 3600). Returns ids and tokens. No
+1. **`lease`.** Optional `recipient` (an address or `@domain`) or `ids`, inside the key's scope. `limit` (default 10, max 100) and `seconds` (default 60, max 3600). Returns ids and tokens. No
    mail returns an empty list, not an error.
 2. **`fetch`.** Streams a leased message with its envelope and annotations. A wrong or expired token is
    `lease_invalid`.
@@ -45,9 +45,8 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
 7. **Poison.** A message nacked or expired `max_attempts` times (default 10) moves to a dead state and shows
    in `list`. It is not delivered again until an operator releases it.
 8. **Limits.** Per-consumer open leases (default 1000). Over it is a retryable error.
-9. **Examples.** A CLI loop, a webhook relay, and an LMTP relay: lease, fetch, stream to an LMTP socket
-   (Dovecot), ack only on accept, nack on any failure. A configurable rule maps the stored recipient to the
-   IMAP user (strip `-ext` or `+tag`), and the original stays in `original_recipient`. Each is a tested script, not a product.
+9. **Examples.** A CLI loop and a webhook relay. Each is a tested script, not a product. Mail clients read
+   through the IMAP retriever (PLUGIN_imap-retriever).
 10. **Docs.** `api-and-cli.md`, softmap, status table. The
    Oaken Mail provider is built in the oaken-mail repo.
 
@@ -60,8 +59,6 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
 - Two consumers never get the same message. Ack of an expired lease is `lease_invalid`.
 - A message that fails `max_attempts` times is dead and not leased again.
 - A 1 GB body fetches with flat memory. A body sentinel never reaches a log or error.
-- The LMTP relay against a fake LMTP server acks on accept and nacks when the server is down, and the message
-  comes back.
 - `lease` with `wait` returns within a second of a commit.
 - Standard checks pass. No network, Docker or real mail in tests.
 

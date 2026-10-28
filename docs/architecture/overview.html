@@ -128,8 +128,10 @@ shows statistics by default and never exposes message data or mutating operation
 tier change (ADR 0008).</p>
 </section>
 <section id="what-trunk-is-not" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>What trunk is not</h2></div>
-<p>No IMAP or POP3, no mailbox search and no spam filtering. It replaces local delivery, not
-mailbox access, and sits beside Postfix or qmail rather than replacing them.</p>
+<p>A no-server-side-mailbox spool. Trunk replaces Dovecot and the mailboxes behind it, and sits behind
+Postfix or qmail rather than replacing them. Mail clients read over IMAP through a retriever plugin, and a
+fetched message is gone: the client is the mailbox. No stored folders, no Sent or Drafts on the server, no
+system mailboxes (<code>/var/mail</code>) and no spam filtering (ADR 0013).</p>
 </section>
 <section id="memory-rule" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>Memory rule</h2></div>
 <p>The gateway process never holds a whole message. Bodies move in fixed chunks (64 KiB). Load is bounded

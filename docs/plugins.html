@@ -59,7 +59,7 @@
     <div class="gh"><div class="label">GitHub</div>
       <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
     <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
-      <a class="nav-link" href="#the-six-kinds-and-the-plain-plugin"><span class="num">1</span>The six kinds, and the plain plugin</a>
+      <a class="nav-link" href="#the-seven-kinds-and-the-plain-plugin"><span class="num">1</span>The seven kinds, and the plain plugin</a>
       <a class="nav-link" href="#what-every-base-class-gives-you"><span class="num">2</span>What every base class gives you</a>
       <a class="nav-link" href="#commands"><span class="num">3</span>Commands</a>
       <a class="nav-link" href="#memory-rule-for-plugin-authors"><span class="num">4</span>Memory rule for plugin authors</a>
@@ -83,7 +83,7 @@
 point. Start from a base class, override what your plugin does, and run the contract suite. This is
 the same model as Oaken Mail's plugins, so the habits carry over.</p>
 
-<section id="the-six-kinds-and-the-plain-plugin" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>The six kinds, and the plain plugin</h2></div>
+<section id="the-seven-kinds-and-the-plain-plugin" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>The seven kinds, and the plain plugin</h2></div>
 <div class="table-responsive"><table class="table table-sm table-striped align-middle">
 <thead>
 <tr>
@@ -99,6 +99,12 @@ the same model as Oaken Mail's plugins, so the habits carry over.</p>
 <td><code>oaken_trunk.ingestors</code></td>
 <td><code>BaseIngestor</code></td>
 <td>Speaks a protocol and hands core a byte stream and an envelope.</td>
+</tr>
+<tr>
+<td>Retriever</td>
+<td><code>oaken_trunk.retrievers</code></td>
+<td><code>BaseRetriever</code></td>
+<td>Speaks a read protocol (IMAP) and maps it onto list, lease, fetch and ack. Holds no store.</td>
 </tr>
 <tr>
 <td>Spool</td>
