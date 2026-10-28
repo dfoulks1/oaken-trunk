@@ -112,10 +112,12 @@ forbidden = ["oaken_trunk.testing", "oaken_trunk.testing.*"]
 allowed = ["oaken_trunk.testing", "oaken_trunk.testing.*", "*.tests", "*.tests.*"]
 
 [[tool.importlinter.contracts]]
-name = "Foundations import no HTTP, CLI, registry or plugin module"
+name = "Foundations and the engine import no HTTP, CLI, registry or plugin module"
 type = "glob_forbidden"
 importers = [
     "oaken_trunk.credits",
+    "oaken_trunk.devices",
+    "oaken_trunk.engine",
     "oaken_trunk.envelope",
     "oaken_trunk.errors",
     "oaken_trunk.events",

@@ -7,6 +7,15 @@
 **Delivers:** The engine: limiter, ingest pipeline, header block and digest, listener dispatch and the commit
 **Track:** `CORE_`. The engine knows nothing of HTTP, the CLI or the registry.
 
+> **Status: Built.** Green in `scripts/check.sh`. The open question took its default. Where the code
+> differs: `ingest` returns a `Receipt` (id, delivery ids, accepted, refused per recipient); `submit`
+> maps it. `Devices.has_device` is async. A failed source stream is a new condition, `INTERRUPTED`
+> (`451 4.4.2`, 400, exit 75); a failing spool is `SPOOL_UNAVAILABLE`. A header block over
+> `max_header_bytes` is `TOO_LARGE` (`552 5.3.4`). `TrunkError` carries `retry_after_seconds`.
+> Listener failures are recorded in the `engine` annotation and logged; the timeout is an `Engine`
+> argument (5 s), not a setting. `doctor` reporting an empty `local_domains` waits for
+> CORE_system-operations.
+
 ## Goal
 
 Stream a message from an ingestor into a spool under limits, fire the listener events in order, and commit.

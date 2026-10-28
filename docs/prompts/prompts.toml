@@ -25,9 +25,9 @@ target = "0.1"
 [[prompt]]
 name = "CORE_engine"
 depends = ["CORE_foundations"]
-status = "Written"
-built = "—"
-tested = "—"
+status = "Built"
+built = "yes"
+tested = "yes"
 released = "—"
 target = "0.1"
 

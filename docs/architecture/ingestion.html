@@ -60,8 +60,9 @@
       <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
     <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
       <a class="nav-link" href="#backpressure"><span class="num">1</span>Backpressure</a>
-      <a class="nav-link" href="#addresses"><span class="num">2</span>Addresses</a>
-      <a class="nav-link" href="#postfix-and-qmail"><span class="num">3</span>Postfix and qmail</a>
+      <a class="nav-link" href="#the-engine"><span class="num">2</span>The engine</a>
+      <a class="nav-link" href="#addresses"><span class="num">3</span>Addresses</a>
+      <a class="nav-link" href="#postfix-and-qmail"><span class="num">4</span>Postfix and qmail</a>
     </nav></div>
   </div></div>
 </nav>
@@ -139,16 +140,49 @@
 <td>451</td>
 <td>503</td>
 </tr>
+<tr>
+<td>header block over <code>max_header_bytes</code></td>
+<td>552</td>
+<td>413</td>
+</tr>
+<tr>
+<td>stream failed partway</td>
+<td>451 4.4.2</td>
+<td>400</td>
+</tr>
 </tbody>
 </table></div>
-<p>A 4xx is retryable, so the sender's own queue holds the backlog, not ours.</p>
+<p>A 4xx is retryable, so the sender's own queue holds the backlog, not ours. Every refusal carries its
+SMTP reply, HTTP status and <code>submit</code> exit code (<code>oaken_trunk.errors</code>); the inflight refusal also carries
+<code>retry_after_seconds</code>.</p>
 </section>
-<section id="addresses" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Addresses</h2></div>
+<section id="the-engine" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>The engine</h2></div>
+<p><code>oaken_trunk.engine.Engine.ingest(envelope, chunks)</code> is what <code>submit</code> calls. In order:</p>
+<ol>
+<li><strong>Recipients.</strong> Each is checked on its own: outside <code>[mail] local_domains</code>, or with no device
+(<code>Devices.has_device</code>), it is refused (<code>550 5.1.1</code>, exit 67). An empty <code>local_domains</code> accepts
+nothing. None accepted is the refusal, and nothing is read or stored.</li>
+<li><strong>A slot.</strong> <code>max_inflight</code> through <code>Credits</code>, taken before the first chunk and released on success,
+failure and cancellation.</li>
+<li><strong>Caps.</strong> <code>usage()</code> against <code>max_spool_bytes</code> and <code>max_deliveries</code> before writing. The engine
+checks only; the spool and <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_supervisor.md">CORE_supervisor</a> make it exact.</li>
+<li><strong>Stream.</strong> Chunks are cut to at most 64 KiB. Reading stops at the first byte over
+<code>max_message_size</code>. The bytes up to the first blank line are the header block, bounded by
+<code>max_header_bytes</code>. The body after it goes through named digest taps (<code>sha256</code> here). The engine
+holds at most one chunk plus the header block.</li>
+<li><strong>Events.</strong> <code>envelope</code>, <code>headers</code> and <code>end</code> run inline, each time-bounded; a listener that fails or
+times out is recorded under the <code>engine</code> annotation and ingestion carries on. Then
+<code>commit(annotations)</code>, then <code>stored</code>, which never changes the answer. No event carries body bytes,
+and the message is visible only after <code>end</code> and <code>commit</code>.</li>
+</ol>
+<p>The answer is a receipt: the message id, its delivery ids, and each recipient accepted or refused.</p>
+</section>
+<section id="addresses" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Addresses</h2></div>
 <p>Postfix or qmail resolves aliases and virtual maps, then hands over the envelope. Trunk keeps no mailbox.
 Each recipient becomes its own delivery (<code>&lt;id&gt;-&lt;n&gt;</code>) sharing one body. A recipient outside <code>[mail] local_domains</code>
 is refused (<code>550 5.1.1</code>, exit 67), as is a recipient with no device (ADR 0013). A <code>consume</code> key is scoped to a list of addresses or <code>@domain</code>.</p>
 </section>
-<section id="postfix-and-qmail" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Postfix and qmail</h2></div>
+<section id="postfix-and-qmail" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>Postfix and qmail</h2></div>
 <p>Postfix: <code>virtual_transport = lmtp:unix:/path/to/run/lmtp.sock</code>. qmail: a <code>.qmail</code> line piping to
 <code>steamer submit</code>. Postfix uses the LMTP ingestor or <code>steamer postfix submit</code>, and qmail uses <code>steamer qmail submit</code>. Each is a
 small first-party plugin (PLUGIN_mta-adapters) that wraps <code>submit</code> with that MTA's exit codes and environment.

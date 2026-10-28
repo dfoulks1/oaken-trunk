@@ -119,7 +119,7 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 |---|---|---|---|---|---|---|---|
 | [CORE_bootstrap](docs/prompts/CORE_bootstrap.md) | 0.1 | M | Built | yes | yes | — | — |
 | [CORE_foundations](docs/prompts/CORE_foundations.md) | 0.1 | L | Built | yes | yes | — | CORE_bootstrap |
-| [CORE_engine](docs/prompts/CORE_engine.md) | 0.1 | L | Written | — | — | — | CORE_foundations |
+| [CORE_engine](docs/prompts/CORE_engine.md) | 0.1 | L | Built | yes | yes | — | CORE_foundations |
 | [CORE_operation-registry](docs/prompts/CORE_operation-registry.md) | 0.1 | L | Written | — | — | — | CORE_engine |
 | [CORE_daemon](docs/prompts/CORE_daemon.md) | 0.1 | L | Written | — | — | — | CORE_operation-registry |
 | [CORE_supervisor](docs/prompts/CORE_supervisor.md) | 0.1 | L | Written | — | — | — | CORE_daemon |

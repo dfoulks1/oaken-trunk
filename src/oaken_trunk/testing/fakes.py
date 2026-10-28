@@ -42,7 +42,9 @@ class _FakeWriter:
     async def write(self, chunk: bytes) -> None:
         if self.done:
             raise RuntimeError("writer is closed")
-        self._parts.append(chunk)
+        self._spool.largest_write = max(self._spool.largest_write, len(chunk))
+        if self._spool.keep_bodies:
+            self._parts.append(chunk)
 
     async def commit(self, annotations: Annotations) -> tuple[str, ...]:
         if self.done:
@@ -52,9 +54,15 @@ class _FakeWriter:
 
 
 class FakeSpool:
-    """The spool contract in memory. One queue per recipient (no registry yet): lease by address."""
+    """The spool contract in memory. One queue per recipient (no registry yet): lease by address.
 
-    def __init__(self) -> None:
+    ``keep_bodies=False`` stores every body as empty, for streaming tests; ``largest_write`` is the
+    biggest chunk any writer was given.
+    """
+
+    def __init__(self, keep_bodies: bool = True) -> None:
+        self.keep_bodies = keep_bodies
+        self.largest_write = 0
         self.bodies: dict[str, bytes] = {}
         self.annotations: dict[str, Annotations] = {}
         self._deliveries: dict[str, _Delivery] = {}  # insertion order is queue order
@@ -127,6 +135,16 @@ class FakeSpool:
 
     async def usage(self) -> Usage:
         return Usage(sum(map(len, self.bodies.values())), len(self._deliveries))
+
+
+class FakeDevices:
+    """``Devices``: the addresses given have a device, no others."""
+
+    def __init__(self, addresses: Iterable[str] = ()) -> None:
+        self.addresses = set(addresses)
+
+    async def has_device(self, address: str) -> bool:
+        return address in self.addresses
 
 
 class FakeIngestor:

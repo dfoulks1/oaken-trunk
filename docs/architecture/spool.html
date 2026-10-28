@@ -168,7 +168,8 @@ return expired leases, and drop blobs and annotations no queue names.</li>
 <p>A tmpfs mount is the operator's choice for the same driver, not a separate driver.</p>
 <h3 id="quota">Quota</h3>
 <p><code>max_spool_bytes</code> caps body bytes and <code>max_deliveries</code> caps queue entries. At either, new mail gets
-<code>452 4.3.1</code> (HTTP 507), which the sender retries; Trunk never bounces (ADR 0013). Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.</p>
+<code>452 4.3.1</code> (HTTP 507), which the sender retries; Trunk never bounces (ADR 0013). The engine checks
+<code>usage()</code> before it writes. Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.</p>
 </section>
 <section id="other-drivers-planned" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Other drivers (planned)</h2></div>
 <p>Redis (queues and coordination across hosts, small bodies) and S3 (bodies at scale, queues by prefix, SQS

@@ -61,7 +61,8 @@ A tmpfs mount is the operator's choice for the same driver, not a separate drive
 ### Quota
 
 `max_spool_bytes` caps body bytes and `max_deliveries` caps queue entries. At either, new mail gets
-`452 4.3.1` (HTTP 507), which the sender retries; Trunk never bounces (ADR 0013). Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.
+`452 4.3.1` (HTTP 507), which the sender retries; Trunk never bounces (ADR 0013). The engine checks
+`usage()` before it writes. Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.
 
 ## Other drivers (planned)
 

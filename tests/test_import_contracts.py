@@ -65,14 +65,19 @@ def test_clean_tree_passes(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("contract", "rel", "text"),
     [
-        ("Core never imports a plugin", "oaken_trunk/engine.py", "import oaken_trunk_x\n"),
-        ("Core never imports a plugin", "oaken_trunk/engine.py", "import oaken_trunk_a\n"),
-        ("Core never imports a client", "oaken_trunk/engine.py", "import oaken_trunk.cli\n"),
+        ("Core never imports a plugin", "oaken_trunk/core.py", "import oaken_trunk_x\n"),
+        ("Core never imports a plugin", "oaken_trunk/core.py", "import oaken_trunk_a\n"),
+        ("Core never imports a client", "oaken_trunk/core.py", "import oaken_trunk.cli\n"),
+        (
+            "Foundations and the engine import no HTTP, CLI, registry or plugin module",
+            "oaken_trunk/engine.py",
+            "import urllib.request\n",
+        ),
         ("A plugin never imports another plugin", "oaken_trunk_a/x.py", "import oaken_trunk_b\n"),
         ("A plugin never imports another plugin", "oaken_trunk_a/x.py", "import oaken_trunk_z\n"),
         (
             "Nothing imports oaken_trunk.testing outside tests",
-            "oaken_trunk/engine.py",
+            "oaken_trunk/core.py",
             "from oaken_trunk import testing\n",
         ),
         (
