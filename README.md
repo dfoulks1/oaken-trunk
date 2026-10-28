@@ -23,7 +23,7 @@ See the [roadmap](ROADMAP.md).
                        +------------+--- core -----+------------+
                          authenticate, size and rate limits, stream to spool
                                       |
-                       spool (plugin): directory (default), Redis, S3 + SQS
+             spool (core) over stores (plugins): directory (default), Redis, S3
                                       |
                   notify  ->  consumers: lease -> process -> ack | nack
                                       |
@@ -35,7 +35,7 @@ registry, so every endpoint has a command. A separate management UI on its own p
 
 ## Design rules
 
-- **Never hold a message in memory.** Bodies stream from the socket to the spool in fixed chunks. Where the spool keeps them (disk, Redis, S3) is the spool plugin's business.
+- **Never hold a message in memory.** Bodies stream from the socket to the spool in fixed chunks. Where they live (disk, Redis, S3) is the store plugin's business.
 - **Bounded, not buffered.** `max_inflight` and `max_message_size` apply at the door. Over a limit the
   sender gets a retryable 4xx (SMTP 451, HTTP 503 with `Retry-After`) and the queue backs up on the
   sender's side, not in our RAM.

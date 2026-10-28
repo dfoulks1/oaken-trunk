@@ -17,7 +17,7 @@ Oaken Mail is one consumer, through a plugin in its own repository. Apache-2.0.
             \                |             |      |        /
              +---------- core: authenticate, limits, stream to spool ----------+   CORE_
                                       |
-              spool (plugin): directory (default), Redis, S3 + SQS               PLUGIN_
+    spool (core) over stores (plugin): directory (default), Redis, S3        CORE_/PLUGIN_
                                       |
           consumer API: lease -> fetch -> ack | nack (HTTP, CLI parity)          CORE_
                                       |

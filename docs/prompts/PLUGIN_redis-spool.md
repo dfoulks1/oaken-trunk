@@ -1,27 +1,35 @@
-# Redis spool
+# Redis store: queues and coordination across hosts
 
-**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`.
-**Depends on:** [PLUGIN_directory-spool](PLUGIN_directory-spool.md), [CORE_plugin-host](CORE_plugin-host.md).
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, ADR 0014, `PLUGIN_directory-spool.md` (its status block).
+**Depends on:** [PLUGIN_directory-spool](PLUGIN_directory-spool.md).
 **Lift:** M
-**Delivers:** Redis stream spool, consumer groups mapped to lease/ack
+**Delivers:** `BaseStore` primitives on Redis, with atomic overrides for the hot spool operations
+**Track:** `PLUGIN_`. Package `oaken_trunk_store_redis`, a separate workspace package. Core changes: none.
 
 ## Goal
 
-`oaken_trunk_spool_redis`.
+The store for the `queues` and `coordination` roles when Trunk runs on more than one host. It can hold
+bodies too, for small mail.
 
-## Steps
+## Requirements
 
-1. One stream per device (ADR 0013), mapped to lease, ack, nack; one body key per message with a reference
-   count, deleted at zero. AOF guidance in the docs.
-2. Streams bodies in bounded chunks; no whole-message buffering.
-3. Passes the spool contract suite using a fake or in-process server; tests never use a real Redis.
+1. **Primitives.** Blobs as `blob:<key>:<n>` chunks of at most 64 KiB, never one large value. `cas` as a
+   Lua compare-and-set with `PX` for the TTL. Indexes as sorted sets. `watch` through keyspace notifications,
+   polling otherwise.
+2. **Overrides.** `ack` and `commit` as single Lua scripts (entry, lease and holder count in one step), passing
+   the same core spool suite.
+3. **Limits.** `doctor` warns when the store holds bodies and `max_message_size` exceeds a configured
+   `max_blob_bytes`, since bodies sit in memory.
+4. **Ops.** AOF and persistence guidance in the docs. Credentials from the environment or a file, never config.
+5. **Suites.** `StoreContract` and the core spool suite against a fake or in-process server; tests never use a
+   real Redis.
 
 ## Acceptance criteria
 
-- Contract suite passes.
-- `ruff check`, `ruff format --check`, `mypy`, `lint-imports` and `pytest` pass; no network, Docker or real mail in tests.
+- Contract and spool suites pass. A concurrent ack race leaves no orphan body.
+- Standard checks pass; no network, Docker or real mail in tests.
 - Docs and `docs/softmap.toml` updated; the status table in `CONTRIBUTING.md` updated.
 
-## Checkpoint
+## Report-back checkpoint
 
-Use the report format from `CONTEXT.md`, then stop.
+End with the report from `CONTEXT.md`, naming the open questions that took the default. Then stop.

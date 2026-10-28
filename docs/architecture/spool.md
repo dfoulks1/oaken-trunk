@@ -8,8 +8,10 @@ group = "concepts"
 order = 20
 +++
 
-A spool is a plugin. The contract is a bounded stream in and a stream out; where bytes live is the
-plugin's decision (ADR 0003).
+The spool is core logic over store plugins (ADR 0014). A store implements primitives: stream a blob in and
+out, compare-and-set a small value, and keep ordered indexes. Core builds fan-out per device, leases, acks and
+cleanup on them. `[store] bodies`, `queues` and `coordination` each name a store. The contract below is what
+consumers see; where bytes live is the store's decision (ADR 0003).
 
 ## Contract
 
@@ -65,5 +67,5 @@ A tmpfs mount is the operator's choice for the same driver, not a separate drive
 
 ## Other drivers (planned)
 
-Redis stream with consumer groups, and S3 + SQS with visibility timeouts. Both map onto lease, ack and
-nack. They are not RAM-resident drivers of trunk, and each decides durability itself.
+Redis (queues and coordination across hosts, small bodies) and S3 (bodies at scale, queues by prefix, SQS
+as an optional wake-up). Both implement the same primitives. They are not RAM-resident drivers of trunk, and each decides durability itself.

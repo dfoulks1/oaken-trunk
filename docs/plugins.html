@@ -63,8 +63,8 @@
       <a class="nav-link" href="#what-every-base-class-gives-you"><span class="num">2</span>What every base class gives you</a>
       <a class="nav-link" href="#commands"><span class="num">3</span>Commands</a>
       <a class="nav-link" href="#memory-rule-for-plugin-authors"><span class="num">4</span>Memory rule for plugin authors</a>
-      <a class="nav-link" href="#a-spool-in-one-screen"><span class="num">5</span>A spool in one screen</a>
-      <a class="nav-link" href="#an-ingestor-in-one-screen"><span class="num">6</span>An ingestor in one screen</a>
+      <a class="nav-link" href="#a-store-in-one-screen"><span class="num">5</span>A store in one screen</a>
+      <a class="nav-link" href="#a-protocol-plugin-in-one-screen"><span class="num">6</span>A protocol plugin in one screen</a>
       <a class="nav-link" href="#a-sender-in-one-screen"><span class="num">7</span>A sender in one screen</a>
       <a class="nav-link" href="#an-authenticator-in-one-screen"><span class="num">8</span>An authenticator in one screen</a>
       <a class="nav-link" href="#a-listener-in-one-screen"><span class="num">9</span>A listener in one screen</a>
@@ -107,10 +107,10 @@ the same model as Oaken Mail's plugins, so the habits carry over.</p>
 <td>Speaks a read protocol (POP3) and maps it onto list, lease, fetch and ack. Holds no store.</td>
 </tr>
 <tr>
-<td>Spool</td>
-<td><code>oaken_trunk.spools</code></td>
-<td><code>BaseSpool</code></td>
-<td>Stores messages and runs lease, ack and nack.</td>
+<td>Store</td>
+<td><code>oaken_trunk.stores</code></td>
+<td><code>BaseStore</code></td>
+<td>Storage primitives (blobs, compare-and-set, ordered indexes). Core builds the spool, locks and counters on them.</td>
 </tr>
 <tr>
 <td>Sender</td>
@@ -148,7 +148,7 @@ are on the generated plugin contracts page.</p>
 </section>
 <section id="what-every-base-class-gives-you" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>What every base class gives you</h2></div>
 <ul>
-<li><code>self.ctx</code>: your settings (the <code>[ingest.&lt;name&gt;]</code>, <code>[spool.&lt;name&gt;]</code> or <code>[sender.&lt;name&gt;]</code> table of
+<li><code>self.ctx</code>: your settings (the <code>[ingest.&lt;name&gt;]</code>, <code>[store.&lt;name&gt;]</code> or <code>[sender.&lt;name&gt;]</code> table of
 <code>config.toml</code>), a logger, the clock, the worker's thread pool, and the global limits. Secrets come
 from the environment or files, never from config.</li>
 <li><code>start()</code> and <code>stop()</code> lifecycle hooks, called by the host, with health reported to <code>doctor</code>.</li>
@@ -171,30 +171,30 @@ touches core's counters or another plugin's storage; it returns data and receive
 chunks. A plugin that buffers a message breaks the gateway's memory guarantee and fails the contract
 suite's streaming test.</p>
 </section>
-<section id="a-spool-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>A spool in one screen</h2></div>
-<div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseSpool</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leased</span>
+<section id="a-store-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">5</span><h2>A store in one screen</h2></div>
+<p>A store is storage primitives. Core builds the spool (fan-out per device, lease, ack, nack, renew, body
+cleanup), locks, counters and the caps on top of them, so a store never implements queue logic (ADR 0014).</p>
+<div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseStore</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">MySpool</span><span class="p">(</span><span class="n">BaseSpool</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyStore</span><span class="p">(</span><span class="n">BaseStore</span><span class="p">):</span>
     <span class="n">version</span> <span class="o">=</span> <span class="s2">"0.1"</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">envelope</span><span class="p">):</span>   <span class="c1"># one bounded chunk, never the whole body</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">blob_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">chunks</span><span class="p">):</span>      <span class="c1"># an async iterator of bounded chunks; durable on return</span>
+        <span class="k">async</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
+            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">annotations</span><span class="p">):</span>      <span class="c1"># visible from here; return only when durable</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">annotations</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">blob_open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>                    <span class="c1"># an async iterator of chunks</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">):</span>                    <span class="c1"># an error or a drop: remove the partial data</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">blob_drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>              <span class="c1"># idempotent</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">lease</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">consumer</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">Leased</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">claim</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">seconds</span><span class="p">)]</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">cas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">expect</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>   <span class="c1"># atomic; True if it swapped</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">compare_and_set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">expect</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">ttl</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">):</span>               <span class="c1"># an async iterator of chunks</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span>
-
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message_id</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
-        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">index_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">member</span><span class="p">,</span> <span class="n">score</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">index_remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">member</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">index_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">limit</span><span class="p">):</span> <span class="o">...</span>
 </code></pre></div>
 <div class="table-responsive"><table class="table table-sm table-striped align-middle">
 <thead>
@@ -205,62 +205,52 @@ suite's streaming test.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>write</code>, <code>commit</code>, <code>abort</code>, <code>lease</code>, <code>open</code>, <code>ack</code></td>
-<td>A working spool (all six are required). The base class presents <code>write</code>, <code>commit</code> and <code>abort</code> to core as the <code>writer</code> of the spool contract</td>
+<td>the blob, <code>cas</code> and index primitives</td>
+<td>A working store for any role: <code>bodies</code>, <code>queues</code>, <code>coordination</code></td>
 </tr>
 <tr>
-<td><code>nack(id, token)</code></td>
-<td>Immediate return to the queue; without it a nack waits for lease expiry</td>
-</tr>
-<tr>
-<td><code>delete(id)</code></td>
-<td>Operator delete regardless of lease</td>
-</tr>
-<tr>
-<td><code>watch()</code></td>
+<td><code>watch(name)</code></td>
 <td>Event-driven wake-up; without it the host polls</td>
 </tr>
 <tr>
-<td><code>usage()</code></td>
-<td>Quota enforcement and <code>status</code> totals</td>
+<td><code>commit</code>, <code>lease</code>, <code>ack</code>, <code>nack</code> or <code>renew</code></td>
+<td>A faster path for that operation, if it passes the same spool suite</td>
 </tr>
 </tbody>
 </table></div>
+<p><code>[store] bodies</code>, <code>queues</code> and <code>coordination</code> each name a store, so a hybrid (bodies in S3, queues and locks
+in Redis) is configuration.</p>
 </section>
-<section id="an-ingestor-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">6</span><h2>An ingestor in one screen</h2></div>
-<div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseIngestor</span>
+<section id="a-protocol-plugin-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">6</span><h2>A protocol plugin in one screen</h2></div>
+<p>Ingestors and retrievers extend <code>BaseLineServer</code> (through <code>BaseIngestor</code> or <code>BaseRetriever</code>). The base owns
+TLS, line and time limits, connection caps, dot-stuffing, login through the authenticators, and the fuzz
+harness. A plugin declares its command table.</p>
+<div class="code"><pre class="highlight"><code class="language-python"><span class="kn">from</span><span class="w"> </span><span class="nn">oaken_trunk.plugins.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRetriever</span><span class="p">,</span> <span class="n">cmd</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">MyIngestor</span><span class="p">(</span><span class="n">BaseIngestor</span><span class="p">):</span>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">submit</span><span class="p">):</span>
-        <span class="k">async</span> <span class="k">for</span> <span class="n">conn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">():</span>
-            <span class="c1"># submit streams the body into the spool under core's limits and raises a</span>
-            <span class="c1"># typed error (TooLarge, Overloaded, Rejected) you map to your protocol's reply.</span>
-            <span class="k">await</span> <span class="n">submit</span><span class="p">(</span><span class="n">conn</span><span class="o">.</span><span class="n">body_chunks</span><span class="p">(),</span> <span class="n">conn</span><span class="o">.</span><span class="n">envelope</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pop3</span><span class="p">(</span><span class="n">BaseRetriever</span><span class="p">):</span>
+    <span class="n">greeting</span> <span class="o">=</span> <span class="s2">"+OK ready"</span>
+
+    <span class="nd">@cmd</span><span class="p">(</span><span class="s2">"STAT"</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">"transaction"</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">stat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="n">msgs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"+OK </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">msgs</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">size</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">msgs</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+
+    <span class="nd">@cmd</span><span class="p">(</span><span class="s2">"RETR"</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">"transaction"</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">retr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="s2">"+OK"</span><span class="p">,</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>   <span class="c1"># claimed, dot-stuffed, streamed</span>
+
+    <span class="nd">@cmd</span><span class="p">(</span><span class="s2">"DELE"</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s2">"transaction"</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">dele</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">mark</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s2">"+OK"</span>
+
+    <span class="nd">@cmd</span><span class="p">(</span><span class="s2">"QUIT"</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">quit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>                                       <span class="c1"># acks the marked, nacks the rest</span>
+        <span class="k">return</span> <span class="s2">"+OK bye"</span>
 </code></pre></div>
-<p>Raise <code>oaken_trunk.core.errors.AuthError</code> when credentials are refused. Core records it and your
-protocol replies with its auth failure; other ingestors carry on.</p>
-<div class="table-responsive"><table class="table table-sm table-striped align-middle">
-<thead>
-<tr>
-<th>You write</th>
-<th>You gain</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>listen(submit)</code></td>
-<td>A working ingestor (required)</td>
-</tr>
-<tr>
-<td><code>authenticate(ctx, credentials)</code></td>
-<td><code>auth</code> capability</td>
-</tr>
-<tr>
-<td><code>tls_context()</code></td>
-<td><code>tls</code> capability (STARTTLS or implicit)</td>
-</tr>
-</tbody>
-</table></div>
+<p>An ingestor is the same shape on <code>BaseIngestor</code>, whose session hands the body to <code>submit</code> and maps the
+engine's per-recipient results to replies.</p>
 </section>
 <section id="a-sender-in-one-screen" class="doc-section"><div class="section-head"><span class="section-num">7</span><h2>A sender in one screen</h2></div>
 <p>A sender implements <code>send(envelope, chunks)</code> and returns a result: delivered, temporary failure
@@ -317,15 +307,15 @@ any error. See <a href="architecture/security.html">Security</a> and ADR 0010.</
 SPF, DMARC, ARC) will ship as a listener bundle.</p>
 </section>
 <section id="testing-a-plugin" class="doc-section"><div class="section-head"><span class="section-num">10</span><h2>Testing a plugin</h2></div>
-<p>The shared contract suites live in <code>oaken_trunk.testing.contracts</code> (<code>SpoolContract</code>, <code>IngestorContract</code>,
+<p>The shared contract suites live in <code>oaken_trunk.testing.contracts</code> (<code>StoreContract</code>, <code>LineServerContract</code>, <code>IngestorContract</code>, <code>RetrieverContract</code>,
 <code>SenderContract</code>, <code>AuthenticatorContract</code>, <code>ListenerContract</code>). Subclass one, point it at your plugin, and run <code>pytest</code>. The suites cover required
-behaviour, lease expiry, crash recovery for spools, the streaming and memory rule, and the
-backpressure replies. Tests never use the network, Docker, Redis or AWS: use fakes (<code>FakeSpool</code>,
+behaviour, lease expiry, crash recovery for stores, the streaming and memory rule, and the
+backpressure replies. Tests never use the network, Docker, Redis or AWS: use fakes (<code>FakeStore</code>, <code>FakeSpool</code>,
 <code>FakeIngestor</code>, <code>FakeSender</code>) and synthetic fixtures.</p>
 </section>
 <section id="registering" class="doc-section"><div class="section-head"><span class="section-num">11</span><h2>Registering</h2></div>
-<div class="code"><pre class="highlight"><code class="language-toml"><span class="k">[project.entry-points.</span><span class="s2">"oaken_trunk.spools"</span><span class="k">]</span>
-<span class="n">mine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_package:MySpool"</span>
+<div class="code"><pre class="highlight"><code class="language-toml"><span class="k">[project.entry-points.</span><span class="s2">"oaken_trunk.stores"</span><span class="k">]</span>
+<span class="n">mine</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_package:MyStore"</span>
 </code></pre></div>
 </section>
   <footer>Oaken Trunk dev · Apache-2.0</footer>

@@ -18,7 +18,7 @@ the same model as Oaken Mail's plugins, so the habits carry over.
 |---|---|---|---|
 | Ingestor | `oaken_trunk.ingestors` | `BaseIngestor` | Speaks a protocol and hands core a byte stream and an envelope. |
 | Retriever | `oaken_trunk.retrievers` | `BaseRetriever` | Speaks a read protocol (POP3) and maps it onto list, lease, fetch and ack. Holds no store. |
-| Spool | `oaken_trunk.spools` | `BaseSpool` | Stores messages and runs lease, ack and nack. |
+| Store | `oaken_trunk.stores` | `BaseStore` | Storage primitives (blobs, compare-and-set, ordered indexes). Core builds the spool, locks and counters on them. |
 | Sender | `oaken_trunk.senders` | `BaseSender` | Relays an outbound message to its destination. |
 | Authenticator | `oaken_trunk.authenticators` | `BaseAuthenticator` | Verifies a request or connection: signed requests, SMTP AUTH, mTLS. Core owns freshness, replay and the default deny. |
 | MTA | `oaken_trunk.mtas` | `BaseMTA` | Declares how an MTA hands over mail: env names, arguments, exit codes. The base supplies `steamer NAME submit`. |
@@ -36,7 +36,7 @@ are on the generated plugin contracts page.
 
 ## What every base class gives you
 
-- `self.ctx`: your settings (the `[ingest.<name>]`, `[spool.<name>]` or `[sender.<name>]` table of
+- `self.ctx`: your settings (the `[ingest.<name>]`, `[store.<name>]` or `[sender.<name>]` table of
   `config.toml`), a logger, the clock, the worker's thread pool, and the global limits. Secrets come
   from the environment or files, never from config.
 - `start()` and `stop()` lifecycle hooks, called by the host, with health reported to `doctor`.
@@ -61,63 +61,78 @@ Never read a whole message into memory. Bodies arrive and leave as async iterato
 chunks. A plugin that buffers a message breaks the gateway's memory guarantee and fails the contract
 suite's streaming test.
 
-## A spool in one screen
+## A store in one screen
+
+A store is storage primitives. Core builds the spool (fan-out per device, lease, ack, nack, renew, body
+cleanup), locks, counters and the caps on top of them, so a store never implements queue logic (ADR 0014).
 
 ```python
-from oaken_trunk.plugins.base import BaseSpool
-from oaken_trunk.plugins.contracts import Leased
+from oaken_trunk.plugins.base import BaseStore
 
-class MySpool(BaseSpool):
+class MyStore(BaseStore):
     version = "0.1"
 
-    async def write(self, message_id, chunk, envelope):   # one bounded chunk, never the whole body
-        await self.backend.append(message_id, chunk)
+    async def blob_put(self, key, chunks):      # an async iterator of bounded chunks; durable on return
+        async for chunk in chunks:
+            await self.backend.append(key, chunk)
 
-    async def commit(self, message_id, annotations):      # visible from here; return only when durable
-        await self.backend.commit(message_id, annotations)
+    def blob_open(self, key):                    # an async iterator of chunks
+        return self.backend.read(key)
 
-    async def abort(self, message_id):                    # an error or a drop: remove the partial data
-        await self.backend.discard(message_id)
+    async def blob_drop(self, key):              # idempotent
+        await self.backend.delete(key)
 
-    async def lease(self, consumer, limit, seconds):
-        return [Leased(m.id, m.token) for m in await self.backend.claim(consumer, limit, seconds)]
+    async def cas(self, key, expect, new, ttl=None):   # atomic; True if it swapped
+        return await self.backend.compare_and_set(key, expect, new, ttl)
 
-    def open(self, message_id):               # an async iterator of chunks
-        return self.backend.read(message_id)
-
-    async def ack(self, message_id, token):
-        await self.backend.remove(message_id, token)
+    async def index_add(self, name, member, score): ...
+    async def index_remove(self, name, member): ...
+    async def index_range(self, name, lo, hi, limit): ...
 ```
 
 | You write | You gain |
 |---|---|
-| `write`, `commit`, `abort`, `lease`, `open`, `ack` | A working spool (all six are required). The base class presents `write`, `commit` and `abort` to core as the `writer` of the spool contract |
-| `nack(id, token)` | Immediate return to the queue; without it a nack waits for lease expiry |
-| `delete(id)` | Operator delete regardless of lease |
-| `watch()` | Event-driven wake-up; without it the host polls |
-| `usage()` | Quota enforcement and `status` totals |
+| the blob, `cas` and index primitives | A working store for any role: `bodies`, `queues`, `coordination` |
+| `watch(name)` | Event-driven wake-up; without it the host polls |
+| `commit`, `lease`, `ack`, `nack` or `renew` | A faster path for that operation, if it passes the same spool suite |
 
-## An ingestor in one screen
+`[store] bodies`, `queues` and `coordination` each name a store, so a hybrid (bodies in S3, queues and locks
+in Redis) is configuration.
+
+## A protocol plugin in one screen
+
+Ingestors and retrievers extend `BaseLineServer` (through `BaseIngestor` or `BaseRetriever`). The base owns
+TLS, line and time limits, connection caps, dot-stuffing, login through the authenticators, and the fuzz
+harness. A plugin declares its command table.
 
 ```python
-from oaken_trunk.plugins.base import BaseIngestor
+from oaken_trunk.plugins.base import BaseRetriever, cmd
 
-class MyIngestor(BaseIngestor):
-    async def listen(self, submit):
-        async for conn in self.accept():
-            # submit streams the body into the spool under core's limits and raises a
-            # typed error (TooLarge, Overloaded, Rejected) you map to your protocol's reply.
-            await submit(conn.body_chunks(), conn.envelope)
+class Pop3(BaseRetriever):
+    greeting = "+OK ready"
+
+    @cmd("STAT", state="transaction")
+    async def stat(self, session, args):
+        msgs = await session.list()
+        return f"+OK {len(msgs)} {sum(m.size for m in msgs)}"
+
+    @cmd("RETR", state="transaction")
+    async def retr(self, session, args):
+        return session.stream("+OK", await session.read(args[0]))   # claimed, dot-stuffed, streamed
+
+    @cmd("DELE", state="transaction")
+    async def dele(self, session, args):
+        session.mark(args[0])
+        return "+OK"
+
+    @cmd("QUIT")
+    async def quit(self, session, args):
+        await session.commit()                                       # acks the marked, nacks the rest
+        return "+OK bye"
 ```
 
-Raise `oaken_trunk.core.errors.AuthError` when credentials are refused. Core records it and your
-protocol replies with its auth failure; other ingestors carry on.
-
-| You write | You gain |
-|---|---|
-| `listen(submit)` | A working ingestor (required) |
-| `authenticate(ctx, credentials)` | `auth` capability |
-| `tls_context()` | `tls` capability (STARTTLS or implicit) |
+An ingestor is the same shape on `BaseIngestor`, whose session hands the body to `submit` and maps the
+engine's per-recipient results to replies.
 
 ## A sender in one screen
 
@@ -166,15 +181,15 @@ SPF, DMARC, ARC) will ship as a listener bundle.
 
 ## Testing a plugin
 
-The shared contract suites live in `oaken_trunk.testing.contracts` (`SpoolContract`, `IngestorContract`,
+The shared contract suites live in `oaken_trunk.testing.contracts` (`StoreContract`, `LineServerContract`, `IngestorContract`, `RetrieverContract`,
 `SenderContract`, `AuthenticatorContract`, `ListenerContract`). Subclass one, point it at your plugin, and run `pytest`. The suites cover required
-behaviour, lease expiry, crash recovery for spools, the streaming and memory rule, and the
-backpressure replies. Tests never use the network, Docker, Redis or AWS: use fakes (`FakeSpool`,
+behaviour, lease expiry, crash recovery for stores, the streaming and memory rule, and the
+backpressure replies. Tests never use the network, Docker, Redis or AWS: use fakes (`FakeStore`, `FakeSpool`,
 `FakeIngestor`, `FakeSender`) and synthetic fixtures.
 
 ## Registering
 
 ```toml
-[project.entry-points."oaken_trunk.spools"]
-mine = "my_package:MySpool"
+[project.entry-points."oaken_trunk.stores"]
+mine = "my_package:MyStore"
 ```

@@ -1,10 +1,10 @@
 # SASL bridge: Postfix checks device tokens for submission
 
-**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, ADR 0013, `docs/architecture/security.md`.
-**Depends on:** [CORE_plugin-host](CORE_plugin-host.md), [CORE_request-guard](CORE_request-guard.md).
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, ADR 0013, `docs/architecture/security.md`, `CORE_line-server.md` (its status block).
+**Depends on:** [CORE_line-server](CORE_line-server.md).
 **Lift:** S
 **Delivers:** A Dovecot-auth socket, so Postfix submission authenticates with `toaken_` device tokens
-**Track:** `PLUGIN_`. Package `oaken_trunk_sasl`, shipped in the core wheel. Core touch point: a plain plugin may own a Unix socket (CORE_plugin-host), as an ingestor does.
+**Track:** `PLUGIN_`. Package `oaken_trunk_sasl`, shipped in the core wheel. Core changes: none. A `BaseLineServer` on a Unix socket (CORE_line-server).
 
 ## Goal
 
@@ -38,8 +38,7 @@ and LOGIN.
 
 **B. Close**
 
-3. **Contract.** No secret in logs or errors, sockets created with the right mode and group, a malformed
-   frame closes the connection, the protocol fuzzed briefly in the suite.
+3. **Contract.** `LineServerContract` over this command table, plus the socket mode and group.
 4. **Docs.** `DOCS_mta-guides` gains the Postfix `master.cf` submission lines, with
    `smtpd_sender_login_maps` and `reject_sender_login_mismatch` so a device sends only as its address.
    `config.example.toml` (`[sasl]`), softmap, status table.

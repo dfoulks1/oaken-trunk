@@ -31,18 +31,22 @@ socket = "run/lmtp.sock"
 [mail]
 local_domains = []          # domains Trunk accepts mail for; empty accepts nothing
 
-[spool]
-driver = "dir"              # dir | redis | s3-sqs (the last two are planned)
-max_deliveries = 1000000    # queue entries across all devices (links, keys or objects); at the limit, retryable 4xx
+[spool]                     # core logic over the stores below (ADR 0014)
+max_spool_bytes = "20GiB"   # bodies; at the limit new mail gets a retryable 4xx / HTTP 507
+max_deliveries = 1000000    # queue entries across all devices; at the limit, retryable 4xx
 max_devices = 1000          # device queues; `keys add --device` refuses at the cap (ADR 0013)
 device_expiry_days = 30     # a device unused this long is dropped with its queue; doctor reports it
-
-[spool.dir]
-path = "data/spool"         # a tmpfs mount is the operator's choice, not a driver
-durability = "strict"       # strict: fsync each message | batched: concurrent messages share one fsync
-                            # (ack after it) | volatile: no fsync, explicit opt-in
-max_spool_bytes = "20GiB"   # quota; at the limit new mail gets a retryable 4xx / HTTP 507
 lease_seconds = 300
+
+[store]                     # which store serves each role; one store may serve all three
+bodies = "dir"              # dir | redis | s3 (the last two are planned)
+queues = "dir"
+coordination = "dir"        # locks, counters, nonces; dir is one host only
+
+[store.dir]
+path = "data/store"         # a tmpfs mount is the operator's choice, not another store
+durability = "strict"       # strict: fsync each operation | batched: one directory fsync per group
+                            # | volatile: no fsync, explicit opt-in
 notify = "auto"             # auto | inotify | poll
 poll_interval_ms = 500
 

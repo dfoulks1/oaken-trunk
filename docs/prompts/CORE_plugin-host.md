@@ -4,7 +4,7 @@
 `docs/plugins.md`, ADR 0006.
 **Depends on:** [CORE_system-operations](CORE_system-operations.md).
 **Track:** `CORE_`. Model: oaken-mail's `oaken/plugins/` (`base`, `host`, `contracts`, `plugin_ops`).
-**Lift:** XL
+**Lift:** L
 **Delivers:** Entry-point discovery, base classes, lifecycle, contract suites
 
 ## Goal
@@ -19,9 +19,8 @@ never stops core.
   contract types, is all a plugin may import from core.
 - `BasePlugin` is the root. Each kind extends it. A plugin that is none of the kinds (an autoscaler, a
   reporter) extends it directly, in the group `oaken_trunk.plugins`: lifecycle, `@command` and `ctx.ops`, and
-  nothing else. Its only power is its declared `calls` and its commands, and it may own a Unix socket
-  (`listen` as an ingestor does) for a local protocol such as the SASL bridge.
-- Kinds: ingestor, retriever, spool, listener, mta here. Sender is CORE_send. Authenticator is CORE_request-guard.
+  nothing else. Its only power is its declared `calls` and its commands.
+- Kinds: listener and mta here. Store is CORE_store. Ingestor and retriever bases are CORE_line-server (ADR 0014). Sender is CORE_send. Authenticator is CORE_request-guard.
 - A listener has up to four methods, `on_envelope`, `on_headers`, `on_end`, `on_stored`. Capabilities
   come from which are overridden.
 - A plugin calls operations through `ctx.ops`, not an import. The host builds it at load from the registry:
@@ -45,7 +44,7 @@ Stop at each `compact` line: checks green, status block updated, then compact th
 
 1. **`BasePlugin`.** The root of every kind, and usable alone. `ctx` (settings, logger, clock, limits, `ops`), `start`, `stop`, `health`, capabilities
    inferred from overrides, lenient returns with readable errors.
-2. **Loader.** Entry points `oaken_trunk.plugins`, `.ingestors`, `.retrievers`, `.spools`, `.listeners`, `.mtas`. First-party plugins register
+2. **Loader.** Entry points `oaken_trunk.plugins`, `.ingestors`, `.retrievers`, `.stores`, `.listeners`, `.mtas`. First-party plugins register
    as a third party's would. A plugin that fails to load adds nothing, and `doctor` says why.
 3. **Contract version.** A plugin states the contract it targets. A mismatch is refused with a clear message.
 4. **`@command`.** A marked method becomes `plugin.verb`: typed input and output, `permission`, `mcp` (`off`
@@ -59,42 +58,22 @@ Stop at each `compact` line: checks green, status block updated, then compact th
 
 `compact`
 
-**B. Spool**
+**B. Listener**
 
-7. **`BaseSpool`.** The author writes `write`, `commit`, `abort`, `lease`, `open`, `ack`. The base presents the
-   first three to core as the `writer`. The spool adapter owns timeouts and isolation.
-8. **`SpoolContract`.** Streaming and memory, abort leaves nothing, nothing leasable before `commit`, lease
-   expiry, recovery.
-
-`compact`
-
-**C. Ingestor and retriever**
-
-9. **`BaseIngestor`.** The author writes `listen(submit)`. `submit` is the registry's operation, called
-   in-process as caller class `plugin`. The ingestor never touches the spool. `IngestorContract` covers
-   backpressure replies and the streaming rule.
-10. **`BaseRetriever`.** The ingestor's mirror (ADR 0013): the author writes `serve(ops)`, with `calls`
-    limited to consume operations, and never touches the spool. `RetrieverContract` covers scope, the
-    streaming rule, no content in logs, and nack of every unacked claim on teardown.
-
-`compact`
-
-**D. Listener**
-
-11. **`BaseListener`.** Up to four methods, `on_envelope`, `on_headers`, `on_end`, `on_stored`. The adapter
+7. **`BaseListener`.** Up to four methods, `on_envelope`, `on_headers`, `on_end`, `on_stored`. The adapter
     calls them in order with the timeouts of CORE_engine, validates each structured result, and allows a header only
     if the listener declared its name. `ListenerContract` covers the same.
 
 `compact`
 
-**E. Close**
+**C. Close**
 
-12. **`BaseMTA`.** Declarative: class attributes `sender_env`, `recipient_env`, `args` and an `exit` map by
+8. **`BaseMTA`.** Declarative: class attributes `sender_env`, `recipient_env`, `args` and an `exit` map by
     class (`ok`, `temporary`, `permanent`). The base supplies the `submit` command with `calls = ["submit"]`,
     fixed, and the `cli` metadata built from the attributes. `MTAContract`. An author may override
     `normalise(sender, recipients)` for an MTA's quirks.
-13. **Import contracts.** Plugins import only the contract layer. Core imports no plugin.
-14. **Docs.** `plugins.md` (seven kinds, `@command`, writer shape, `listen(submit)`), ADR 0006 amended,
+9. **Import contracts.** Plugins import only the contract layer. Core imports no plugin.
+10. **Docs.** `plugins.md` (the kinds, `@command`, listener and MTA examples), ADR 0006 amended,
     softmap, status table.
 
 ## Acceptance criteria
@@ -111,7 +90,7 @@ Stop at each `compact` line: checks green, status block updated, then compact th
 
 1. Is HTTP ingest an ingestor plugin? **No. It is `submit` on the `ingest` surface (CORE_http-listener). Socket-owning
    ingestors (LMTP, SMTP) run `listen(submit)`.**
-2. Where do settings live? **Per-kind tables as in `config.example.toml` (`[ingest.x]`, `[spool.x]`,
+2. Where do settings live? **Per-kind tables as in `config.example.toml` (`[ingest.x]`, `[store.x]`,
    `[listener.x]`).**
 3. Contract-version policy? **Exact match until 1.0.**
 

@@ -95,7 +95,7 @@ src/oaken_trunk/cli/     the `steamer` command, a thin client (in the core wheel
 docs/                    architecture, ADRs, build prompts
 </code></pre></div>
 <p>Core never imports a plugin or a client. A plugin never touches another plugin's storage. Plugins
-register through entry points: <code>oaken_trunk.ingestors</code>, <code>oaken_trunk.spools</code>, <code>oaken_trunk.senders</code>.</p>
+register through entry points: <code>oaken_trunk.ingestors</code>, <code>oaken_trunk.retrievers</code>, <code>oaken_trunk.stores</code>, <code>oaken_trunk.senders</code>.</p>
 </section>
 <section id="ai-tooling" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>AI tooling</h2></div>
 <p>Contributions made with generative AI must follow the ASF
@@ -276,12 +276,22 @@ The tables are generated from <a href="https://github.com/dfoulks1/oaken-trunk/b
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
 <td>0.1</td>
-<td>XL</td>
+<td>L</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_system-operations.md">CORE_system-operations</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_store.md">CORE_store</a></td>
+<td>0.1</td>
+<td>L</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_supervisor.md">CORE_supervisor</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_consumer-api.md">CORE_consumer-api</a></td>
@@ -312,6 +322,16 @@ The tables are generated from <a href="https://github.com/dfoulks1/oaken-trunk/b
 <td>—</td>
 <td>—</td>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_supervisor.md">CORE_supervisor</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_line-server.md">CORE_line-server</a></td>
+<td>0.1</td>
+<td>L</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_store.md">CORE_store</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_request-guard.md">CORE_request-guard</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_http-listener.md">CORE_http-listener</a></td>
@@ -373,22 +393,22 @@ The tables are generated from <a href="https://github.com/dfoulks1/oaken-trunk/b
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a></td>
 <td>0.1</td>
-<td>L</td>
-<td>Written</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
-</tr>
-<tr>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_lmtp-ingest.md">PLUGIN_lmtp-ingest</a></td>
-<td>0.1</td>
 <td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_store.md">CORE_store</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_lmtp-ingest.md">PLUGIN_lmtp-ingest</a></td>
+<td>0.1</td>
+<td>S</td>
+<td>Written</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_line-server.md">CORE_line-server</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_daemon.md">CORE_daemon</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_mta-adapters.md">PLUGIN_mta-adapters</a></td>
@@ -403,12 +423,12 @@ The tables are generated from <a href="https://github.com/dfoulks1/oaken-trunk/b
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_pop3-retriever.md">PLUGIN_pop3-retriever</a></td>
 <td>0.1</td>
-<td>M</td>
+<td>S</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
 <td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_consumer-api.md">CORE_consumer-api</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_request-guard.md">CORE_request-guard</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_line-server.md">CORE_line-server</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_consumer-api.md">CORE_consumer-api</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_sasl-bridge.md">PLUGIN_sasl-bridge</a></td>
@@ -418,12 +438,12 @@ The tables are generated from <a href="https://github.com/dfoulks1/oaken-trunk/b
 <td>—</td>
 <td>—</td>
 <td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_request-guard.md">CORE_request-guard</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_line-server.md">CORE_line-server</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_smtp-ingest.md">PLUGIN_smtp-ingest</a></td>
 <td>later</td>
-<td>L</td>
+<td>M</td>
 <td>Written</td>
 <td>—</td>
 <td>—</td>
@@ -438,7 +458,7 @@ The tables are generated from <a href="https://github.com/dfoulks1/oaken-trunk/b
 <td>—</td>
 <td>—</td>
 <td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_s3-sqs-spool.md">PLUGIN_s3-sqs-spool</a></td>
@@ -448,7 +468,7 @@ The tables are generated from <a href="https://github.com/dfoulks1/oaken-trunk/b
 <td>—</td>
 <td>—</td>
 <td>—</td>
-<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a>, <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/CORE_plugin-host.md">CORE_plugin-host</a></td>
+<td><a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a></td>
 </tr>
 </tbody>
 </table></div>

@@ -1,29 +1,39 @@
-# S3 and SQS spool
+# S3 store: bodies (and queues) in object storage, SQS as an optional signal
 
-**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`.
-**Depends on:** [PLUGIN_directory-spool](PLUGIN_directory-spool.md), [CORE_plugin-host](CORE_plugin-host.md).
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, ADR 0014, `PLUGIN_directory-spool.md` (its status block).
+**Depends on:** [PLUGIN_directory-spool](PLUGIN_directory-spool.md).
 **Lift:** M
-**Delivers:** S3 bodies, SQS visibility timeouts as leases
+**Delivers:** `BaseStore` primitives on S3, with one optional SQS queue to wake consumers
+**Track:** `PLUGIN_`. Package `oaken_trunk_store_s3`, a separate workspace package. Core changes: none.
 
 ## Goal
 
-`oaken_trunk_spool_s3_sqs`.
+The store for the `bodies` role at scale, and for `queues` when Redis is not wanted. AWS lock-in is the
+operator's choice: anything S3-compatible (MinIO, Ceph, R2) is the open path.
 
-## Steps
+## Requirements
 
-1. One S3 object per body; one SQS queue per device (ADR 0013), visibility timeouts as leases; multipart
-   upload from the chunk stream. A body is deleted when no queue holds it; an S3 lifecycle rule is the backstop.
-2. SQS keeps a message at most 14 days, and mail must not expire: re-enqueue entries before retention ends,
-   or say why another design is needed. Verify the limit.
-3. Credentials from the environment or instance role, never config.
-4. Passes the spool contract suite against a fake; tests never use AWS.
+1. **Blobs.** One object per key, multipart upload from the chunk stream, ranged reads out.
+2. **Indexes.** One object per member under `index/<name>/<score>-<member>`; `index_range` lists the prefix.
+   POP3 listing is a prefix listing. S3 expires nothing unless told to, so mail never ages out.
+3. **`cas`.** Conditional writes (`If-None-Match`, `If-Match` on the ETag). Correct but slow: `doctor` says so
+   when S3 serves `coordination`, and recommends Redis.
+4. **`watch`.** Optional: one SQS queue for the store, fed on `index_add`, long-polled. Not per device.
+5. **Ops.** Credentials from the environment or instance role, never config. A lifecycle rule template as a
+   backstop for orphan blobs older than `checkup` could miss.
+6. **Suites.** `StoreContract` and the core spool suite against a fake; tests never use AWS.
 
 ## Acceptance criteria
 
-- Contract suite passes.
-- `ruff check`, `ruff format --check`, `mypy`, `lint-imports` and `pytest` pass; no network, Docker or real mail in tests.
+- Contract and spool suites pass against the fake, including a racing `cas`.
+- Standard checks pass; no network, Docker or real mail in tests.
 - Docs and `docs/softmap.toml` updated; the status table in `CONTRIBUTING.md` updated.
 
-## Checkpoint
+## Open questions (defaults in bold)
 
-Use the report format from `CONTEXT.md`, then stop.
+1. Verify S3 conditional-write support and its consistency, and name the S3-compatible stores that support
+   it. **Refuse `coordination` on one that does not.**
+
+## Report-back checkpoint
+
+End with the report from `CONTEXT.md`, naming the open questions that took the default. Then stop.

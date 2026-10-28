@@ -1,107 +1,76 @@
-# Directory spool: the default spool
+# Directory store: the default, on local disk
 
-**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, `docs/architecture/spool.md`.
-
-**Depends on:** [CORE_plugin-host](CORE_plugin-host.md).
-**Track:** `PLUGIN_`. Package `oaken_trunk_spool_dir`, shipped in the core wheel. Core changes: none.
-**Lift:** L
-**Delivers:** Default spool: Maildir-style store, lease by rename, strict/batched/volatile durability
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, `docs/architecture/spool.md`, ADR 0014.
+**Depends on:** [CORE_store](CORE_store.md).
+**Track:** `PLUGIN_`. Package `oaken_trunk_store_dir`, shipped in the core wheel. Core changes: none.
+**Lift:** M
+**Delivers:** `BaseStore` primitives on local disk: blobs as files, indexes as journals, strict/batched/volatile durability
 
 ## Goal
 
-The default spool. Maildir-style, no dependencies, survives a crash at any step.
+The default store for all three roles on one host. No dependencies, survives a crash at any step, and light
+on inodes.
 
 ## Decided
 
-- The author-facing methods are `write`, `commit`, `abort`, `lease`, `open`, `ack` (CORE_plugin-host). Optional: `nack`,
-  `delete`, `watch`, `usage`.
-- One worker, one I/O thread. A message is visible only after `commit`.
-- One body, one delivery per (recipient, device): each is a hard link to the body, so a device's queue is
-  its links (ADR 0013). The envelope (one recipient) and the annotations live in `meta/<id>-<n>.json`,
-  which never moves. Dropping an expired device unlinks its deliveries.
-- A tmpfs mount is the operator's choice for this driver, not another driver.
+- Primitives only (CORE_store). Fan-out, leases, acks and cleanup are core's.
+- Blobs are files. An index is one append-only journal per name (one inode per device queue, not one per
+  entry), replayed into memory at start and compacted by `checkup`. `cas` values are small files replaced by
+  rename.
+- One worker, one I/O thread. Across workers on one host, `cas` and journal appends take `flock`.
+- A tmpfs mount is the operator's choice for this store, not another store.
 
 ## Not in scope
 
-Cross-process quota and shared counters (CORE_supervisor). Redis and S3 (PLUGIN_redis-spool, PLUGIN_s3-sqs-spool). Reading annotations to stamp headers (CORE_mail-authentication).
+More than one host (PLUGIN_redis-spool, PLUGIN_s3-sqs-spool).
 
 ## Layout
 
 ```
-spool/tmp/<id>.msg                           body being written
-spool/new/<id>-<n>-<device>.msg              ready: a hard link to the body, one per recipient and device
-spool/leased/<id>-<n>.<expiry>.<token>.msg   leased; the name carries the lease
-spool/meta/<id>-<n>.json                     envelope and annotations for that delivery
+store/tmp/<key>                 blob being written
+store/blob/<key>                blob, raw bytes
+store/cas/<key>                 small value
+store/index/<name>.log          journal: add and remove records with scores
 ```
 
-A body file is the raw bytes only. Names hold only ASCII ids,
-integer expiry seconds and base32 tokens. Unknown names are ignored.
+Names hold only ASCII ids and base32. Unknown names are ignored.
 
 ## Requirements
 
-**A. Write and commit**
+**A. Blobs and `cas`**
 
-1. **`write`/`abort`.** Create `tmp/<id>.msg` with `O_EXCL`, mode 0600, in a directory of mode 0700. `write`
-   appends. `abort` removes the file.
-2. **`commit(annotations)`.** Write `meta/<id>-<n>.json` for every recipient (each records `of: N`), fsync
-   the body, hard-link it into `new/` once per recipient, unlink `tmp/`, fsync the directory, per the
-   durability mode. A delivery is visible at its link. Recovery rolls a half-done commit forward when all N
-   meta files exist, and back otherwise.
+1. **Blobs.** `blob_put` writes `tmp/` with `O_EXCL`, mode 0600, directories 0700, fsyncs per durability and
+   renames into `blob/`. `blob_open` streams bounded chunks. `blob_drop` unlinks and is idempotent.
+2. **`cas`.** Read, compare, write `tmp/`, rename over, under `flock`. A TTL is stored with the value and
+   checked on read.
 
 `compact`
 
-**B. Lease, ack, nack, delete, recovery**
+**B. Indexes and notify**
 
-3. **`lease`.** Atomic rename `new/` to `leased/` with expiry and a random token. Two consumers never get the
-   same file. Oldest id first, from an in-memory index of `new/` built at start.
-4. **`open`.** Stream the body in bounded chunks. Return the envelope and annotations from `meta/`.
-5. **`ack` and `nack`.** Ack unlinks that delivery's link and its meta file. The body goes with the last link. Nack renames back to `new/`. A wrong or
-   expired token is refused.
-6. **`delete`.** Remove regardless of lease.
-7. **Recovery** at start, and callable by the reaper (CORE_audit-and-jobs): delete stale `tmp/`, return expired leases to
-   `new/`, delete meta files with no delivery, finish or undo a half-done commit. Idempotent.
-
-`compact`
-
-**C. Durability and quota**
-
-8. **Durability.** `strict`: fsync file and directory per message. `batched`: fsync each file, then one
-   directory fsync for the group (not N). `volatile`: none. Windows has no directory fsync, so there
-   `strict` is a file fsync and the weaker guarantee is documented.
-9. **Quota.** `usage()` returns bytes and deliveries (links). Bytes count each delivery at the body size (a safe overcount with links), from an in-memory count built by a scan at start, updated on commit, ack and
-   delete, with a periodic rescan to correct drift. Over `max_spool_bytes` gives `SpoolFull`.
-10. **Disk errors.** `ENOSPC` is `SpoolFull`. Other `OSError`s are `SpoolUnavailable`. Both map through the
-    table of CORE_foundations.
-
-`compact`
-
-**D. Notify and proof**
-
-11. **`watch`.** Polling at `poll_interval_ms`, plus inotify on Linux through a small ctypes shim (no
-    dependency). `notify = auto | inotify | poll`.
-12. **Suites.** `SpoolContract` plus crash tests at named points (after `write`, before and after each
-    fsync, after the rename, after the directory fsync, during lease, during ack) using a fault hook.
+3. **Indexes.** `index_add` and `index_remove` append a record and fsync per durability; `index_range` reads
+   the in-memory sorted view. Compaction rewrites a journal to its live members and renames it in.
+4. **`watch`.** inotify on the journal through a small ctypes shim (no dependency), polling at
+   `poll_interval_ms` otherwise. `notify = auto | inotify | poll`.
+5. **Durability.** `strict`: fsync file and directory per operation. `batched`: one directory fsync per
+   group. `volatile`: none. Windows has no directory fsync; the weaker guarantee is documented.
+6. **Errors.** `ENOSPC` is `SpoolFull`, other `OSError`s `SpoolUnavailable`, per CORE_foundations.
+7. **Suites.** `StoreContract`, the core spool suite over this store, and crash tests at named points
+   (after a blob write, before and after each fsync and rename, mid-journal append, mid-compaction).
 
 ## Acceptance criteria
 
-- At every crash point recovery gives the message committed or nothing. Never a partial file, never two
-  copies, never a visible delivery without its meta file.
-- Two concurrent consumers never lease the same message. A message is not leasable before `commit`.
-- A batch of N commits in `batched` makes one directory fsync, counted through an instrumented wrapper. The
-  same N in `strict` make N.
-- Three recipients share one body (link count 3), and each leases and acks on its own. The body is gone after the last ack.
-- Annotations survive lease, nack and a restart, and are gone after `ack`. An orphan meta file is removed.
-- A full disk returns the retryable error with all three codes. Files are 0600 and directories 0700.
-- An unknown file in `new/` is ignored. A 1 GiB message streams with chunks of at most 64 KiB.
-- Passes on Linux, macOS and Windows (directory fsync skipped on Windows, with a reason). Standard checks pass.
+- At every crash point a blob is whole or absent, a journal replays to a consistent index, and a torn last
+  record is ignored.
+- A device queue of 10,000 entries uses one journal inode.
+- `batched` makes one directory fsync per group, counted through an instrumented wrapper; `strict` makes N.
+- Two workers on one host racing a `cas`: exactly one wins.
+- Files are 0600 and directories 0700. Passes on Linux, macOS and Windows. Standard checks pass.
 
 ## Open questions (defaults in bold)
 
-1. Meta layout? **`meta/<id>-<n>.json`, as above.**
-2. What does `batched` save? **The directory fsync only. File fsyncs cannot overlap with one thread.**
-3. Batch window? **None. Commits that arrive while an fsync runs join the next group.**
-4. inotify without a dependency? **Yes, a ctypes shim, with polling as the fallback.**
-5. Cross-process `watch` in 0.1? **Implemented, tested properly in 10.**
+1. Compaction trigger? **At `checkup`, or when dead records exceed half the journal.**
+2. inotify without a dependency? **Yes, a ctypes shim, with polling as the fallback.**
 
 ## Report-back checkpoint
 

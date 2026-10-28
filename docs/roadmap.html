@@ -103,8 +103,8 @@ only on operations the CLI already has.</p>
 <p><strong>Outbound</strong> (send): a Sender plugin kind, queue semantics, bounces. <em>Open:</em> DSN format and retry policy.</p>
 </li>
 <li>
-<p><strong>Redis stream</strong> and <strong>S3 + SQS</strong> spools, with their native consumer-group and visibility-timeout
-semantics mapped to lease/ack.</p>
+<p><strong>Redis</strong> and <strong>S3</strong> stores: the same primitives as the directory store, for more than one host
+(ADR 0014).</p>
 </li>
 <li>
 <p><strong>Write-behind tmpfs</strong> over a disk journal. <em>Open:</em> recovery rules.</p>

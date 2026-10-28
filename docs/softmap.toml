@@ -142,7 +142,7 @@ name = "Plugin base classes and contract suites"
 layer = "plugins"
 status = "planned"
 prompt = "CORE_plugin-host"
-summary = "BaseIngestor, BaseSpool and BaseSender, with capabilities inferred from overridden methods, plus the shared contract test suites."
+summary = "BaseStore, BaseLineServer (BaseIngestor, BaseRetriever) and BaseSender, with capabilities inferred from overridden methods, plus the shared contract test suites."
 uses = []
 
 [[components]]

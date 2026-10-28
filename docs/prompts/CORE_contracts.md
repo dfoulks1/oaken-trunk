@@ -14,12 +14,12 @@ Pin the interfaces so the engine, the spool and the plugins can be built against
 
 - A spool stores through a writer. A message is visible only at `commit`, so listeners can annotate first.
   (Tentative.)
-- `commit` makes one delivery per recipient in the envelope, sharing one body. Delivery ids are `<id>-<n>`.
+- `commit` makes one delivery per recipient and device (ADR 0013), sharing one body. Delivery ids are `<id>-<n>`.
   Lease, ack and nack work on deliveries.
 - Ingestors reach the engine through the `submit` operation (CORE_operation-registry), never the spool.
 - Listener events: `envelope`, `headers`, `end` (inline, time-bounded), `stored` (after durable). Listeners
   see headers and digests, never the body. They annotate only.
-- The Sender contract is CORE_send. The Authenticator contract is CORE_request-guard.
+- Storage primitives and the core spool over them are CORE_store (ADR 0014). The Sender contract is CORE_send. The Authenticator contract is CORE_request-guard.
 
 ## Not in scope
 

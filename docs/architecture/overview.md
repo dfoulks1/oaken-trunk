@@ -12,7 +12,7 @@ Oaken Trunk is a stateless gateway with a durable spool. The processes hold no s
 Decisions are in [ADR 0002-0005](../adr).
 
 ```
- ingestors (plugins)      core                         spool (plugin)        consumers
+ ingestors (plugins)      core                         spool (core/stores)   consumers
  HTTP submit   ----+                                                      +--> oaken-mail provider
  CLI stdin      ----+--> authenticate -> limits -> --> store (stream) --+--> +--> CLI / webhook
  LMTP / pipe    ----+    stream chunks, never whole     lease/ack/nack   notify
@@ -26,7 +26,7 @@ Decisions are in [ADR 0002-0005](../adr).
 |---|---|
 | Ingestion | Speak a protocol, hand a byte stream and an envelope to core. One plugin per protocol (`oaken_trunk.ingestors`). |
 | Core | Authenticate, apply limits (`max_inflight`, `max_message_size`, `max_spool_bytes`), assign a message id, stream to the spool, answer the sender. |
-| Spool | Store, lease, stream out, ack, nack, delete, notify (`oaken_trunk.spools`). |
+| Spool | Store, lease, stream out, ack, nack, delete, notify. Core logic over store plugins (`oaken_trunk.stores`, ADR 0014). |
 | Consumers | Anything that leases and acks. Outside trunk. |
 | Senders | Relay outbound mail (`oaken_trunk.senders`), later. |
 

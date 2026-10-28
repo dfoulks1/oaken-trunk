@@ -113,8 +113,26 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
+name = "CORE_store"
+depends = ["CORE_plugin-host", "CORE_supervisor"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_line-server"
+depends = ["CORE_store", "CORE_request-guard"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
 name = "PLUGIN_directory-spool"
-depends = ["CORE_plugin-host"]
+depends = ["CORE_store"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -132,7 +150,7 @@ target = "0.1"
 
 [[prompt]]
 name = "PLUGIN_lmtp-ingest"
-depends = ["CORE_plugin-host", "CORE_daemon"]
+depends = ["CORE_line-server", "CORE_daemon"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -186,7 +204,7 @@ target = "0.1"
 
 [[prompt]]
 name = "PLUGIN_pop3-retriever"
-depends = ["CORE_plugin-host", "CORE_consumer-api", "CORE_request-guard"]
+depends = ["CORE_line-server", "CORE_consumer-api"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -195,7 +213,7 @@ target = "0.1"
 
 [[prompt]]
 name = "PLUGIN_sasl-bridge"
-depends = ["CORE_plugin-host", "CORE_request-guard"]
+depends = ["CORE_line-server"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -249,7 +267,7 @@ target = "later"
 
 [[prompt]]
 name = "PLUGIN_redis-spool"
-depends = ["PLUGIN_directory-spool", "CORE_plugin-host"]
+depends = ["PLUGIN_directory-spool"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -258,7 +276,7 @@ target = "later"
 
 [[prompt]]
 name = "PLUGIN_s3-sqs-spool"
-depends = ["PLUGIN_directory-spool", "CORE_plugin-host"]
+depends = ["PLUGIN_directory-spool"]
 status = "Written"
 built = "—"
 tested = "—"

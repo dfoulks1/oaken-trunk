@@ -71,8 +71,10 @@
     <h1 class="display-6">Spool</h1>
     <p class="lead">Store, lease, ack and nack, how the default spool survives a crash, and what each durability mode costs.</p>
   </header>
-<p>A spool is a plugin. The contract is a bounded stream in and a stream out; where bytes live is the
-plugin's decision (ADR 0003).</p>
+<p>The spool is core logic over store plugins (ADR 0014). A store implements primitives: stream a blob in and
+out, compare-and-set a small value, and keep ordered indexes. Core builds fan-out per device, leases, acks and
+cleanup on them. <code>[store] bodies</code>, <code>queues</code> and <code>coordination</code> each name a store. The contract below is what
+consumers see; where bytes live is the store's decision (ADR 0003).</p>
 
 <section id="contract" class="doc-section"><div class="section-head"><span class="section-num">1</span><h2>Contract</h2></div>
 <div class="table-responsive"><table class="table table-sm table-striped align-middle">
@@ -170,8 +172,8 @@ files, return expired leases to <code>new/</code>, and delete annotations that h
 <p><code>max_spool_bytes</code> caps total size. At the limit, new mail gets a retryable 4xx (HTTP 507). Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.</p>
 </section>
 <section id="other-drivers-planned" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Other drivers (planned)</h2></div>
-<p>Redis stream with consumer groups, and S3 + SQS with visibility timeouts. Both map onto lease, ack and
-nack. They are not RAM-resident drivers of trunk, and each decides durability itself.</p>
+<p>Redis (queues and coordination across hosts, small bodies) and S3 (bodies at scale, queues by prefix, SQS
+as an optional wake-up). Both implement the same primitives. They are not RAM-resident drivers of trunk, and each decides durability itself.</p>
 </section>
   <footer>Oaken Trunk dev · Apache-2.0</footer>
 </main>

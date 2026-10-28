@@ -24,8 +24,8 @@ open questions. Nothing here is a promise or a date.
 
 - **SMTP ingest** with STARTTLS, AUTH and a recipient allowlist.
 - **Outbound** (send): a Sender plugin kind, queue semantics, bounces. *Open:* DSN format and retry policy.
-- **Redis stream** and **S3 + SQS** spools, with their native consumer-group and visibility-timeout
-  semantics mapped to lease/ack.
+- **Redis** and **S3** stores: the same primitives as the directory store, for more than one host
+  (ADR 0014).
 - **Write-behind tmpfs** over a disk journal. *Open:* recovery rules.
 - **mTLS** for consumers.
 - **saslauthd bridge**: a second SASL plugin beside the Dovecot-auth one, so Postfix with Cyrus SASL checks

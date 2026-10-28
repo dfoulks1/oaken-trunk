@@ -1,10 +1,10 @@
 # POP3 retriever: download-and-delete clients and webmail fetchers
 
-**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, ADR 0013, `docs/architecture/consumers.md`.
-**Depends on:** [CORE_plugin-host](CORE_plugin-host.md), [CORE_consumer-api](CORE_consumer-api.md), [CORE_request-guard](CORE_request-guard.md).
-**Lift:** M
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, ADR 0013, ADR 0014, `CORE_line-server.md` (its status block).
+**Depends on:** [CORE_line-server](CORE_line-server.md), [CORE_consumer-api](CORE_consumer-api.md).
+**Lift:** S
 **Delivers:** POP3 over TLS onto list, lease, fetch and ack, with the protocol's own delete-on-QUIT as the ack
-**Track:** `PLUGIN_`. Package `oaken_trunk_pop3`, shipped in the core wheel. Core changes: none (`BaseRetriever` is built in CORE_plugin-host, `lease` by `ids` in CORE_consumer-api).
+**Track:** `PLUGIN_`. Package `oaken_trunk_pop3`, shipped in the core wheel. Core changes: none. TLS, limits, login, the device lock and the session transaction are `BaseRetriever`'s (CORE_line-server).
 
 ## Goal
 
@@ -29,28 +29,13 @@ IMAP (ADR 0013). APOP (needs a stored plaintext secret). Sending. Client setup g
 
 ## Requirements
 
-**A. Session**
-
-1. **Listener.** POP3 (RFC 1939) with `CAPA` (RFC 2449), implicit TLS on 995 and `STLS` on 110 (RFC 2595).
-   No `USER`, `PASS` or `AUTH` before TLS. Bounded connections per key and in total.
-2. **Login.** The username is the email address; the password is the device's `toaken_` token. A username
-   outside the key's recipient scope fails like any other login. `USER`/`PASS` and `AUTH PLAIN` (RFC 5034)
-   go to the `apptoken` authenticator. One generic
-   `-ERR`; rate limits and lockout are the authenticator's. One session per device at a time (RFC 1939 maildrop lock).
-3. **Maildrop.** `STAT`, `LIST` and `UIDL` from core `list` for the device. Nothing leased yet.
-
-`compact`
-
-**B. Reading and ack**
-
-4. **`RETR`.** Leases by id, streams from `fetch` with dot-stuffing, renews while streaming.
-5. **`TOP`.** Leases, streams headers and N body lines, nacks.
-6. **`DELE`, `RSET`, `QUIT`.** `DELE` marks; `RSET` clears marks; `QUIT` acks the marked and nacks the rest.
-   A failed ack answers `-ERR` and the message stays.
-7. **Contract.** `RetrieverContract`: no content in logs, no auth before TLS, flat memory on a 1 GB body,
-   out-of-scope recipients look empty. A fuzz test of the command parser runs in the suite (bounded time);
-   long runs are CORE_security-hardening's.
-8. **Docs.** `plugins.md`, `consumers.md`, `config.example.toml` (`[retrieve.pop3]`), softmap, status table.
+1. **Command table** (RFC 1939, `CAPA` RFC 2449, `STLS` RFC 2595, `AUTH` RFC 5034), mapped onto the
+   retriever session: `USER`/`PASS`/`AUTH PLAIN` to login (username the address, password the `toaken_`);
+   `STAT`, `LIST`, `UIDL` to `list`; `RETR` to `read`; `TOP` to `read_head`; `DELE` to `mark`; `RSET` to
+   `unmark`; `QUIT` to `commit`. Ports 995 (implicit TLS) and 110 (`STLS`).
+2. **Replies.** `+OK` and `-ERR` texts per RFC 1939; a failed ack on `QUIT` answers `-ERR` and the message stays.
+3. **Contract.** `LineServerContract` and the retriever suite of CORE_line-server, over this command table.
+4. **Docs.** `plugins.md`, `consumers.md`, `config.example.toml` (`[retrieve.pop3]`), softmap, status table.
 
 ## Acceptance criteria
 

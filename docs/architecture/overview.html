@@ -75,7 +75,7 @@
   </header>
 <p>Oaken Trunk is a stateless gateway with a durable spool. The processes hold no state; the spool does.
 Decisions are in <a href="../adr">ADR 0002-0005</a>.</p>
-<div class="code"><pre class="highlight"><code> ingestors (plugins)      core                         spool (plugin)        consumers
+<div class="code"><pre class="highlight"><code> ingestors (plugins)      core                         spool (core/stores)   consumers
  HTTP submit   ----+                                                      +--&gt; oaken-mail provider
  CLI stdin      ----+--&gt; authenticate -&gt; limits -&gt; --&gt; store (stream) --+--&gt; +--&gt; CLI / webhook
  LMTP / pipe    ----+    stream chunks, never whole     lease/ack/nack   notify
@@ -102,7 +102,7 @@ Decisions are in <a href="../adr">ADR 0002-0005</a>.</p>
 </tr>
 <tr>
 <td>Spool</td>
-<td>Store, lease, stream out, ack, nack, delete, notify (<code>oaken_trunk.spools</code>).</td>
+<td>Store, lease, stream out, ack, nack, delete, notify. Core logic over store plugins (<code>oaken_trunk.stores</code>, ADR 0014).</td>
 </tr>
 <tr>
 <td>Consumers</td>
