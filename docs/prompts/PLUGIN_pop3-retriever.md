@@ -33,7 +33,9 @@ IMAP (ADR 0013). APOP (needs a stored plaintext secret). Sending. Client setup g
 
 1. **Listener.** POP3 (RFC 1939) with `CAPA` (RFC 2449), implicit TLS on 995 and `STLS` on 110 (RFC 2595).
    No `USER`, `PASS` or `AUTH` before TLS. Bounded connections per key and in total.
-2. **Login.** `USER`/`PASS` and `AUTH PLAIN` (RFC 5034) go to the `apptoken` authenticator. One generic
+2. **Login.** The username is the email address; the password is the device's `toaken_` token. A username
+   outside the key's recipient scope fails like any other login. `USER`/`PASS` and `AUTH PLAIN` (RFC 5034)
+   go to the `apptoken` authenticator. One generic
    `-ERR`; rate limits and lockout are the authenticator's. One session per device at a time (RFC 1939 maildrop lock).
 3. **Maildrop.** `STAT`, `LIST` and `UIDL` from core `list` for the device. Nothing leased yet.
 

@@ -95,6 +95,15 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
+name = "CORE_diagnostics"
+depends = ["CORE_system-operations", "CORE_audit-and-jobs", "CORE_consumer-api"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
 name = "CORE_plugin-host"
 depends = ["CORE_system-operations"]
 status = "Written"
@@ -185,8 +194,17 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
+name = "PLUGIN_sasl-bridge"
+depends = ["CORE_plugin-host", "CORE_request-guard"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
 name = "DOCS_mta-guides"
-depends = ["PLUGIN_mta-adapters", "PLUGIN_lmtp-ingest", "CORE_request-guard", "PLUGIN_pop3-retriever"]
+depends = ["PLUGIN_mta-adapters", "PLUGIN_lmtp-ingest", "CORE_request-guard", "PLUGIN_pop3-retriever", "PLUGIN_sasl-bridge"]
 status = "Written"
 built = "—"
 tested = "—"

@@ -5,7 +5,7 @@
 **Depends on:** [CORE_daemon](CORE_daemon.md), [CORE_system-operations](CORE_system-operations.md).
 **Track:** `CORE_`. Model: oaken-mail's `core/jobs.py` and `core/eventlog.py`.
 **Lift:** L
-**Delivers:** Content-free audit log, stats rollup, the lease reaper and job runner
+**Delivers:** Content-free audit log, stats rollup, the job runner and `checkup`, the maintenance sweep
 
 ## Goal
 
@@ -15,7 +15,7 @@ reliably in the background.
 ## Decided
 
 - Core owns the audit sink and fails closed: no sink, no start. A plugin cannot switch it off.
-- State that is not mail (audit, counters, job state) lives in a small SQLite file in `<data>/`. The spool
+- State that is not mail (audit, counters, job state, device last-used) lives in a small SQLite file in `<data>/`. The spool
   stays the only mail state. The interfaces are in core, SQLite is the default behind them.
 - Audit records and logs never carry message content or a secret.
 
@@ -31,10 +31,16 @@ The UI pages (WEBUI_management-ui).
 2. **`audit` operation.** Read with filters (time, operation, principal, outcome), paged. No content.
 3. **Stats rollup.** Persist counter totals per hour. `stats` can read history.
 4. **Jobs.** A small runner for periodic work with state in the same file: last run, outcome, next run.
-5. **Lease reaper.** Return expired leases to the queue. Idempotent, safe across a crash.
-6. **`list_jobs`** (read only in 0.1).
-7. **Retention of the audit file.** A size or age cap, rotated, never silently dropping a record unrecorded.
-8. **Docs.** `ai-safety.md` and `logging.md` state where audit lives. Softmap, status table.
+5. **`checkup`.** One sweep, run by the job runner on `checkup.schedule` (default hourly) and on demand
+   (`steamer checkup`, `--dry-run` reports without changing anything). Each step idempotent and safe across a
+   crash: return expired leases to the queue; expire devices unused for `device_expiry_days` with their
+   queues (ADR 0013); remove bodies no queue holds; rescan spool usage against the caps. The result is a
+   job record and stats; what was dropped is named for `doctor`.
+6. **Device last-used.** Updated on login and lease, written at most once per `checkup` interval per device
+   so a busy device costs no writes. `checkup` reads it; nothing else decides expiry.
+7. **`list_jobs`** (read only in 0.1).
+8. **Retention of the audit file.** A size or age cap, rotated, never silently dropping a record unrecorded.
+9. **Docs.** `ai-safety.md` and `logging.md` state where audit lives. Softmap, status table.
 
 ## Acceptance criteria
 

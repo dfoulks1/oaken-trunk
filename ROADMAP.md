@@ -28,6 +28,8 @@ open questions. Nothing here is a promise or a date.
   semantics mapped to lease/ack.
 - **Write-behind tmpfs** over a disk journal. *Open:* recovery rules.
 - **mTLS** for consumers.
+- **saslauthd bridge**: a second SASL plugin beside the Dovecot-auth one, so Postfix with Cyrus SASL checks
+  device tokens. Before 1.0.
 
 ## Not planned
 

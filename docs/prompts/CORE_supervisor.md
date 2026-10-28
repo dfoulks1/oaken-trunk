@@ -36,8 +36,9 @@ correctness one.
 
 **A. Interfaces, in-process first**
 
-1. **Counters.** `Credits` (`max_inflight`, spool quota, per-client rate) and `NonceStore` behind interfaces.
-   The in-memory version is the only one at `workers.count = 1`. CORE_engine's limiter uses `Credits`.
+1. **Counters.** `Credits` (`max_inflight`, spool quota, per-client rate), `NonceStore` and `Locks` behind
+   interfaces. `Locks` is a named, expiring lock that any core part or plugin takes through `ctx` (one POP3
+   session per device, `apptoken` failure counts). The in-memory version is the only one at `workers.count = 1`. CORE_engine's limiter uses `Credits`.
 2. **Settings.** `workers.count` (a fixed number), `workers.max_count`, `workers.thread_count`,
    `workers.max_threads`. Startup refuses a product above `workers.max_threads`, and `workers.thread_count > 1` until a prompt
    tests it.

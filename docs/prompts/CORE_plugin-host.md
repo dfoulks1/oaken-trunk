@@ -19,7 +19,8 @@ never stops core.
   contract types, is all a plugin may import from core.
 - `BasePlugin` is the root. Each kind extends it. A plugin that is none of the kinds (an autoscaler, a
   reporter) extends it directly, in the group `oaken_trunk.plugins`: lifecycle, `@command` and `ctx.ops`, and
-  nothing else. Its only power is its declared `calls` and its commands.
+  nothing else. Its only power is its declared `calls` and its commands, and it may own a Unix socket
+  (`listen` as an ingestor does) for a local protocol such as the SASL bridge.
 - Kinds: ingestor, retriever, spool, listener, mta here. Sender is CORE_send. Authenticator is CORE_request-guard.
 - A listener has up to four methods, `on_envelope`, `on_headers`, `on_end`, `on_stored`. Capabilities
   come from which are overridden.

@@ -1,7 +1,7 @@
 # MTA guides: qmail and Postfix
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/DOCS.md`, `docs/architecture/ingestion.md`.
-**Depends on:** [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md), [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_request-guard](CORE_request-guard.md), [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md).
+**Depends on:** [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md), [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_request-guard](CORE_request-guard.md), [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md), [PLUGIN_sasl-bridge](PLUGIN_sasl-bridge.md).
 **Lift:** M
 **Delivers:** Tested guides for handing mail from qmail and Postfix to Trunk
 **Track:** `DOCS_`. Pages and checked snippets only. No code.
@@ -39,6 +39,10 @@ Any code. Other MTAs.
 6. **Reading mail.** A mail client points at the POP3 retriever (PLUGIN_pop3-retriever) with one app token per
    device; mail leaves Trunk once every device has deleted it. Oaken Mail pulls with its own Trunk source (built in the oaken-mail repo, link
    only). Show the consume key, its recipient scope and who can read the key file.
+7. **Client setup.** For a user: POP3 on 995, username the email address, password the device's `toaken_`
+   token, "leave messages on server" off; sending on 587 with the same login (PLUGIN_sasl-bridge). For an
+   operator: a static autoconfig file (`config-v1.1.xml`) and an Autodiscover file to serve from the mail
+   domain, as templates, so clients configure themselves. Verify both formats against current client docs.
 
 ## Acceptance criteria
 

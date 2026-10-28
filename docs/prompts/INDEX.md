@@ -17,7 +17,8 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | [CORE_supervisor](CORE_supervisor.md) | Written | 0.1 | L | The supervisor and worker management, running in-process at `workers.count = 1` | CORE_daemon |
 | [CLI_client](CLI_client.md) | Written | 0.1 | M | The `steamer` command: start, stop, reload, a generic runner and verbs generated from schemas | CORE_daemon |
 | [CORE_system-operations](CORE_system-operations.md) | Written | 0.1 | L | `init`, `doctor`, `status`, `stats` and the config operations | CORE_daemon, CORE_supervisor |
-| [CORE_audit-and-jobs](CORE_audit-and-jobs.md) | Written | 0.1 | L | Content-free audit log, stats rollup, the lease reaper and job runner | CORE_daemon, CORE_system-operations |
+| [CORE_audit-and-jobs](CORE_audit-and-jobs.md) | Written | 0.1 | L | Content-free audit log, stats rollup, the job runner and `checkup`, the maintenance sweep | CORE_daemon, CORE_system-operations |
+| [CORE_diagnostics](CORE_diagnostics.md) | Written | 0.1 | M | Mail-path checks for `doctor`, and the operations an operator uses to trace a message or a device | CORE_system-operations, CORE_audit-and-jobs, CORE_consumer-api |
 | [CORE_plugin-host](CORE_plugin-host.md) | Written | 0.1 | XL | Entry-point discovery, base classes, lifecycle, contract suites | CORE_system-operations |
 | [PLUGIN_directory-spool](PLUGIN_directory-spool.md) | Written | 0.1 | L | Default spool: Maildir-style store, lease by rename, strict/batched/volatile durability | CORE_plugin-host |
 | [CORE_consumer-api](CORE_consumer-api.md) | Written | 0.1 | M | The consumer operations, the lease rules and wake-up | PLUGIN_directory-spool |
@@ -28,7 +29,8 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | [DOCS_docs-site](DOCS_docs-site.md) | Partly built | 0.1 | S | Docs site tooling | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
 | [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md) | Written | 0.1 | S | First-party qmail and Postfix commands that wrap `submit` with each MTA's conventions | CORE_plugin-host, CLI_client, CORE_operation-registry |
 | [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md) | Written | 0.1 | M | POP3 over TLS onto list, lease, fetch and ack, with the protocol's own delete-on-QUIT as the ack | CORE_plugin-host, CORE_consumer-api, CORE_request-guard |
-| [DOCS_mta-guides](DOCS_mta-guides.md) | Written | 0.1 | M | Tested guides for handing mail from qmail and Postfix to Trunk | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard, PLUGIN_pop3-retriever |
+| [PLUGIN_sasl-bridge](PLUGIN_sasl-bridge.md) | Written | 0.1 | S | A Dovecot-auth socket, so Postfix submission authenticates with `toaken_` device tokens | CORE_plugin-host, CORE_request-guard |
+| [DOCS_mta-guides](DOCS_mta-guides.md) | Written | 0.1 | M | Tested guides for handing mail from qmail and Postfix to Trunk | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard, PLUGIN_pop3-retriever, PLUGIN_sasl-bridge |
 | [WEBUI_management-ui](WEBUI_management-ui.md) | Written | 0.1 | XL | Operator web app on its own port, built only on operations the CLI has | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
 | [CORE_mail-authentication](CORE_mail-authentication.md) | Written | later | XL | Native inbound DKIM, SPF, DMARC, ARC without buffering a message | CORE_engine, CORE_plugin-host |
 | [CORE_send](CORE_send.md) | Written | later | L | Outbound spool, the Sender plugin kind, DKIM signing | CORE_consumer-api, CORE_request-guard |
@@ -58,22 +60,24 @@ Computed from `depends`, so it cannot contradict them. Target 0.1 comes first.
 11. [CORE_plugin-host](CORE_plugin-host.md)
 12. [PLUGIN_directory-spool](PLUGIN_directory-spool.md)
 13. [CORE_consumer-api](CORE_consumer-api.md)
-14. [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md)
-15. [CORE_request-guard](CORE_request-guard.md)
-16. [CORE_http-listener](CORE_http-listener.md)
-17. [DOCS_docs-site](DOCS_docs-site.md)
-18. [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md)
-19. [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md)
-20. [CORE_security-hardening](CORE_security-hardening.md)
-21. [DOCS_mta-guides](DOCS_mta-guides.md)
-22. [WEBUI_management-ui](WEBUI_management-ui.md)
+14. [CORE_diagnostics](CORE_diagnostics.md)
+15. [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md)
+16. [CORE_request-guard](CORE_request-guard.md)
+17. [CORE_http-listener](CORE_http-listener.md)
+18. [DOCS_docs-site](DOCS_docs-site.md)
+19. [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md)
+20. [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md)
+21. [CORE_security-hardening](CORE_security-hardening.md)
+22. [PLUGIN_sasl-bridge](PLUGIN_sasl-bridge.md)
+23. [DOCS_mta-guides](DOCS_mta-guides.md)
+24. [WEBUI_management-ui](WEBUI_management-ui.md)
 
 **Target later**
 
-23. [CORE_mail-authentication](CORE_mail-authentication.md)
-24. [CORE_send](CORE_send.md)
-25. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
-26. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
-27. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
-28. [MCP_mcp-door](MCP_mcp-door.md)
+25. [CORE_mail-authentication](CORE_mail-authentication.md)
+26. [CORE_send](CORE_send.md)
+27. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
+28. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
+29. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
+30. [MCP_mcp-door](MCP_mcp-door.md)
 <!-- /prompts:order -->

@@ -59,7 +59,8 @@ Listeners and routes (CORE_http-listener, CORE_daemon). mTLS (needs the listener
 
 7. **`hmac`** (SigV4-style over the same components, constant-time compare). **`bearer`** (off unless
    enabled, loopback only, refused elsewhere, `doctor` warns). **`apptoken`** for protocol logins (POP3): a
-   per-device token, stored hashed with `hashlib.scrypt`, constant-time verify, rate limited per address and
+   per-device token `toaken_<key id>_<secret>` (the key id finds the record, the secret is checked; the
+   prefix lets secret scanners spot a leak), stored hashed with `hashlib.scrypt`, constant-time verify, rate limited per address and
    per username, locked out after `max_failures` (default 10), one generic failure (ADR 0013).
 8. **Packaging.** All four in `oaken_trunk_auth`, registered as a third party's would be.
 
