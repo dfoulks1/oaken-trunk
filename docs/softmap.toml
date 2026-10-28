@@ -6,180 +6,33 @@
 [[stacks]]
 id = "gateway"
 name = "Oaken Trunk gateway"
-layers = ["clients", "ingestors", "core", "plugins"]
+layers = ["clients", "protocols", "doors", "core", "storage", "plugins"]
 
 [[layers]]
 id = "clients"
 name = "Clients"
 
 [[layers]]
-id = "ingestors"
-name = "Ingestors"
+id = "protocols"
+name = "Protocols"
+
+[[layers]]
+id = "doors"
+name = "Doors"
 
 [[layers]]
 id = "core"
 name = "Core"
 
 [[layers]]
+id = "storage"
+name = "Storage"
+
+[[layers]]
 id = "plugins"
 name = "Plugins"
 
-[[components]]
-id = "lmtp"
-name = "LMTP ingest"
-layer = "ingestors"
-status = "planned"
-prompt = "PLUGIN_mail-protocols"
-summary = "The Postfix delivery target over a Unix or TCP socket."
-uses = ["registry"]
-untrusted = true
-
-[[components]]
-id = "smtp"
-name = "SMTP ingest"
-layer = "ingestors"
-status = "planned"
-prompt = "PLUGIN_smtp-ingest"
-summary = "SMTP on 25 and 587 with STARTTLS, AUTH after TLS and a recipient allowlist."
-uses = ["registry"]
-untrusted = true
-
-[[components]]
-id = "engine"
-name = "Engine"
-layer = "core"
-status = "planned"
-prompt = "CORE_engine"
-summary = "The data path. Applies limits, assigns a message id, streams the body into a spool through a writer in bounded chunks, fires listener events in order, and commits."
-uses = ["host", "plugin-base"]
-
-[[components]]
-id = "registry"
-name = "Operation registry"
-layer = "core"
-status = "planned"
-prompt = "CORE_operation-registry"
-summary = "The command path. Every capability is one typed operation with a surface, a permission class and an MCP ceiling. The API, CLI, UI and MCP are generated from it."
-uses = ["engine", "host"]
-
-[[components]]
-id = "daemon"
-name = "Daemon"
-layer = "core"
-status = "planned"
-prompt = "CORE_daemon"
-summary = "Runs core as one process: composition root, start, stop, reload and graceful shutdown, serving the registry over a local Unix socket."
-uses = ["registry"]
-
-[[components]]
-id = "httplistener"
-name = "HTTP listener"
-layer = "core"
-status = "planned"
-prompt = "CORE_http-listener"
-summary = "The TCP and TLS listener with the request guard in front. HTTP submission is the submit operation on the ingest surface."
-uses = ["daemon", "guard"]
-
-[[components]]
-id = "sysops"
-name = "System operations"
-layer = "core"
-status = "planned"
-prompt = "CORE_system-operations"
-summary = "init, doctor, status, stats, config and plugin operations: what an operator needs to set up and watch Trunk."
-uses = ["registry"]
-
-[[components]]
-id = "audit"
-name = "Audit and jobs"
-layer = "core"
-status = "planned"
-prompt = "CORE_audit-and-jobs"
-summary = "A content-free audit log, a stats rollup, and the job runner with the lease reaper, in a small SQLite file beside the spool."
-uses = ["registry"]
-
-[[components]]
-id = "supervisor"
-name = "Supervisor and workers"
-layer = "core"
-status = "planned"
-prompt = "CORE_supervisor"
-summary = "Opens the sockets, runs the worker processes, hands out batched credits for global limits and restarts crashed workers."
-uses = ["engine"]
-
-[[components]]
-id = "guard"
-name = "Request guard and authenticators"
-layer = "core"
-status = "planned"
-prompt = "CORE_request-guard"
-summary = "One guard in front of every HTTP surface that refuses unsigned, stale, replayed or cross-surface requests before any route runs. The signing scheme is an authenticator plugin chosen per surface."
-uses = ["plugin-base"]
-untrusted = true
-
-[[components]]
-id = "mailauth"
-name = "Mail authentication"
-layer = "core"
-status = "planned"
-prompt = "CORE_mail-authentication"
-summary = "The streaming authentication stage, an injectable resolver, Authentication-Results and DKIM verification. Holds only the header block in memory."
-uses = ["plugin-base"]
-untrusted = true
-
-[[components]]
-id = "host"
-name = "Plugin host"
-layer = "core"
-status = "planned"
-prompt = "CORE_plugin-host"
-summary = "Discovers plugins through entry points and runs their lifecycle, health and doctor checks."
-uses = ["plugin-base"]
-
-[[components]]
-id = "plugin-base"
-name = "Plugin base classes and contract suites"
-layer = "plugins"
-status = "planned"
-prompt = "CORE_plugin-host"
-summary = "BaseStore, BaseLineServer (BaseIngestor, BaseRetriever) and BaseSender, with capabilities inferred from overridden methods, plus the shared contract test suites."
-uses = []
-
-[[components]]
-id = "spool-dir"
-name = "Directory store"
-layer = "plugins"
-status = "planned"
-prompt = "PLUGIN_directory-spool"
-summary = "The default store: blobs as files, indexes as journals, compare-and-set by rename, fsync by durability mode."
-uses = ["plugin-base"]
-
-[[components]]
-id = "spool-redis"
-name = "Redis store"
-layer = "plugins"
-status = "planned"
-prompt = "PLUGIN_redis-spool"
-summary = "Store primitives on Redis for queues and coordination across hosts, with Lua fast paths for commit and ack."
-uses = ["plugin-base"]
-
-[[components]]
-id = "spool-s3-sqs"
-name = "S3 store"
-layer = "plugins"
-status = "planned"
-prompt = "PLUGIN_s3-sqs-spool"
-summary = "Store primitives on S3: bodies at scale, queues as listable prefixes, SQS as an optional wake-up."
-uses = ["plugin-base"]
-
-[[components]]
-id = "send"
-name = "Outbound sender"
-layer = "plugins"
-status = "planned"
-prompt = "CORE_send"
-summary = "Drains the outbound spool with per-domain limits, backoff and bounces."
-uses = ["plugin-base"]
+# Clients: operator and admin tools. Mail clients and Oaken Mail sit outside, on the protocols and doors.
 
 [[components]]
 id = "cli"
@@ -191,106 +44,23 @@ summary = "The `steamer` command, a thin client of the API. Every operation has 
 uses = ["daemon"]
 
 [[components]]
+id = "mta"
+name = "MTA adapters"
+layer = "clients"
+status = "planned"
+prompt = "PLUGIN_mta-adapters"
+summary = "`steamer qmail submit` and `steamer postfix submit`: each MTA's environment and exit codes, mapped onto `submit`."
+uses = ["cli"]
+untrusted = true
+
+[[components]]
 id = "webui"
 name = "Management UI"
 layer = "clients"
 status = "planned"
 prompt = "WEBUI_management-ui"
-summary = "A separate web app on its own port for the operator, built only on operations the CLI already has. Off by default."
-uses = ["cli"]
-
-[[components]]
-id = "statsmcp"
-name = "MCP door"
-layer = "clients"
-status = "planned"
-prompt = "MCP_mcp-door"
-summary = "Optional MCP door generated from the whole operation registry and gated by a caller class the mount sets. Statistics tier by default, a confirm gate for state changes, and never message data or send, delete and the lease/ack verbs."
-uses = ["cli"]
-untrusted = true
-
-[[components]]
-id = "pop3"
-name = "POP3 retriever"
-layer = "ingestors"
-status = "planned"
-prompt = "PLUGIN_mail-protocols"
-summary = "Mail clients read their device queue over POP3; DELE then QUIT is the ack."
-uses = ["registry", "linesrv"]
-untrusted = true
-
-[[components]]
-id = "sasl"
-name = "SASL bridge"
-layer = "ingestors"
-status = "planned"
-prompt = "PLUGIN_mail-protocols"
-summary = "A Dovecot-auth socket so Postfix submission checks device tokens."
-uses = ["linesrv"]
-untrusted = true
-
-[[components]]
-id = "linesrv"
-name = "Line server"
-layer = "core"
-status = "planned"
-prompt = "CORE_line-server"
-summary = "One base under every socket protocol: TLS, limits, login, dot-stuffing, fuzzing, and the retriever session."
-uses = ["guard", "store"]
-
-[[components]]
-id = "store"
-name = "Spool and registry"
-layer = "core"
-status = "planned"
-prompt = "CORE_store"
-summary = "Core spool, locks, counters and the registry, built on store primitives; fan-out per device and the caps."
-uses = ["encryption", "plugin-base"]
-
-[[components]]
-id = "encryption"
-name = "Encryption at rest"
-layer = "core"
-status = "planned"
-prompt = "CORE_encryption"
-summary = "Streaming envelope encryption of every blob and record before a store sees it."
-uses = []
-
-[[components]]
-id = "enrollment"
-name = "Device enrollment"
-layer = "core"
-status = "planned"
-prompt = "CORE_enrollment"
-summary = "Self-service device tokens: an authenticated request for a token for a named device."
-uses = ["registry", "store"]
-
-[[components]]
-id = "diagnostics"
-name = "Diagnostics"
-layer = "core"
-status = "planned"
-prompt = "CORE_diagnostics"
-summary = "Mail-path checks for doctor, and trace, devices, refusals and probe."
-uses = ["sysops", "audit", "store"]
-
-[[components]]
-id = "mailpolicy"
-name = "Mail policy"
-layer = "core"
-status = "planned"
-prompt = "CORE_mail-policy"
-summary = "SPF, DMARC (record or enforce) and ARC (record only) on the mail authentication stage."
-uses = ["mailauth"]
-
-[[components]]
-id = "keys"
-name = "Keys and tokens"
-layer = "core"
-status = "planned"
-prompt = "CORE_keys"
-summary = "apptoken and bearer authenticators, and key operations kept in the registry, live on every host."
-uses = ["guard", "store"]
+summary = "A separate web app on its own port, read only: status, queue, leases, failures, configuration, `doctor`. Off by default."
+uses = ["httplistener"]
 
 [[components]]
 id = "webui-actions"
@@ -300,3 +70,270 @@ status = "planned"
 prompt = "WEBUI_operator-actions"
 summary = "Diagnostics pages and the CLI's mutating actions in the web UI, each confirmed and audited."
 uses = ["webui"]
+
+[[components]]
+id = "mcp"
+name = "MCP door"
+layer = "clients"
+status = "planned"
+prompt = "MCP_mcp-door"
+summary = "Diagnostics for a model, off by default. The operator enables read-only diagnostic operations one by one; anything touching mail or keys can never be enabled."
+uses = ["httplistener"]
+
+# Protocols: command tables on the line server. Each speaks to the outside and handles untrusted input.
+
+[[components]]
+id = "lmtp"
+name = "LMTP"
+layer = "protocols"
+status = "planned"
+prompt = "PLUGIN_mail-protocols"
+summary = "Postfix delivers here. Unknown users get Dovecot's `550 5.1.1`; caps get `452 4.3.1`."
+uses = ["linesrv"]
+untrusted = true
+
+[[components]]
+id = "smtp"
+name = "SMTP"
+layer = "protocols"
+status = "planned"
+prompt = "PLUGIN_smtp-ingest"
+summary = "SMTP on 25 and 587 with STARTTLS, AUTH after TLS and a recipient allowlist. Later."
+uses = ["linesrv"]
+untrusted = true
+
+[[components]]
+id = "pop3"
+name = "POP3"
+layer = "protocols"
+status = "planned"
+prompt = "PLUGIN_mail-protocols"
+summary = "Mail clients read their device queue. `RETR` claims, `DELE` marks, a clean `QUIT` acks."
+uses = ["linesrv"]
+untrusted = true
+
+[[components]]
+id = "sasl"
+name = "SASL bridge"
+layer = "protocols"
+status = "planned"
+prompt = "PLUGIN_mail-protocols"
+summary = "A Dovecot-auth socket so Postfix submission checks device tokens."
+uses = ["linesrv"]
+untrusted = true
+
+# Doors: where a request or a connection is authenticated before it reaches core.
+
+[[components]]
+id = "linesrv"
+name = "Line server"
+layer = "doors"
+status = "planned"
+prompt = "CORE_line-server"
+summary = "One base under every socket protocol: TLS, limits, login, dot-stuffing, fuzzing, and the retriever session as a transaction."
+uses = ["keys", "registry", "consumer"]
+
+[[components]]
+id = "httplistener"
+name = "HTTP listener"
+layer = "doors"
+status = "planned"
+prompt = "CORE_http-listener"
+summary = "TCP and TLS with the guard in front; HTTP `submit` on the ingest surface; the consumer API and enrollment over HTTP."
+uses = ["guard", "registry"]
+untrusted = true
+
+[[components]]
+id = "enrollment"
+name = "Enrollment"
+layer = "doors"
+status = "planned"
+prompt = "CORE_enrollment"
+summary = "Self-service device tokens: an authenticated request for a token for a named device."
+uses = ["keys", "registry"]
+
+[[components]]
+id = "keys"
+name = "Keys and tokens"
+layer = "doors"
+status = "planned"
+prompt = "CORE_keys"
+summary = "`apptoken` and `bearer` authenticators, and key operations kept in the registry, live on every host."
+uses = ["guard", "store"]
+
+[[components]]
+id = "guard"
+name = "Request guard"
+layer = "doors"
+status = "planned"
+prompt = "CORE_request-guard"
+summary = "One guard in front of every HTTP surface: the authenticator kind, surfaces, ed25519 signed requests, freshness and replay."
+uses = ["store", "host"]
+
+# Core: the command path, the data path and the operator's operations.
+
+[[components]]
+id = "daemon"
+name = "Daemon"
+layer = "core"
+status = "planned"
+prompt = "CORE_daemon"
+summary = "The composition root: lifecycle, and the registry served over a local Unix socket."
+uses = ["registry", "supervisor"]
+
+[[components]]
+id = "registry"
+name = "Operation registry"
+layer = "core"
+status = "planned"
+prompt = "CORE_operation-registry"
+summary = "The command path. Every capability is one typed operation with a surface, a permission and an MCP setting. The API, CLI, UI and MCP are doors onto it."
+uses = ["engine", "consumer", "sysops", "diagnostics", "audit", "host"]
+
+[[components]]
+id = "consumer"
+name = "Consumer API"
+layer = "core"
+status = "planned"
+prompt = "CORE_consumer-api"
+summary = "Lease, fetch, ack, nack and renew per device, with long-poll wake-up and poison handling."
+uses = ["store"]
+
+[[components]]
+id = "engine"
+name = "Engine"
+layer = "core"
+status = "planned"
+prompt = "CORE_engine"
+summary = "The data path: limits, recipients, the header block and digests, listener events, and the commit into the spool in bounded chunks."
+uses = ["mailauth", "store", "host"]
+
+[[components]]
+id = "mailauth"
+name = "Mail authentication"
+layer = "core"
+status = "planned"
+prompt = "CORE_mail-authentication"
+summary = "The streaming authentication stage, a resolver, `Authentication-Results` and DKIM. Holds only the header block. Later."
+uses = ["mailpolicy"]
+
+[[components]]
+id = "mailpolicy"
+name = "Mail policy"
+layer = "core"
+status = "planned"
+prompt = "CORE_mail-policy"
+summary = "SPF, DMARC (record or enforce) and ARC (record only) on the authentication stage. Later."
+uses = []
+
+[[components]]
+id = "sysops"
+name = "System operations"
+layer = "core"
+status = "planned"
+prompt = "CORE_system-operations"
+summary = "`init`, `doctor`, `status`, `stats` and the config operations."
+uses = ["store"]
+
+[[components]]
+id = "diagnostics"
+name = "Diagnostics"
+layer = "core"
+status = "planned"
+prompt = "CORE_diagnostics"
+summary = "Mail-path checks for `doctor`, and `trace`, `devices`, `refusals` and `probe`. Metadata only."
+uses = ["sysops", "audit", "store"]
+
+[[components]]
+id = "audit"
+name = "Audit and checkup"
+layer = "core"
+status = "planned"
+prompt = "CORE_audit-and-jobs"
+summary = "The content-free audit log, stats rollup, the job runner and `checkup`, the maintenance sweep."
+uses = ["store"]
+
+[[components]]
+id = "supervisor"
+name = "Supervisor"
+layer = "core"
+status = "planned"
+prompt = "CORE_supervisor"
+summary = "Workers, their lifecycle, and `Locks`, `Credits` and `NonceStore` across workers and hosts."
+uses = ["store"]
+
+[[components]]
+id = "host"
+name = "Plugin host"
+layer = "core"
+status = "planned"
+prompt = "CORE_plugin-host"
+summary = "Entry-point discovery, plugin lifecycle, `@command`, and the listener and MTA kinds."
+uses = ["plugin-base"]
+
+# Storage: the spool, the registry and encryption, built on store primitives.
+
+[[components]]
+id = "store"
+name = "Spool and registry"
+layer = "storage"
+status = "planned"
+prompt = "CORE_store"
+summary = "Fan-out per device, lease, ack, cleanup, the caps, locks and counters, and the registry, all on store primitives."
+uses = ["encryption", "plugin-base"]
+
+[[components]]
+id = "encryption"
+name = "Encryption at rest"
+layer = "storage"
+status = "planned"
+prompt = "CORE_encryption"
+summary = "Streaming envelope encryption of every blob and record before a store sees it."
+uses = ["plugin-base"]
+
+# Plugins: base classes and the backends that implement them.
+
+[[components]]
+id = "plugin-base"
+name = "Base classes"
+layer = "plugins"
+status = "planned"
+prompt = "CORE_plugin-host"
+summary = "`BaseStore`, `BaseLineServer` (`BaseIngestor`, `BaseRetriever`), `BaseAuthenticator`, `BaseListener` and `BaseSender`, each with its contract suite."
+uses = []
+
+[[components]]
+id = "store-dir"
+name = "Directory store"
+layer = "plugins"
+status = "planned"
+prompt = "PLUGIN_directory-spool"
+summary = "The default store: blobs as files, indexes as journals, compare-and-set by rename. One host."
+uses = ["plugin-base"]
+
+[[components]]
+id = "store-redis"
+name = "Redis store"
+layer = "plugins"
+status = "planned"
+prompt = "PLUGIN_redis-spool"
+summary = "Queues and coordination across hosts, with Lua fast paths. Later."
+uses = ["plugin-base"]
+
+[[components]]
+id = "store-s3"
+name = "S3 store"
+layer = "plugins"
+status = "planned"
+prompt = "PLUGIN_s3-sqs-spool"
+summary = "Bodies at scale, queues as listable prefixes, SQS as an optional wake-up. Later."
+uses = ["plugin-base"]
+
+[[components]]
+id = "send"
+name = "Outbound sender"
+layer = "plugins"
+status = "planned"
+prompt = "CORE_send"
+summary = "The Sender kind and outbound DKIM signing. Later."
+uses = ["plugin-base"]

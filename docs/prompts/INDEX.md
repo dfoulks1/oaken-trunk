@@ -41,7 +41,7 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md) | Written | later | M | SMTP on 25 and 587: STARTTLS, AUTH, recipient allowlist | PLUGIN_mail-protocols |
 | [PLUGIN_redis-spool](PLUGIN_redis-spool.md) | Written | later | M | `BaseStore` primitives on Redis, with atomic overrides for the hot spool operations | PLUGIN_directory-spool |
 | [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md) | Written | later | M | `BaseStore` primitives on S3, with one optional SQS queue to wake consumers | PLUGIN_directory-spool |
-| [MCP_mcp-door](MCP_mcp-door.md) | Written | later | L | Optional MCP door gated by caller class. Not part of 0.1 | CORE_operation-registry, CORE_system-operations, CORE_http-listener |
+| [MCP_mcp-door](MCP_mcp-door.md) | Written | later | L | Optional MCP door for diagnostics: off by default, each read-only operation enabled by name. Not part of 0.1 | CORE_operation-registry, CORE_system-operations, CORE_http-listener |
 <!-- /prompts:master -->
 
 ## Build order

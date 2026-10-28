@@ -556,13 +556,16 @@ def _builder(cfg: Config) -> Page:
         "one, and the call graph has no cycles.",
         "- **Events go up.** Lower layers reach higher ones only through events or a handler the "
         "higher layer registered.",
-        "- **Plugins meet core at a contract.** Core never imports provider code, and a plugin "
-        "never touches the databases.",
-        "- **Mail is data.** Anything that handles message text is marked untrusted, and its text "
-        "reaches a model only as `UntrustedText`.",
-        "- **Mutations are gated in code.** The operation registry's confirm gate, not a prompt, "
-        "decides whether mail may change. Sending is never exposed over MCP.",
-        "- **`index.db` is disposable.** Everything in it can be rebuilt from `raw.db`.",
+        "- **Plugins meet core at a base class.** A store implements primitives and a protocol a "
+        "command table; core does the rest (ADR 0014). Core never imports a plugin.",
+        "- **No server-side mailbox.** Mail waits in a device's queue until that device takes it "
+        "(ADR 0013).",
+        "- **Encrypted at rest, content-free logs.** A store sees only ciphertext (ADR 0015); logs and "
+        "audit carry no message content (ADR 0012).",
+        "- **Untrusted input is marked.** A red dot marks every component that parses what a client "
+        "or the internet sends.",
+        "- **MCP is diagnostics only.** Off by default; each read-only operation is enabled one by one "
+        "(ADR 0008).",
         "",
         "## Components",
         "",

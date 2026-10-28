@@ -28,7 +28,8 @@ PROMPT_NAME = re.compile(
 
 
 def link_prompt_names(text: str, cfg: Config) -> str:
-    """Write a prompt's plain name in a page and it becomes a link to its file (never in a code fence).
+    """Write a prompt's plain name in a page and it becomes a link to its file (never in a code fence or a
+    raw HTML line).
 
     A name that is not a prompt file is left alone; ``prompts.py`` is what fails on an unknown name."""
     out: list[str] = []
@@ -36,7 +37,7 @@ def link_prompt_names(text: str, cfg: Config) -> str:
     for line in text.split("\n"):
         if line.lstrip().startswith("```"):
             fenced = not fenced
-        elif not fenced:
+        elif not fenced and not line.lstrip().startswith("<"):  # markdown links never render in raw HTML
 
             def link(m: re.Match[str]) -> str:
                 name = m.group(2)
