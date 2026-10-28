@@ -34,14 +34,13 @@ CORE_http-listener). Plugin discovery (CORE_plugin-host). The directory spool (P
    stops reading at the first byte over `max_message_size`, checks `usage()` against `max_spool_bytes` and
    `max_deliveries` (ADR 0013) before writing, and holds at most one chunk plus the header block.
 3. **Recipients.** Each recipient is checked against `[mail] local_domains` and must have at least one
-   registered device (CORE_store's registry); otherwise it is an unknown user, as Dovecot treats one. The
-   result is per recipient, accepted or refused (65, refused recipient). Only accepted ones are committed. None accepted is the
-   refusal. An empty `local_domains` accepts nothing, and `doctor` says so.
+   registered device; otherwise it is an unknown user, as Dovecot treats one. The engine asks a small
+   `Devices` protocol (`has_device(address)`), faked here; CORE_store's registry implements it. The result is
+   per recipient, accepted or refused (refused recipient: `550 5.1.1`, exit 67). Only accepted ones are
+   committed. None accepted is the refusal. An empty `local_domains` accepts nothing, and `doctor` says so.
 4. **Header block and digest.** Keep the bytes up to the first blank line, bounded by `max_header_bytes`
    (default 64 KiB, over is a permanent refusal). Compute a raw SHA-256 of the body through named digest taps
    (CORE_mail-authentication adds more; CORE_mail-policy builds on them).
-
-`compact`
 
 5. **Listener dispatch.** Through `ListenerHost`, default none: `envelope`, `headers`, `end` inline with
    timeouts, then `commit(annotations)`, then `stored`. The `end` listeners run before the message is
@@ -54,7 +53,8 @@ CORE_http-listener). Plugin discovery (CORE_plugin-host). The directory spool (P
   under 8 MiB.
 - A message of exactly `max_message_size` is accepted. One byte more is refused and the source was not read to
   its end.
-- Three recipients, one outside `local_domains`: two deliveries commit, one is refused with its code. No
+- Three recipients, one outside `local_domains` and one with no device: one delivery commits, two are refused
+  with their code. No
   accepted recipient is a refusal and nothing is stored.
 - A stream that fails partway leaves no visible message, and the error carries all three codes.
 - A message written but not committed cannot be leased. It is leasable only after the `end` listeners have run
