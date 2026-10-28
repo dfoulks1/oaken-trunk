@@ -24,12 +24,11 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md) | Written | 0.1 | M | LMTP over a Unix socket: the Postfix delivery target | CORE_plugin-host, CORE_daemon |
 | [CORE_request-guard](CORE_request-guard.md) | Written | 0.1 | XL | Signed-requests guard and the authenticator plugin kind | CORE_plugin-host, CORE_supervisor |
 | [CORE_http-listener](CORE_http-listener.md) | Written | 0.1 | M | The TCP and TLS listener with the request guard in front, and HTTP submission on the ingest surface | CORE_daemon, CORE_request-guard |
-| [CORE_security-hardening](CORE_security-hardening.md) | Written | 0.1 | M | Injection, auth and open-relay test pass across every ingestor | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener |
+| [CORE_security-hardening](CORE_security-hardening.md) | Written | 0.1 | M | Injection, auth and open-relay test pass across every ingestor | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener, PLUGIN_pop3-retriever |
 | [DOCS_docs-site](DOCS_docs-site.md) | Partly built | 0.1 | S | Docs site tooling | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
 | [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md) | Written | 0.1 | S | First-party qmail and Postfix commands that wrap `submit` with each MTA's conventions | CORE_plugin-host, CLI_client, CORE_operation-registry |
-| [PLUGIN_imap-retriever](PLUGIN_imap-retriever.md) | Written | 0.1 | L | The default retriever: IMAP over TLS onto list, lease, fetch and ack, so a mail client reads Trunk | CORE_plugin-host, CORE_consumer-api, CORE_request-guard |
-| [PLUGIN_imap-compat](PLUGIN_imap-compat.md) | Written | 0.1 | L | The IMAP extensions, virtual folders, SEARCH and stable UIDs that real mail clients expect | PLUGIN_imap-retriever, CORE_engine |
-| [DOCS_mta-guides](DOCS_mta-guides.md) | Written | 0.1 | M | Tested guides for handing mail from qmail and Postfix to Trunk | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard, PLUGIN_imap-retriever |
+| [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md) | Written | 0.1 | M | POP3 over TLS onto list, lease, fetch and ack, with the protocol's own delete-on-QUIT as the ack | CORE_plugin-host, CORE_consumer-api, CORE_request-guard |
+| [DOCS_mta-guides](DOCS_mta-guides.md) | Written | 0.1 | M | Tested guides for handing mail from qmail and Postfix to Trunk | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard, PLUGIN_pop3-retriever |
 | [WEBUI_management-ui](WEBUI_management-ui.md) | Written | 0.1 | XL | Operator web app on its own port, built only on operations the CLI has | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
 | [CORE_mail-authentication](CORE_mail-authentication.md) | Written | later | XL | Native inbound DKIM, SPF, DMARC, ARC without buffering a message | CORE_engine, CORE_plugin-host |
 | [CORE_send](CORE_send.md) | Written | later | L | Outbound spool, the Sender plugin kind, DKIM signing | CORE_consumer-api, CORE_request-guard |
@@ -62,20 +61,19 @@ Computed from `depends`, so it cannot contradict them. Target 0.1 comes first.
 14. [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md)
 15. [CORE_request-guard](CORE_request-guard.md)
 16. [CORE_http-listener](CORE_http-listener.md)
-17. [CORE_security-hardening](CORE_security-hardening.md)
-18. [DOCS_docs-site](DOCS_docs-site.md)
-19. [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md)
-20. [PLUGIN_imap-retriever](PLUGIN_imap-retriever.md)
-21. [PLUGIN_imap-compat](PLUGIN_imap-compat.md)
-22. [DOCS_mta-guides](DOCS_mta-guides.md)
-23. [WEBUI_management-ui](WEBUI_management-ui.md)
+17. [DOCS_docs-site](DOCS_docs-site.md)
+18. [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md)
+19. [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md)
+20. [CORE_security-hardening](CORE_security-hardening.md)
+21. [DOCS_mta-guides](DOCS_mta-guides.md)
+22. [WEBUI_management-ui](WEBUI_management-ui.md)
 
 **Target later**
 
-24. [CORE_mail-authentication](CORE_mail-authentication.md)
-25. [CORE_send](CORE_send.md)
-26. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
-27. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
-28. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
-29. [MCP_mcp-door](MCP_mcp-door.md)
+23. [CORE_mail-authentication](CORE_mail-authentication.md)
+24. [CORE_send](CORE_send.md)
+25. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
+26. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
+27. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
+28. [MCP_mcp-door](MCP_mcp-door.md)
 <!-- /prompts:order -->

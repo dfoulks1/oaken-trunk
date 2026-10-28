@@ -17,7 +17,7 @@ the same model as Oaken Mail's plugins, so the habits carry over.
 | Kind | Entry-point group | Base class | What it does |
 |---|---|---|---|
 | Ingestor | `oaken_trunk.ingestors` | `BaseIngestor` | Speaks a protocol and hands core a byte stream and an envelope. |
-| Retriever | `oaken_trunk.retrievers` | `BaseRetriever` | Speaks a read protocol (IMAP) and maps it onto list, lease, fetch and ack. Holds no store. |
+| Retriever | `oaken_trunk.retrievers` | `BaseRetriever` | Speaks a read protocol (POP3) and maps it onto list, lease, fetch and ack. Holds no store. |
 | Spool | `oaken_trunk.spools` | `BaseSpool` | Stores messages and runs lease, ack and nack. |
 | Sender | `oaken_trunk.senders` | `BaseSender` | Relays an outbound message to its destination. |
 | Authenticator | `oaken_trunk.authenticators` | `BaseAuthenticator` | Verifies a request or connection: signed requests, SMTP AUTH, mTLS. Core owns freshness, replay and the default deny. |

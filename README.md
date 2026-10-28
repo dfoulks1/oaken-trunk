@@ -2,8 +2,8 @@
 
 Oaken Trunk is a small, stateless mail gateway with a durable spool: the gateway processes hold no state, the spool does. It receives mail over SMTP, LMTP, HTTP or a pipe,
 streams each message into a spool, and tells consumers it is there. Consumers lease a message,
-do their work, and acknowledge it. Trunk keeps no mailbox, no index and no IMAP: it replaces the
-*delivery* step into a local mailbox (the Dovecot LDA role), not mailbox access.
+do their work, and acknowledge it. Trunk keeps no mailbox, no index and no IMAP: it replaces Dovecot and the mailboxes behind it. Mail
+clients read over POP3 and the mail is gone once every device has it (ADR 0013).
 
 Oaken Mail is the client-side half of the family and Oaken Trunk is the server-side half: Trunk is run by an operator on a host that receives mail, and Oaken Mail (or anything else) consumes from it.
 

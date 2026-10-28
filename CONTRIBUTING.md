@@ -129,7 +129,7 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | [CORE_consumer-api](docs/prompts/CORE_consumer-api.md) | 0.1 | M | Written | — | — | — | PLUGIN_directory-spool |
 | [CORE_request-guard](docs/prompts/CORE_request-guard.md) | 0.1 | XL | Written | — | — | — | CORE_plugin-host, CORE_supervisor |
 | [CORE_http-listener](docs/prompts/CORE_http-listener.md) | 0.1 | M | Written | — | — | — | CORE_daemon, CORE_request-guard |
-| [CORE_security-hardening](docs/prompts/CORE_security-hardening.md) | 0.1 | M | Written | — | — | — | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener |
+| [CORE_security-hardening](docs/prompts/CORE_security-hardening.md) | 0.1 | M | Written | — | — | — | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener, PLUGIN_pop3-retriever |
 | [CORE_mail-authentication](docs/prompts/CORE_mail-authentication.md) | later | XL | Written | — | — | — | CORE_engine, CORE_plugin-host |
 | [CORE_send](docs/prompts/CORE_send.md) | later | L | Written | — | — | — | CORE_consumer-api, CORE_request-guard |
 
@@ -140,8 +140,7 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | [PLUGIN_directory-spool](docs/prompts/PLUGIN_directory-spool.md) | 0.1 | L | Written | — | — | — | CORE_plugin-host |
 | [PLUGIN_lmtp-ingest](docs/prompts/PLUGIN_lmtp-ingest.md) | 0.1 | M | Written | — | — | — | CORE_plugin-host, CORE_daemon |
 | [PLUGIN_mta-adapters](docs/prompts/PLUGIN_mta-adapters.md) | 0.1 | S | Written | — | — | — | CORE_plugin-host, CLI_client, CORE_operation-registry |
-| [PLUGIN_imap-retriever](docs/prompts/PLUGIN_imap-retriever.md) | 0.1 | L | Written | — | — | — | CORE_plugin-host, CORE_consumer-api, CORE_request-guard |
-| [PLUGIN_imap-compat](docs/prompts/PLUGIN_imap-compat.md) | 0.1 | L | Written | — | — | — | PLUGIN_imap-retriever, CORE_engine |
+| [PLUGIN_pop3-retriever](docs/prompts/PLUGIN_pop3-retriever.md) | 0.1 | M | Written | — | — | — | CORE_plugin-host, CORE_consumer-api, CORE_request-guard |
 | [PLUGIN_smtp-ingest](docs/prompts/PLUGIN_smtp-ingest.md) | later | L | Written | — | — | — | PLUGIN_lmtp-ingest |
 | [PLUGIN_redis-spool](docs/prompts/PLUGIN_redis-spool.md) | later | M | Written | — | — | — | PLUGIN_directory-spool, CORE_plugin-host |
 | [PLUGIN_s3-sqs-spool](docs/prompts/PLUGIN_s3-sqs-spool.md) | later | M | Written | — | — | — | PLUGIN_directory-spool, CORE_plugin-host |
@@ -169,5 +168,5 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
 |---|---|---|---|---|---|---|---|
 | [DOCS_docs-site](docs/prompts/DOCS_docs-site.md) | 0.1 | S | Partly built | partly | partly | — | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
-| [DOCS_mta-guides](docs/prompts/DOCS_mta-guides.md) | 0.1 | M | Written | — | — | — | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard, PLUGIN_imap-retriever |
+| [DOCS_mta-guides](docs/prompts/DOCS_mta-guides.md) | 0.1 | M | Written | — | — | — | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard, PLUGIN_pop3-retriever |
 <!-- /prompts:status -->

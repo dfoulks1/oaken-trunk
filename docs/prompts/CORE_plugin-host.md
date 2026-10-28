@@ -72,10 +72,9 @@ Stop at each `compact` line: checks green, status block updated, then compact th
 9. **`BaseIngestor`.** The author writes `listen(submit)`. `submit` is the registry's operation, called
    in-process as caller class `plugin`. The ingestor never touches the spool. `IngestorContract` covers
    backpressure replies and the streaming rule.
-10. **`BaseRetriever` and `@leased`.** The ingestor's mirror (ADR 0013): the author writes `serve(ops)`, with
-    `calls` limited to consume operations, and never touches the spool. `@leased` wraps a command in lease
-    by id, renew while it runs, ack on return (or nack with `ack=False`) and nack on raise.
-    `RetrieverContract` covers scope, the streaming rule and no content in logs.
+10. **`BaseRetriever`.** The ingestor's mirror (ADR 0013): the author writes `serve(ops)`, with `calls`
+    limited to consume operations, and never touches the spool. `RetrieverContract` covers scope, the
+    streaming rule, no content in logs, and nack of every unacked claim on teardown.
 
 `compact`
 

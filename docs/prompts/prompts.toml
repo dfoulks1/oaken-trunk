@@ -150,7 +150,7 @@ target = "0.1"
 
 [[prompt]]
 name = "CORE_security-hardening"
-depends = ["PLUGIN_lmtp-ingest", "CORE_consumer-api", "CORE_http-listener"]
+depends = ["PLUGIN_lmtp-ingest", "CORE_consumer-api", "CORE_http-listener", "PLUGIN_pop3-retriever"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -176,7 +176,7 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
-name = "PLUGIN_imap-retriever"
+name = "PLUGIN_pop3-retriever"
 depends = ["CORE_plugin-host", "CORE_consumer-api", "CORE_request-guard"]
 status = "Written"
 built = "—"
@@ -185,17 +185,8 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
-name = "PLUGIN_imap-compat"
-depends = ["PLUGIN_imap-retriever", "CORE_engine"]
-status = "Written"
-built = "—"
-tested = "—"
-released = "—"
-target = "0.1"
-
-[[prompt]]
 name = "DOCS_mta-guides"
-depends = ["PLUGIN_mta-adapters", "PLUGIN_lmtp-ingest", "CORE_request-guard", "PLUGIN_imap-retriever"]
+depends = ["PLUGIN_mta-adapters", "PLUGIN_lmtp-ingest", "CORE_request-guard", "PLUGIN_pop3-retriever"]
 status = "Written"
 built = "—"
 tested = "—"

@@ -1,7 +1,7 @@
 # Security hardening
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`.
-**Depends on:** [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_consumer-api](CORE_consumer-api.md), [CORE_http-listener](CORE_http-listener.md).
+**Depends on:** [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_consumer-api](CORE_consumer-api.md), [CORE_http-listener](CORE_http-listener.md), [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md).
 **Lift:** M
 **Delivers:** Injection, auth and open-relay test pass across every ingestor
 
@@ -11,8 +11,8 @@ The dedicated pass.
 
 ## Steps
 
-1. Injection and malformed-input suite across every ingestor (header injection, oversized lines, truncated DATA).
-2. Auth tests: unsigned, badly signed, stale, replayed and cross-surface requests are refused before any route; TLS-before-AUTH; no open relay; every first-party authenticator passes `AuthenticatorContract`.
+1. Injection and malformed-input suite across every ingestor and retriever (header injection, oversized lines, truncated DATA, POP3 command fuzzing with a licence-checked fuzzer).
+2. Auth tests: unsigned, badly signed, stale, replayed and cross-surface requests are refused before any route; TLS-before-AUTH; `apptoken` brute force hits the lockout and a revoked device cannot log in; no open relay; every first-party authenticator passes `AuthenticatorContract`.
 3. Audit review: no message body in any log or exception; spool permissions owner-only.
 4. Log audit per ADR 0012: sentinel content sent through every ingestor never appears in any log, error or response.
 5. Dependency licence check: no GPL.

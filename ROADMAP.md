@@ -31,4 +31,4 @@ open questions. Nothing here is a promise or a date.
 
 ## Not planned
 
-IMAP or POP3, mailbox search, spam filtering, and a RAM-resident spool driver.
+IMAP, server-side mailboxes and search, spam filtering, and a RAM-resident spool driver.

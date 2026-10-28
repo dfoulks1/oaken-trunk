@@ -58,14 +58,17 @@ Listeners and routes (CORE_http-listener, CORE_daemon). mTLS (needs the listener
 **C. The other schemes**
 
 7. **`hmac`** (SigV4-style over the same components, constant-time compare). **`bearer`** (off unless
-   enabled, loopback only, refused elsewhere, `doctor` warns).
-8. **Packaging.** All three in `oaken_trunk_auth`, registered as a third party's would be.
+   enabled, loopback only, refused elsewhere, `doctor` warns). **`apptoken`** for protocol logins (POP3): a
+   per-device token, stored hashed with `hashlib.scrypt`, constant-time verify, rate limited per address and
+   per username, locked out after `max_failures` (default 10), one generic failure (ADR 0013).
+8. **Packaging.** All four in `oaken_trunk_auth`, registered as a third party's would be.
 
 `compact`
 
 **D. Keys and close**
 
-9. **Key operations.** `keys_add`, `keys_list`, `keys_revoke` per surface. `keys_add` takes `--recipients` for a `consume` key. It writes the private key
+9. **Key operations.** `keys_add`, `keys_list`, `keys_revoke` per surface. `keys_add` takes `--recipients` for a `consume` key, and `--device NAME` for an `apptoken`, printed once. Revoking a
+   device ends its sessions and drops its deliveries. It writes the private key
    once to `--out`, mode 0600 from the first byte. The server keeps public keys in `<config>/keys/<surface>`.
    A change takes effect without a restart.
 10. **Config and `doctor`.** `[security.<surface>] scheme = "..."`. `doctor` checks each surface and refuses a

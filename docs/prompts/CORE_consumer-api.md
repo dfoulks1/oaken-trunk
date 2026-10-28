@@ -13,7 +13,10 @@ How a consumer takes mail out. At-least-once, never buffered, same operations on
 ## Decided
 
 - Six operations plus `renew`. Surface `consume`, set by the key, never by the caller.
-- A consumer is named by its key id. Leases belong to that name.
+- A consumer is named by its key id (a device, for a mail client). Leases belong to that name.
+- Claims are exclusive within a consumer, not across them. Every consumer registered for a recipient
+  gets each message; it is deleted once all of them have acked. A consumer unused for `consumer_expiry`
+  (default 30 days) is dropped and `doctor` says so (ADR 0013).
 - Bodies stream out in bounded chunks. Core never holds a whole message.
 - Expired leases return to the queue. Consumers dedupe on the delivery id (ADR 0004).
 - `delete` is audited. Lease, ack and nack are counted in stats, not audited.
@@ -46,7 +49,7 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
    in `list`. It is not delivered again until an operator releases it.
 8. **Limits.** Per-consumer open leases (default 1000). Over it is a retryable error.
 9. **Examples.** A CLI loop and a webhook relay. Each is a tested script, not a product. Mail clients read
-   through the IMAP retriever (PLUGIN_imap-retriever).
+   through the POP3 retriever (PLUGIN_pop3-retriever).
 10. **Docs.** `api-and-cli.md`, softmap, status table. The
    Oaken Mail provider is built in the oaken-mail repo.
 
@@ -56,7 +59,8 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
 - A key scoped to `@a.com` never leases, fetches, lists or acks a `b.com` delivery, and one scoped to
   `ann@a.com` never sees `bob@a.com`'s. An out-of-scope id looks
   like a missing one.
-- Two consumers never get the same message. Ack of an expired lease is `lease_invalid`.
+- Two leases under one consumer never get the same message. Two consumers on one recipient each get it,
+  and it is gone only after both ack. An expired consumer no longer holds mail. Ack of an expired lease is `lease_invalid`.
 - A message that fails `max_attempts` times is dead and not leased again.
 - A 1 GB body fetches with flat memory. A body sentinel never reaches a log or error.
 - `lease` with `wait` returns within a second of a commit.

@@ -47,8 +47,8 @@ tier change (ADR 0008).
 ## What trunk is not
 
 A no-server-side-mailbox spool. Trunk replaces Dovecot and the mailboxes behind it, and sits behind
-Postfix or qmail rather than replacing them. Mail clients read over IMAP through a retriever plugin, and a
-fetched message is gone: the client is the mailbox. No stored folders, no Sent or Drafts on the server, no
+Postfix or qmail rather than replacing them. Mail clients read over POP3 through a retriever plugin, and a
+message is gone once every device has it: the client is the mailbox. No IMAP, no folders, no uploads, no
 system mailboxes (`/var/mail`) and no spam filtering (ADR 0013).
 
 ## Memory rule
