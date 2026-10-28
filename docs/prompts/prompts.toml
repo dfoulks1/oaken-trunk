@@ -23,17 +23,8 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
-name = "CORE_contracts"
-depends = ["CORE_foundations"]
-status = "Written"
-built = "—"
-tested = "—"
-released = "—"
-target = "0.1"
-
-[[prompt]]
 name = "CORE_engine"
-depends = ["CORE_contracts"]
+depends = ["CORE_foundations"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -158,8 +149,8 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
-name = "PLUGIN_lmtp-ingest"
-depends = ["CORE_line-server", "CORE_daemon"]
+name = "PLUGIN_mail-protocols"
+depends = ["CORE_line-server", "CORE_consumer-api"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -195,7 +186,7 @@ target = "0.1"
 
 [[prompt]]
 name = "CORE_security-hardening"
-depends = ["PLUGIN_lmtp-ingest", "CORE_consumer-api", "CORE_http-listener", "PLUGIN_pop3-retriever"]
+depends = ["PLUGIN_mail-protocols", "CORE_consumer-api", "CORE_http-listener"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -221,26 +212,8 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
-name = "PLUGIN_pop3-retriever"
-depends = ["CORE_line-server", "CORE_consumer-api"]
-status = "Written"
-built = "—"
-tested = "—"
-released = "—"
-target = "0.1"
-
-[[prompt]]
-name = "PLUGIN_sasl-bridge"
-depends = ["CORE_line-server"]
-status = "Written"
-built = "—"
-tested = "—"
-released = "—"
-target = "0.1"
-
-[[prompt]]
 name = "DOCS_mta-guides"
-depends = ["PLUGIN_mta-adapters", "PLUGIN_lmtp-ingest", "CORE_request-guard", "PLUGIN_pop3-retriever", "PLUGIN_sasl-bridge"]
+depends = ["PLUGIN_mta-adapters", "PLUGIN_mail-protocols", "CORE_request-guard"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -254,7 +227,7 @@ status = "Written"
 built = "—"
 tested = "—"
 released = "—"
-target = "0.1"
+target = "later"
 
 [[prompt]]
 name = "CORE_mail-authentication"
@@ -276,7 +249,7 @@ target = "later"
 
 [[prompt]]
 name = "PLUGIN_smtp-ingest"
-depends = ["PLUGIN_lmtp-ingest"]
+depends = ["PLUGIN_mail-protocols"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -317,3 +290,19 @@ merged_into = "CORE_engine"
 [[retired]]
 name = "PLUGIN_http-ingest"
 merged_into = "CORE_http-listener"
+
+[[retired]]
+name = "CORE_contracts"
+merged_into = "CORE_foundations"
+
+[[retired]]
+name = "PLUGIN_lmtp-ingest"
+merged_into = "PLUGIN_mail-protocols"
+
+[[retired]]
+name = "PLUGIN_pop3-retriever"
+merged_into = "PLUGIN_mail-protocols"
+
+[[retired]]
+name = "PLUGIN_sasl-bridge"
+merged_into = "PLUGIN_mail-protocols"

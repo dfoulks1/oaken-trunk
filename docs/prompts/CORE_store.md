@@ -39,7 +39,7 @@ PLUGIN_s3-sqs-spool). The checkup schedule (CORE_audit-and-jobs).
 
 **B. The spool, in core**
 
-3. **Write and commit.** The `writer` of CORE_contracts over `blob_put`. `commit` writes meta, then one queue
+3. **Write and commit.** The `writer` of CORE_foundations over `blob_put`. `commit` writes meta, then one queue
    entry per (recipient, device) and the holder count, so a delivery is visible at its entry.
 4. **Lease, ack, nack, renew.** A claim is `cas` on the entry's lease key plus `index_add` to `lease/<device>`.
    Ack removes the entry and decrements `ref/<id>`; at zero the body and meta are dropped. Nack and expiry
@@ -48,7 +48,7 @@ PLUGIN_s3-sqs-spool). The checkup schedule (CORE_audit-and-jobs).
    rescan. Over a cap is the retryable refusal of CORE_engine.
 6. **Checkup steps.** Reap expired leases, expire devices and their queues, drop bodies with no holder,
    rescan. Exposed for CORE_audit-and-jobs to schedule.
-7. **One suite.** The spool suite that `FakeSpool` (CORE_contracts) passes runs against the core spool over
+7. **One suite.** The spool suite that `FakeSpool` (CORE_foundations) passes runs against the core spool over
    `FakeStore` and over each store plugin.
 
 `compact`

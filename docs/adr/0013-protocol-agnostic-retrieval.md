@@ -8,7 +8,7 @@
 Trunk replaced the local delivery step and kept no way to read mail but the consumer API. Users still need
 to read their mail, and the operator does not want to host mailboxes. Clients run on the user's machine.
 Oaken Mail (an ingestion pipeline with no MUA) calls the consumer operations directly; it is the only native
-client today, not the only one there can be. Mail clients and webmail fetchers (Gmail) speak POP3 or IMAP.
+client today, not the only one there can be. Mail clients speak POP3 or IMAP.
 Trunk is only the server side, and should not care which client connects.
 
 ## Decision
@@ -42,5 +42,5 @@ Trunk is only the server side, and should not care which client connects.
 
 "No POP3" leaves the docs; "no mailbox hosting" stays. Delivery stays at-least-once (ADR 0004): only the
 client's `QUIT` after `DELE` removes mail. A client set to leave mail on the server never acks; `doctor` flags
-such a device and points to Oaken Mail. Webmail fetchers keep the mail on their own servers, which is the
-user's choice. Outbound submission for mail clients is `CORE_send`, not this ADR.
+such a device and points to Oaken Mail. Gmail stopped fetching other accounts over POP3 in 2026, so webmail
+fetchers are not a target. Outbound submission for mail clients is `CORE_send`, not this ADR.

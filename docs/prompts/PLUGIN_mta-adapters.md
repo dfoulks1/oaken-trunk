@@ -25,7 +25,7 @@ small plugin.
 
 ## Not in scope
 
-Delivery or queue handling. The LMTP target (PLUGIN_lmtp-ingest). The guides (DOCS_mta-guides).
+Delivery or queue handling. The LMTP target (PLUGIN_mail-protocols). The guides (DOCS_mta-guides).
 
 ## Requirements
 

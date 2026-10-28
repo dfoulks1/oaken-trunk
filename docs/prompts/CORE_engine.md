@@ -2,7 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/spool.md`,
 `docs/architecture/ingestion.md`.
-**Depends on:** [CORE_contracts](CORE_contracts.md).
+**Depends on:** [CORE_foundations](CORE_foundations.md).
 **Lift:** L
 **Delivers:** The engine: limiter, ingest pipeline, header block and digest, listener dispatch and the commit
 **Track:** `CORE_`. The engine knows nothing of HTTP, the CLI or the registry.

@@ -1,7 +1,7 @@
 # MTA guides: qmail and Postfix
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/DOCS.md`, `docs/architecture/ingestion.md`.
-**Depends on:** [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md), [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md), [CORE_request-guard](CORE_request-guard.md), [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md), [PLUGIN_sasl-bridge](PLUGIN_sasl-bridge.md).
+**Depends on:** [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md), [PLUGIN_mail-protocols](PLUGIN_mail-protocols.md), [CORE_request-guard](CORE_request-guard.md).
 **Lift:** M
 **Delivers:** Tested guides for handing mail from qmail and Postfix to Trunk
 **Track:** `DOCS_`. Pages and checked snippets only. No code.
@@ -36,13 +36,15 @@ Any code. Other MTAs.
 5. **Failure table.** Daemon down, spool full, refused recipient, bad signature: what each MTA does and what
    the admin sees. Include a consumer that is down: mail waits in the spool, the quota applies, and when it
    is full Trunk refuses with a retryable error.
-6. **Reading mail.** A mail client points at the POP3 retriever (PLUGIN_pop3-retriever) with one app token per
+6. **Reading mail.** A mail client points at the POP3 retriever (PLUGIN_mail-protocols) with one app token per
    device; mail leaves Trunk once every device has deleted it. Oaken Mail pulls with its own Trunk source (built in the oaken-mail repo, link
    only). Show the consume key, its recipient scope and who can read the key file.
 7. **Client setup.** For a user: POP3 on 995, username the email address, password the device's `toaken_`
-   token, "leave messages on server" off; sending on 587 with the same login (PLUGIN_sasl-bridge). For an
+   token, "leave messages on server" off; sending on 587 with the same login (PLUGIN_mail-protocols). For an
    operator: a static autoconfig file (`config-v1.1.xml`) and an Autodiscover file to serve from the mail
-   domain, as templates, so clients configure themselves. Verify both formats against current client docs.
+   domain, as templates, so clients configure themselves. Newer Thunderbird leaves POP3 mail on the server for
+   14 days by default; the autoconfig template sets `leaveMessagesOnServer` to false. Verify both formats
+   against current client docs and Thunderbird's source, since the schema is thinly documented.
 
 ## Acceptance criteria
 

@@ -50,7 +50,7 @@ Push to a webhook (a consumer does that). Priorities and routing. The guard (COR
    in `list`. It is not delivered again until an operator releases it.
 8. **Limits.** Per-consumer open leases (default 1000). Over it is a retryable error.
 9. **Examples.** A CLI loop and a webhook relay. Each is a tested script, not a product. Mail clients read
-   through the POP3 retriever (PLUGIN_pop3-retriever).
+   through the POP3 retriever (PLUGIN_mail-protocols).
 10. **Docs.** `api-and-cli.md`, softmap, status table. The
    Oaken Mail provider is built in the oaken-mail repo.
 

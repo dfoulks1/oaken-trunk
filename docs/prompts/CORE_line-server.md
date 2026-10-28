@@ -21,14 +21,17 @@ replies.
 
 ## Not in scope
 
-Each protocol (PLUGIN_lmtp-ingest, PLUGIN_smtp-ingest, PLUGIN_pop3-retriever, PLUGIN_sasl-bridge). The store
+Each protocol (PLUGIN_mail-protocols, PLUGIN_smtp-ingest). The store
 (CORE_store).
 
 ## Requirements
 
 **A. `BaseLineServer`**
 
-1. **Transport.** Implicit TLS or STARTTLS-style upgrade; no auth command before TLS on TCP. Bounded line
+1. **Transport.** Implicit TLS or STARTTLS-style upgrade; no auth command before TLS on TCP. Certificate
+   and key are files, as Dovecot and Postfix read them, so a Let's Encrypt certificate (certbot or any ACME
+   client) and the one Postfix uses both work. The base reloads them on `steamer reload` or when the files
+   change, without dropping sessions; `doctor` warns 14 days before expiry. No ACME client in Trunk. Bounded line
    length, idle and total timeouts, connection caps per principal and in total.
 2. **Commands.** The command table and state machine. Unknown or out-of-state commands get the protocol's
    error reply; too many in a row closes the connection.

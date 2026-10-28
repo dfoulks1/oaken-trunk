@@ -1,15 +1,16 @@
-# Foundations: paths, settings, ids, errors
+# Foundations and contracts: paths, settings, ids, errors, and the shapes plugins and core agree on
 
-**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/ingestion.md`.
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/ingestion.md`, `docs/architecture/spool.md`.
 **Depends on:** [CORE_bootstrap](CORE_bootstrap.md).
-**Lift:** M
-**Delivers:** Paths, settings, the envelope, message ids and the error table
-**Track:** `CORE_`. Data and config only. No streaming, no I/O beyond the directories.
+**Lift:** L
+**Delivers:** Paths, settings, the envelope, message ids, the error table, the Ingestor and Spool contracts, listener events, `Credits` and the test doubles
+**Track:** `CORE_`. Data, config, shapes and fakes. No streaming behaviour, no I/O beyond the directories.
 
 ## Goal
 
 The pieces everything else reads: where things live, how config loads, what a message is called, what an
-error says. Nothing here moves a message.
+error says, and the interfaces the engine, the spool and the plugins are built against separately. Nothing
+here moves a message.
 
 ## Decided
 
@@ -18,12 +19,22 @@ error says. Nothing here moves a message.
   and threads above 1 until a prompt tests them.
 - Every error carries three codes: SMTP, HTTP and a `submit` exit code (75 temporary, 65 or 77 permanent).
 - A secret never lives in `config.toml`. It comes from a file, the environment or a secret manager.
+- A spool stores through a writer. A message is visible only at `commit`, so listeners can annotate first.
+- `commit` makes one delivery per recipient and device (ADR 0013), sharing one body. Lease, ack and nack
+  work on deliveries.
+- Ingestors reach the engine through the `submit` operation (CORE_operation-registry), never the spool.
+- Listener events: `envelope`, `headers`, `end` (inline, time-bounded), `stored` (after durable). Listeners
+  see headers and digests, never the body. They annotate only.
+- Storage primitives and the core spool over them are CORE_store (ADR 0014). The Sender contract is
+  CORE_send. The Authenticator contract is CORE_request-guard.
 
 ## Not in scope
 
-The contracts (CORE_contracts). Streaming and limits (CORE_engine). Plugin settings models (CORE_plugin-host).
+Streaming and limits (CORE_engine). Plugin discovery, base classes and settings models (CORE_plugin-host).
 
 ## Requirements
+
+**A. Foundations**
 
 1. **Paths.** `OAKEN_TRUNK_HOME` gives `<dir>/config`, `<dir>/data`, `<dir>/run`. Unset on Linux:
    `/etc/oaken-trunk`, `/var/lib/oaken-trunk`, `/run/oaken-trunk`. Elsewhere platformdirs (development).
@@ -40,7 +51,22 @@ The contracts (CORE_contracts). Streaming and limits (CORE_engine). Plugin setti
    creation time and are unique. A delivery id is `<id>-<n>`, one per recipient.
 6. **Errors.** One table in code maps each condition to (SMTP, HTTP, exit): inflight limit, too large, spool
    full, spool unavailable, malformed, refused recipient, unauthorised. A test fails if any lacks a code.
-7. **Docs.** `config.example.toml`, `docs/softmap.toml`, status table.
+
+`compact`
+
+**B. Contracts**
+
+7. **`Ingestor` and `Spool`.** Typed protocols, operations per `architecture/spool.md`. A spool stores through
+   `writer(id, envelope)`, an async context manager with `write(chunk)` and `commit(annotations)`. Leaving the
+   block without `commit` aborts: nothing becomes visible and temporary data is removed (`StoreAborted`).
+   Annotations are an empty mapping until a listener supplies some, and are kept with the message.
+8. **Listener events.** `EnvelopeEvent`, `HeadersEvent`, `EndEvent`, `StoredEvent`, a structured
+   `ListenerResult`, and a `ListenerHost` protocol. No event type has a field that can hold body bytes.
+9. **`Credits`.** The limiter interface: take, release, `retry_after_seconds` when none are left.
+10. **Test doubles** in `oaken_trunk.testing`: `FakeSpool` (memory, tests only), `FakeIngestor`,
+    `RecordingListenerHost`.
+11. **Docs.** `config.example.toml`, `spool.md`, `plugins.md` if the shapes changed, `docs/softmap.toml`,
+    status table.
 
 ## Acceptance criteria
 
@@ -49,12 +75,15 @@ The contracts (CORE_contracts). Streaming and limits (CORE_engine). Plugin setti
 - An address normalises as above. A delivery id is `<id>-<n>`.
 - 10,000 ids are unique and sort by creation time. A world-writable directory is refused.
 - Every error condition has all three codes.
+- `FakeSpool` and `FakeIngestor` satisfy the protocols under `mypy`. A message written but not committed
+  cannot be leased; an abort leaves nothing. No event type can carry body bytes (a test over the field types).
 - `lint-imports` shows this imports no HTTP, CLI, registry or plugin module. Standard checks pass.
 
 ## Open questions (defaults in bold)
 
 1. Linux layout as in requirement 1? **Yes.**
 2. Envelope extras (trace id, HELO verification result)? **No. Add when a prompt needs one.**
+3. What is an annotation value? **A JSON value, keyed by the listener's name.**
 
 ## Report-back checkpoint
 

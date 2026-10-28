@@ -117,9 +117,8 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
 |---|---|---|---|---|---|---|---|
 | [CORE_bootstrap](docs/prompts/CORE_bootstrap.md) | 0.1 | M | Open | — | — | — | — |
-| [CORE_foundations](docs/prompts/CORE_foundations.md) | 0.1 | M | Written | — | — | — | CORE_bootstrap |
-| [CORE_contracts](docs/prompts/CORE_contracts.md) | 0.1 | M | Written | — | — | — | CORE_foundations |
-| [CORE_engine](docs/prompts/CORE_engine.md) | 0.1 | L | Written | — | — | — | CORE_contracts |
+| [CORE_foundations](docs/prompts/CORE_foundations.md) | 0.1 | L | Written | — | — | — | CORE_bootstrap |
+| [CORE_engine](docs/prompts/CORE_engine.md) | 0.1 | L | Written | — | — | — | CORE_foundations |
 | [CORE_operation-registry](docs/prompts/CORE_operation-registry.md) | 0.1 | L | Written | — | — | — | CORE_engine |
 | [CORE_daemon](docs/prompts/CORE_daemon.md) | 0.1 | L | Written | — | — | — | CORE_operation-registry |
 | [CORE_supervisor](docs/prompts/CORE_supervisor.md) | 0.1 | L | Written | — | — | — | CORE_daemon |
@@ -127,12 +126,14 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | [CORE_audit-and-jobs](docs/prompts/CORE_audit-and-jobs.md) | 0.1 | L | Written | — | — | — | CORE_daemon, CORE_system-operations |
 | [CORE_plugin-host](docs/prompts/CORE_plugin-host.md) | 0.1 | L | Written | — | — | — | CORE_system-operations |
 | [CORE_store](docs/prompts/CORE_store.md) | 0.1 | L | Written | — | — | — | CORE_plugin-host, CORE_supervisor |
+| [CORE_encryption](docs/prompts/CORE_encryption.md) | 0.1 | M | Written | — | — | — | CORE_store |
 | [CORE_consumer-api](docs/prompts/CORE_consumer-api.md) | 0.1 | M | Written | — | — | — | PLUGIN_directory-spool |
 | [CORE_diagnostics](docs/prompts/CORE_diagnostics.md) | 0.1 | M | Written | — | — | — | CORE_system-operations, CORE_audit-and-jobs, CORE_consumer-api |
-| [CORE_request-guard](docs/prompts/CORE_request-guard.md) | 0.1 | XL | Written | — | — | — | CORE_plugin-host, CORE_supervisor |
+| [CORE_request-guard](docs/prompts/CORE_request-guard.md) | 0.1 | XL | Written | — | — | — | CORE_plugin-host, CORE_supervisor, CORE_store |
 | [CORE_line-server](docs/prompts/CORE_line-server.md) | 0.1 | L | Written | — | — | — | CORE_store, CORE_request-guard |
 | [CORE_http-listener](docs/prompts/CORE_http-listener.md) | 0.1 | M | Written | — | — | — | CORE_daemon, CORE_request-guard |
-| [CORE_security-hardening](docs/prompts/CORE_security-hardening.md) | 0.1 | M | Written | — | — | — | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener, PLUGIN_pop3-retriever |
+| [CORE_enrollment](docs/prompts/CORE_enrollment.md) | 0.1 | M | Written | — | — | — | CORE_http-listener, CORE_store |
+| [CORE_security-hardening](docs/prompts/CORE_security-hardening.md) | 0.1 | M | Written | — | — | — | PLUGIN_mail-protocols, CORE_consumer-api, CORE_http-listener |
 | [CORE_mail-authentication](docs/prompts/CORE_mail-authentication.md) | later | XL | Written | — | — | — | CORE_engine, CORE_plugin-host |
 | [CORE_send](docs/prompts/CORE_send.md) | later | L | Written | — | — | — | CORE_consumer-api, CORE_request-guard |
 
@@ -141,11 +142,9 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
 |---|---|---|---|---|---|---|---|
 | [PLUGIN_directory-spool](docs/prompts/PLUGIN_directory-spool.md) | 0.1 | M | Written | — | — | — | CORE_store |
-| [PLUGIN_lmtp-ingest](docs/prompts/PLUGIN_lmtp-ingest.md) | 0.1 | S | Written | — | — | — | CORE_line-server, CORE_daemon |
+| [PLUGIN_mail-protocols](docs/prompts/PLUGIN_mail-protocols.md) | 0.1 | M | Written | — | — | — | CORE_line-server, CORE_consumer-api |
 | [PLUGIN_mta-adapters](docs/prompts/PLUGIN_mta-adapters.md) | 0.1 | S | Written | — | — | — | CORE_plugin-host, CLI_client, CORE_operation-registry |
-| [PLUGIN_pop3-retriever](docs/prompts/PLUGIN_pop3-retriever.md) | 0.1 | S | Written | — | — | — | CORE_line-server, CORE_consumer-api |
-| [PLUGIN_sasl-bridge](docs/prompts/PLUGIN_sasl-bridge.md) | 0.1 | S | Written | — | — | — | CORE_line-server |
-| [PLUGIN_smtp-ingest](docs/prompts/PLUGIN_smtp-ingest.md) | later | M | Written | — | — | — | PLUGIN_lmtp-ingest |
+| [PLUGIN_smtp-ingest](docs/prompts/PLUGIN_smtp-ingest.md) | later | M | Written | — | — | — | PLUGIN_mail-protocols |
 | [PLUGIN_redis-spool](docs/prompts/PLUGIN_redis-spool.md) | later | M | Written | — | — | — | PLUGIN_directory-spool |
 | [PLUGIN_s3-sqs-spool](docs/prompts/PLUGIN_s3-sqs-spool.md) | later | M | Written | — | — | — | PLUGIN_directory-spool |
 
@@ -159,7 +158,7 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 
 | Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
 |---|---|---|---|---|---|---|---|
-| [WEBUI_management-ui](docs/prompts/WEBUI_management-ui.md) | 0.1 | XL | Written | — | — | — | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
+| [WEBUI_management-ui](docs/prompts/WEBUI_management-ui.md) | later | XL | Written | — | — | — | CORE_system-operations, CORE_audit-and-jobs, CORE_http-listener |
 
 #### MCP
 
@@ -172,5 +171,5 @@ The tables are generated from [`docs/prompts/prompts.toml`](docs/prompts/prompts
 | Prompt | Target | Lift | Status | Built | Tested | Released | Depends on |
 |---|---|---|---|---|---|---|---|
 | [DOCS_docs-site](docs/prompts/DOCS_docs-site.md) | 0.1 | S | Partly built | partly | partly | — | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
-| [DOCS_mta-guides](docs/prompts/DOCS_mta-guides.md) | 0.1 | M | Written | — | — | — | PLUGIN_mta-adapters, PLUGIN_lmtp-ingest, CORE_request-guard, PLUGIN_pop3-retriever, PLUGIN_sasl-bridge |
+| [DOCS_mta-guides](docs/prompts/DOCS_mta-guides.md) | 0.1 | M | Written | — | — | — | PLUGIN_mta-adapters, PLUGIN_mail-protocols, CORE_request-guard |
 <!-- /prompts:status -->

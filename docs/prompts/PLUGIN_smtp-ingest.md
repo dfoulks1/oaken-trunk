@@ -1,7 +1,7 @@
 # SMTP ingest
 
-**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, ADR 0014, `PLUGIN_lmtp-ingest.md` (its status block).
-**Depends on:** [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md).
+**Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/PLUGIN.md`, ADR 0014, `PLUGIN_mail-protocols.md` (its status block).
+**Depends on:** [PLUGIN_mail-protocols](PLUGIN_mail-protocols.md).
 **Lift:** M
 **Delivers:** SMTP on 25 and 587: STARTTLS, AUTH, recipient allowlist
 **Track:** `PLUGIN_`. Package `oaken_trunk_smtp`. Core changes: none. TLS, limits and login are `BaseIngestor`'s (CORE_line-server).

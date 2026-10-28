@@ -16,7 +16,8 @@ operator's choice: anything S3-compatible (MinIO, Ceph, R2) is the open path.
 1. **Blobs.** One object per key, multipart upload from the chunk stream, ranged reads out.
 2. **Indexes.** One object per member under `index/<name>/<score>-<member>`; `index_range` lists the prefix.
    POP3 listing is a prefix listing. S3 expires nothing unless told to, so mail never ages out.
-3. **`cas`.** Conditional writes (`If-None-Match`, `If-Match` on the ETag). Correct but slow: `doctor` says so
+3. **`cas`.** Conditional writes (`If-None-Match: *` to create, `If-Match` on the ETag to replace; the loser
+   gets 412, a racing delete 409, which is retried). Correct but slow: `doctor` says so
    when S3 serves `coordination`, and recommends Redis.
 4. **`watch`.** Optional: one SQS queue for the store, fed on `index_add`, long-polled. Not per device.
 5. **Ops.** Credentials from the environment or instance role, never config. A lifecycle rule template as a

@@ -6,11 +6,12 @@ open questions. Nothing here is a promise or a date.
 
 ## Next
 
-- **Contracts and the directory spool** (CORE_foundations, CORE_contracts, CORE_engine and PLUGIN_directory-spool). Ingestor, Spool and Sender contracts, and a
+- **Contracts and the directory spool** (CORE_foundations, CORE_engine, CORE_store and PLUGIN_directory-spool). Ingestor, Spool and Sender contracts, and a
   Maildir-style spool: write to `tmp/`, fsync, atomic rename into `new/`, lease by rename.
   `batched` durability (a shared directory fsync) is in 0.1.
 - **HTTP listener and CLI** (CORE_http-listener, CLI_client). `submit` over HTTP on the ingest surface; `steamer submit` on stdin.
-- **LMTP** (PLUGIN_lmtp-ingest). The clean way to sit behind Postfix; a pipe target covers qmail.
+- **Mail protocols** (PLUGIN_mail-protocols). LMTP from Postfix, POP3 to mail clients, and the Dovecot-auth
+  socket for Postfix submission; a pipe target covers qmail.
 - **Consumer API** (CORE_consumer-api). Lease, fetch, ack, nack over HTTP, plus CLI parity.
 
 ## Later
