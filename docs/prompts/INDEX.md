@@ -8,7 +8,7 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 <!-- prompts:master -->
 | Prompt | Status | Target | Lift | Delivers | Depends on |
 |---|---|---|---|---|---|
-| [CORE_bootstrap](CORE_bootstrap.md) | In progress | 0.1 | M | uv workspace, tooling, legal files, a green empty project | — |
+| [CORE_bootstrap](CORE_bootstrap.md) | Built | 0.1 | M | uv workspace, tooling, legal files, a green empty project | — |
 | [CORE_foundations](CORE_foundations.md) | Written | 0.1 | L | Paths, settings, the envelope, message ids, the error table, the Ingestor and Spool contracts, listener events, `Credits` and the test doubles | CORE_bootstrap |
 | [CORE_engine](CORE_engine.md) | Written | 0.1 | L | The engine: limiter, ingest pipeline, header block and digest, listener dispatch and the commit | CORE_foundations |
 | [CORE_operation-registry](CORE_operation-registry.md) | Written | 0.1 | L | Typed operations, surfaces, confirm gate, schemas, `submit` and `version`; the command path | CORE_engine |

@@ -6,7 +6,7 @@
 **Lift:** M
 **Delivers:** uv workspace, tooling, legal files, a green empty project
 
-> **Status: In progress.** Built on branch `core/bootstrap`, not yet merged or run in CI. Open
+> **Status: Built.** Merged in #1; CI green on Linux, macOS and Windows. Open
 > questions took their defaults. Where the code differs: import contracts use a small custom
 > contract type (`tests/import_contracts.py`) because import-linter cannot forbid a package by
 > prefix (`oaken_trunk_*`); plugin packages join `root_packages` as they are added. Ruff and mypy
