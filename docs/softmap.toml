@@ -38,9 +38,10 @@ name = "Plugins"
 id = "cli"
 name = "CLI"
 layer = "clients"
-status = "planned"
+status = "partial"
+path = "src/oaken_trunk/cli.py"
 prompt = "CLI_client"
-summary = "The `steamer` command, a thin client of the API. Every operation has a command. In-process mode is an explicit flag for offline operations only."
+summary = "The `steamer` command, a thin client of the API. Every operation has a command. In-process mode is an explicit flag for offline operations only. Built so far: `steamer --version` (CORE_bootstrap)."
 uses = ["daemon"]
 
 [[components]]

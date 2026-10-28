@@ -50,8 +50,14 @@ def _git_sha() -> str:
 
 
 def _git_tree() -> str:
-    """Root tree SHA for HEAD — changes whenever any tracked file changes."""
+    """Root tree SHA for HEAD, or "" when the working tree is dirty (never skip uncommitted work)."""
     try:
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            capture_output=True, text=True, check=True,
+        )
+        if status.stdout.strip():
+            return ""
         result = subprocess.run(
             ["git", "rev-parse", "HEAD^{tree}"],
             capture_output=True, text=True, check=True,

@@ -1,12 +1,37 @@
 [project]
-name = "oaken-trunk-docs"
-version = "0.0.0"
-description = "Oaken Trunk: documentation tooling only. The gateway itself is not built yet."
+name = "oaken-trunk"
+dynamic = ["version"]
+description = "Oaken Trunk: a small, stateless mail gateway."
+readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 dependencies = []
 
+[project.scripts]
+steamer = "oaken_trunk.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/oaken_trunk/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/oaken_trunk"]
+exclude = ["src/oaken_trunk/**/tests"]
+
 [dependency-groups]
+dev = [
+    "detect-secrets",
+    "import-linter",
+    "mypy",
+    "pre-commit",
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+]
 # Site tooling (docs/tools). The gateway runtime must never depend on it.
 docs = [
     "jinja2>=3.1.6",
@@ -17,10 +42,68 @@ docs = [
 ]
 
 [tool.uv]
-package = false
-default-groups = ["docs"]
+default-groups = ["dev", "docs"]
+
+[tool.uv.workspace]
+# Heavy-plugin packages (packages/<name>) are added here as they are built.
+members = []
 
 [tool.pytest.ini_options]
-testpaths = ["docs/tools/tests"]
+testpaths = ["tests", "src", "docs/tools/tests"]
 addopts = ["--import-mode=importlib"]
 pythonpath = ["docs/tools"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# docs/tools and scripts predate these rules; Markdown code samples are prose, not code.
+extend-exclude = ["docs/tools", "scripts", "*.md"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101", "S603", "S607"]
+"conftest.py" = ["S101"]
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+files = ["src", "tests", "conftest.py"]
+mypy_path = "src"
+explicit_package_bases = true
+
+[tool.importlinter]
+# Add each plugin package (oaken_trunk_<name>) here as it joins the workspace.
+root_packages = ["oaken_trunk"]
+include_external_packages = true
+contract_types = ["glob_forbidden: tests.import_contracts.GlobForbiddenContract"]
+
+[[tool.importlinter.contracts]]
+name = "Core never imports a plugin"
+type = "glob_forbidden"
+importers = ["oaken_trunk", "oaken_trunk.*"]
+forbidden = ["oaken_trunk_*"]
+
+[[tool.importlinter.contracts]]
+name = "Core never imports a client"
+type = "glob_forbidden"
+importers = ["oaken_trunk", "oaken_trunk.*"]
+forbidden = ["oaken_trunk.cli", "oaken_trunk.cli.*"]
+allowed = ["oaken_trunk.cli", "oaken_trunk.cli.*", "oaken_trunk.__main__", "*.tests", "*.tests.*"]
+
+[[tool.importlinter.contracts]]
+name = "A plugin never imports another plugin"
+type = "glob_forbidden"
+importers = ["oaken_trunk_*"]
+forbidden = ["oaken_trunk_*"]
+distinct_top_level = true
+
+[[tool.importlinter.contracts]]
+name = "Nothing imports oaken_trunk.testing outside tests"
+type = "glob_forbidden"
+importers = ["oaken_trunk*"]
+forbidden = ["oaken_trunk.testing", "oaken_trunk.testing.*"]
+allowed = ["oaken_trunk.testing", "oaken_trunk.testing.*", "*.tests", "*.tests.*"]

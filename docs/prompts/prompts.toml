@@ -7,9 +7,9 @@
 [[prompt]]
 name = "CORE_bootstrap"
 depends = []
-status = "Open"
-built = "—"
-tested = "—"
+status = "In progress"
+built = "partly"
+tested = "partly"
 released = "—"
 target = "0.1"
 

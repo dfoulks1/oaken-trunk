@@ -6,6 +6,13 @@
 **Lift:** M
 **Delivers:** uv workspace, tooling, legal files, a green empty project
 
+> **Status: In progress.** Built on branch `core/bootstrap`, not yet merged or run in CI. Open
+> questions took their defaults. Where the code differs: import contracts use a small custom
+> contract type (`tests/import_contracts.py`) because import-linter cannot forbid a package by
+> prefix (`oaken_trunk_*`); plugin packages join `root_packages` as they are added. Ruff and mypy
+> cover `src/`, `tests/` and `conftest.py`; `docs/tools` and `scripts` predate the rules and are
+> excluded. Fixtures are Python bytes, not `.eml` files.
+
 ## Goal
 
 A green, empty project: one command installs it, one command checks it, `steamer --version`
