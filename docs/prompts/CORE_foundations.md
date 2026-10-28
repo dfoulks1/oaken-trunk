@@ -17,11 +17,13 @@ here moves a message.
 - Settings are validated and strict. An unknown key is an error.
 - `workers.count` and `workers.thread_count` default to 1. A count above 1 is refused until CORE_supervisor,
   and threads above 1 until a prompt tests them.
-- Every error carries three codes: SMTP, HTTP and a `submit` exit code (75 temporary, 65 or 77 permanent).
+- Every error carries three codes: SMTP, HTTP and a `submit` exit code (sysexits, as Postfix reads them: 75
+  temporary; 65, 67 or 77 permanent).
 - A secret never lives in `config.toml`. It comes from a file, the environment or a secret manager.
 - A spool stores through a writer. A message is visible only at `commit`, so listeners can annotate first.
-- `commit` makes one delivery per recipient and device (ADR 0013), sharing one body. Lease, ack and nack
-  work on deliveries.
+- `commit` stores one body. Each queue entry is a delivery, `<id>-<n>`, and is the POP3 `UIDL`. With no
+  registry yet there is one per recipient; the core spool (CORE_store) expands each recipient to one per
+  device (ADR 0013). Lease, ack and nack work on deliveries.
 - Ingestors reach the engine through the `submit` operation (CORE_operation-registry), never the spool.
 - Listener events: `envelope`, `headers`, `end` (inline, time-bounded), `stored` (after durable). Listeners
   see headers and digests, never the body. They annotate only.
@@ -43,16 +45,16 @@ Streaming and limits (CORE_engine). Plugin discovery, base classes and settings 
    is an error. Sizes (`25MiB`) and durations parse. A secret-named key (`password`, `token`, `secret`,
    `private_key`) is refused, and the error names the file or environment alternative.
 3. **Envelope.** Mail from, recipients, `original_recipient` when the MTA gives one, client IP, HELO, TLS,
-   principal, ingest surface, received time. Immutable. At commit each recipient becomes its own delivery
-   with its own envelope (one recipient). How a spool keeps it is the spool's business.
+   principal, ingest surface, received time. Immutable. At commit each delivery gets its own envelope
+   with its one recipient. How a spool keeps it is the spool's business.
 4. **Addresses.** Normalise: lowercase the domain, keep the local part as given, keep `user+tag` as written.
    `[mail] local_domains` lists the domains Trunk accepts mail for.
 5. **Message id.** 48-bit millisecond timestamp, 80 random bits, base32, standard library only. Ids sort by
-   creation time and are unique. A delivery id is `<id>-<n>`, one per recipient.
+   creation time and are unique. A delivery id is `<id>-<n>`, one per queue entry.
 6. **Errors.** One table in code maps each condition to (SMTP, HTTP, exit): inflight limit, too large, spool
-   full, spool unavailable, malformed, refused recipient, unauthorised. A test fails if any lacks a code.
-
-`compact`
+   full (`max_spool_bytes` or `max_deliveries`: `452 4.3.1`, HTTP 507, exit 75), spool unavailable, malformed,
+   refused recipient (outside `local_domains` or no device: `550 5.1.1`, exit 67), unauthorised. A test fails
+   if any lacks a code.
 
 **B. Contracts**
 

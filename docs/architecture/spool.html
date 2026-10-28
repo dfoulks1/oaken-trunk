@@ -32,7 +32,7 @@
   <div class="offcanvas-body"><div class="sidebar-inner">
     <div class="top"><a class="brand" href="../index.html"><img src="../assets/brand/favicon.png" alt="" aria-hidden="true" width="28" height="28"> OAKENTRUNK</a>
       <button class="theme" id="themeToggle" type="button" aria-label="Toggle dark mode">Theme</button></div>
-    <div class="what">The spool contract and the directory driver</div>
+    <div class="what">The spool contract and the directory store</div>
     <div class="docnav"><a class="home-link" href="../index.html">&#8962; Home</a>
       <div class="label">Concepts</div>
       <a class="doc-link" href="index.html">Architecture</a>
@@ -60,7 +60,7 @@
       <a href="https://github.com/dfoulks1/oaken-trunk">Repository</a><a href="https://github.com/dfoulks1/oaken-trunk/issues/new">Report an issue</a><a class="star" href="https://github.com/dfoulks1/oaken-trunk">&#9733; Star this repo</a></div>
     <div class="sections"><div class="label">On this page</div><nav class="nav flex-column" aria-label="On this page">
       <a class="nav-link" href="#contract"><span class="num">1</span>Contract</a>
-      <a class="nav-link" href="#directory-driver-default"><span class="num">2</span>Directory driver (default)</a>
+      <a class="nav-link" href="#directory-store-default"><span class="num">2</span>Directory store (default)</a>
       <a class="nav-link" href="#other-drivers-planned"><span class="num">3</span>Other drivers (planned)</a>
     </nav></div>
   </div></div>
@@ -91,7 +91,7 @@ consumers see; where bytes live is the store's decision (ADR 0003).</p>
 </tr>
 <tr>
 <td><code>lease(consumer, limit, seconds)</code></td>
-<td>Reserve up to <code>limit</code> messages for a visibility timeout. Returns ids and lease tokens.</td>
+<td>Reserve up to <code>limit</code> of this device's deliveries for a visibility timeout. Returns delivery ids and lease tokens.</td>
 </tr>
 <tr>
 <td><code>open(id)</code></td>
@@ -99,11 +99,11 @@ consumers see; where bytes live is the store's decision (ADR 0003).</p>
 </tr>
 <tr>
 <td><code>ack(id, token)</code></td>
-<td>The consumer is done; remove the message.</td>
+<td>The device is done; remove the delivery from its queue. The body goes when no queue holds it.</td>
 </tr>
 <tr>
 <td><code>nack(id, token)</code></td>
-<td>Return the message to the queue.</td>
+<td>Return the delivery to its queue.</td>
 </tr>
 <tr>
 <td><code>delete(id)</code></td>
@@ -115,7 +115,7 @@ consumers see; where bytes live is the store's decision (ADR 0003).</p>
 </tr>
 <tr>
 <td><code>usage()</code></td>
-<td>Message count and bytes, for the quota and <code>status</code>.</td>
+<td>Body bytes and delivery count, for the caps and <code>status</code>.</td>
 </tr>
 </tbody>
 </table></div>
@@ -125,20 +125,17 @@ directory driver).</p>
 <p>Delivery is at-least-once (ADR 0004). Expired leases return to the queue. Ids are time-ordered and
 unique, so consumers dedupe on them.</p>
 </section>
-<section id="directory-driver-default" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Directory driver (default)</h2></div>
-<p>Maildir-like. One body file of raw RFC 822 bytes, and one delivery per recipient, each a hard link to the body.</p>
-<div class="code"><pre class="highlight"><code>spool/tmp/&lt;id&gt;.msg                       being written
-spool/new/&lt;id&gt;-&lt;n&gt;.msg                   ready (a hard link per recipient)
-spool/leased/&lt;id&gt;-&lt;n&gt;.&lt;expiry&gt;.&lt;token&gt;.msg leased; the name carries the lease
-spool/meta/&lt;id&gt;-&lt;n&gt;.json                 envelope and annotations; never moves
-</code></pre></div>
+<section id="directory-store-default" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Directory store (default)</h2></div>
+<p>One directory tree holds all three roles. Bodies are blobs that core seals before the store sees them
+(ADR 0015), so a body file is ciphertext. Each device's queue is an ordered index of delivery ids that point
+at one shared blob (ADR 0013). The file layout is <a href="https://github.com/dfoulks1/oaken-trunk/blob/main/docs/prompts/PLUGIN_directory-spool.md">PLUGIN_directory-spool</a>'s to settle.</p>
 <ul>
-<li><strong>Write and commit:</strong> write to <code>tmp/</code>; on <code>commit</code>, write each delivery's <code>meta/</code> file, fsync (per durability), rename into <code>new/</code>, fsync the
-directory, ack.</li>
-<li><strong>Lease:</strong> atomic rename <code>new/</code> to <code>leased/</code> with expiry and token in the name. Two consumers
-cannot lease the same file.</li>
-<li><strong>Ack:</strong> unlink. <strong>Nack:</strong> rename back to <code>new/</code>. <strong>Recovery:</strong> at start, delete stale <code>tmp/</code>
-files, return expired leases to <code>new/</code>, and delete annotations that have no message.</li>
+<li><strong>Write and commit:</strong> write the sealed blob to <code>tmp/</code>, fsync (per durability), rename into place, fsync the
+directory, then add one entry per delivery to each queue, then reply.</li>
+<li><strong>Lease:</strong> compare-and-set on the entry, with expiry and token, so two consumers cannot lease the same
+delivery.</li>
+<li><strong>Ack:</strong> remove the entry. <strong>Nack:</strong> clear the lease. <strong>Recovery:</strong> at start, delete stale <code>tmp/</code> files,
+return expired leases, and drop blobs and annotations no queue names.</li>
 </ul>
 <h3 id="durability">Durability</h3>
 <div class="table-responsive"><table class="table table-sm table-striped align-middle">
@@ -169,7 +166,8 @@ files, return expired leases to <code>new/</code>, and delete annotations that h
 </table></div>
 <p>A tmpfs mount is the operator's choice for the same driver, not a separate driver.</p>
 <h3 id="quota">Quota</h3>
-<p><code>max_spool_bytes</code> caps total size. At the limit, new mail gets a retryable 4xx (HTTP 507). Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.</p>
+<p><code>max_spool_bytes</code> caps body bytes and <code>max_deliveries</code> caps queue entries. At either, new mail gets
+<code>452 4.3.1</code> (HTTP 507), which the sender retries; Trunk never bounces (ADR 0013). Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.</p>
 </section>
 <section id="other-drivers-planned" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Other drivers (planned)</h2></div>
 <p>Redis (queues and coordination across hosts, small bodies) and S3 (bodies at scale, queues by prefix, SQS

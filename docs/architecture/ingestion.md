@@ -23,7 +23,8 @@ An ingestor speaks one protocol and gives core a byte stream and an envelope. Co
 |---|---|---|
 | `max_inflight` reached | 451 | 503 + `Retry-After` |
 | over `max_message_size` | 552 | 413 |
-| spool at `max_spool_bytes` | 452 | 507 |
+| spool at `max_spool_bytes` | 452 4.3.1 | 507 |
+| spool at `max_deliveries` | 452 4.3.1 | 507 |
 | spool unavailable | 451 | 503 |
 
 A 4xx is retryable, so the sender's own queue holds the backlog, not ours.
@@ -32,7 +33,7 @@ A 4xx is retryable, so the sender's own queue holds the backlog, not ours.
 
 Postfix or qmail resolves aliases and virtual maps, then hands over the envelope. Trunk keeps no mailbox.
 Each recipient becomes its own delivery (`<id>-<n>`) sharing one body. A recipient outside `[mail] local_domains`
-is refused (65). A `consume` key is scoped to a list of addresses or `@domain`.
+is refused (`550 5.1.1`, exit 67), as is a recipient with no device (ADR 0013). A `consume` key is scoped to a list of addresses or `@domain`.
 
 ## Postfix and qmail
 

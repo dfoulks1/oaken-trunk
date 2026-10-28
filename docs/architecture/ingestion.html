@@ -126,7 +126,12 @@
 </tr>
 <tr>
 <td>spool at <code>max_spool_bytes</code></td>
-<td>452</td>
+<td>452 4.3.1</td>
+<td>507</td>
+</tr>
+<tr>
+<td>spool at <code>max_deliveries</code></td>
+<td>452 4.3.1</td>
 <td>507</td>
 </tr>
 <tr>
@@ -141,7 +146,7 @@
 <section id="addresses" class="doc-section"><div class="section-head"><span class="section-num">2</span><h2>Addresses</h2></div>
 <p>Postfix or qmail resolves aliases and virtual maps, then hands over the envelope. Trunk keeps no mailbox.
 Each recipient becomes its own delivery (<code>&lt;id&gt;-&lt;n&gt;</code>) sharing one body. A recipient outside <code>[mail] local_domains</code>
-is refused (65). A <code>consume</code> key is scoped to a list of addresses or <code>@domain</code>.</p>
+is refused (<code>550 5.1.1</code>, exit 67), as is a recipient with no device (ADR 0013). A <code>consume</code> key is scoped to a list of addresses or <code>@domain</code>.</p>
 </section>
 <section id="postfix-and-qmail" class="doc-section"><div class="section-head"><span class="section-num">3</span><h2>Postfix and qmail</h2></div>
 <p>Postfix: <code>virtual_transport = lmtp:unix:/path/to/run/lmtp.sock</code>. qmail: a <code>.qmail</code> line piping to

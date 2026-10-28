@@ -1,6 +1,6 @@
 +++
 title = "Spool"
-subtitle = "The spool contract and the directory driver"
+subtitle = "The spool contract and the directory store"
 lead = "Store, lease, ack and nack, how the default spool survives a crash, and what each durability mode costs."
 badges = [["text-bg-warning", "Pre-alpha"]]
 description = "The spool contract, durability modes and quota."
@@ -18,13 +18,13 @@ consumers see; where bytes live is the store's decision (ADR 0003).
 | Operation | Meaning |
 |---|---|
 | `writer(id, envelope)` | An async context manager: `write(chunk)` for each chunk, then `commit(annotations)`. The message is visible only after `commit`, which returns when it is durable per the driver's durability. Leaving the block without `commit` aborts and removes the partial data. |
-| `lease(consumer, limit, seconds)` | Reserve up to `limit` messages for a visibility timeout. Returns ids and lease tokens. |
+| `lease(consumer, limit, seconds)` | Reserve up to `limit` of this device's deliveries for a visibility timeout. Returns delivery ids and lease tokens. |
 | `open(id)` | Stream the bytes of a leased message. |
-| `ack(id, token)` | The consumer is done; remove the message. |
-| `nack(id, token)` | Return the message to the queue. |
+| `ack(id, token)` | The device is done; remove the delivery from its queue. The body goes when no queue holds it. |
+| `nack(id, token)` | Return the delivery to its queue. |
 | `delete(id)` | Remove regardless of lease (operator action, audited). |
 | `watch()` | Wake consumers: inotify on directories, a poll otherwise. Never an in-process-only event. |
-| `usage()` | Message count and bytes, for the quota and `status`. |
+| `usage()` | Body bytes and delivery count, for the caps and `status`. |
 
 `annotations` are results listeners recorded (empty until one does). The spool keeps them with the message
 and hands them back with `open`. How a driver keeps them is its own business (PLUGIN_directory-spool settles it for the
@@ -33,23 +33,18 @@ directory driver).
 Delivery is at-least-once (ADR 0004). Expired leases return to the queue. Ids are time-ordered and
 unique, so consumers dedupe on them.
 
-## Directory driver (default)
+## Directory store (default)
 
-Maildir-like. One body file of raw RFC 822 bytes, and one delivery per recipient, each a hard link to the body.
+One directory tree holds all three roles. Bodies are blobs that core seals before the store sees them
+(ADR 0015), so a body file is ciphertext. Each device's queue is an ordered index of delivery ids that point
+at one shared blob (ADR 0013). The file layout is PLUGIN_directory-spool's to settle.
 
-```
-spool/tmp/<id>.msg                       being written
-spool/new/<id>-<n>.msg                   ready (a hard link per recipient)
-spool/leased/<id>-<n>.<expiry>.<token>.msg leased; the name carries the lease
-spool/meta/<id>-<n>.json                 envelope and annotations; never moves
-```
-
-- **Write and commit:** write to `tmp/`; on `commit`, write each delivery's `meta/` file, fsync (per durability), rename into `new/`, fsync the
-  directory, ack.
-- **Lease:** atomic rename `new/` to `leased/` with expiry and token in the name. Two consumers
-  cannot lease the same file.
-- **Ack:** unlink. **Nack:** rename back to `new/`. **Recovery:** at start, delete stale `tmp/`
-  files, return expired leases to `new/`, and delete annotations that have no message.
+- **Write and commit:** write the sealed blob to `tmp/`, fsync (per durability), rename into place, fsync the
+  directory, then add one entry per delivery to each queue, then reply.
+- **Lease:** compare-and-set on the entry, with expiry and token, so two consumers cannot lease the same
+  delivery.
+- **Ack:** remove the entry. **Nack:** clear the lease. **Recovery:** at start, delete stale `tmp/` files,
+  return expired leases, and drop blobs and annotations no queue names.
 
 ### Durability
 
@@ -63,7 +58,8 @@ A tmpfs mount is the operator's choice for the same driver, not a separate drive
 
 ### Quota
 
-`max_spool_bytes` caps total size. At the limit, new mail gets a retryable 4xx (HTTP 507). Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.
+`max_spool_bytes` caps body bytes and `max_deliveries` caps queue entries. At either, new mail gets
+`452 4.3.1` (HTTP 507), which the sender retries; Trunk never bounces (ADR 0013). Workers reserve bytes as credits from the supervisor, so the cap is exact in aggregate; a periodic rescan corrects drift.
 
 ## Other drivers (planned)
 
