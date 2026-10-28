@@ -57,7 +57,9 @@ PLUGIN_s3-sqs-spool). The checkup schedule (CORE_audit-and-jobs).
 
 8. **`Locks`, `Credits`, `NonceStore`.** Built on the `coordination` store's `cas` with TTLs. CORE_supervisor
    uses them across workers and hosts; in-memory at one worker.
-9. **Device registry.** Devices, their recipients and last-used, on the `coordination` store.
+9. **Registry.** The one small database core keeps: recipients, devices, keys and token hashes, enrollment
+   codes and last-used, as records on the `coordination` store, sealed (CORE_encryption). Every host reads
+   the same registry, so a device added or revoked on one is live on all. Key files in `<config>` are gone.
 10. **Docs.** `spool.md` (primitives, roles, layout), `plugins.md` (a store in one screen), ADR 0006 amended,
     `config.example.toml` (`[store]`), softmap, status table.
 

@@ -147,29 +147,29 @@ uses = []
 
 [[components]]
 id = "spool-dir"
-name = "Directory spool"
+name = "Directory store"
 layer = "plugins"
 status = "planned"
 prompt = "PLUGIN_directory-spool"
-summary = "The default spool: one file per message, atomic rename, fsync by durability mode, lease by rename."
+summary = "The default store: blobs as files, indexes as journals, compare-and-set by rename, fsync by durability mode."
 uses = ["plugin-base"]
 
 [[components]]
 id = "spool-redis"
-name = "Redis spool"
+name = "Redis store"
 layer = "plugins"
 status = "planned"
 prompt = "PLUGIN_redis-spool"
-summary = "Redis stream and consumer groups mapped onto lease, ack and nack."
+summary = "Store primitives on Redis for queues and coordination across hosts, with Lua fast paths for commit and ack."
 uses = ["plugin-base"]
 
 [[components]]
 id = "spool-s3-sqs"
-name = "S3 + SQS spool"
+name = "S3 store"
 layer = "plugins"
 status = "planned"
 prompt = "PLUGIN_s3-sqs-spool"
-summary = "S3 objects for bodies and SQS visibility timeouts for leases."
+summary = "Store primitives on S3: bodies at scale, queues as listable prefixes, SQS as an optional wake-up."
 uses = ["plugin-base"]
 
 [[components]]
@@ -208,3 +208,68 @@ prompt = "MCP_mcp-door"
 summary = "Optional MCP door generated from the whole operation registry and gated by a caller class the mount sets. Statistics tier by default, a confirm gate for state changes, and never message data or send, delete and the lease/ack verbs."
 uses = ["cli"]
 untrusted = true
+
+[[components]]
+id = "pop3"
+name = "POP3 retriever"
+layer = "ingestors"
+status = "planned"
+prompt = "PLUGIN_pop3-retriever"
+summary = "Mail clients read their device queue over POP3; DELE then QUIT is the ack."
+uses = ["registry", "linesrv"]
+untrusted = true
+
+[[components]]
+id = "sasl"
+name = "SASL bridge"
+layer = "ingestors"
+status = "planned"
+prompt = "PLUGIN_sasl-bridge"
+summary = "A Dovecot-auth socket so Postfix submission checks device tokens."
+uses = ["linesrv"]
+untrusted = true
+
+[[components]]
+id = "linesrv"
+name = "Line server"
+layer = "core"
+status = "planned"
+prompt = "CORE_line-server"
+summary = "One base under every socket protocol: TLS, limits, login, dot-stuffing, fuzzing, and the retriever session."
+uses = ["guard", "store"]
+
+[[components]]
+id = "store"
+name = "Spool and registry"
+layer = "core"
+status = "planned"
+prompt = "CORE_store"
+summary = "Core spool, locks, counters and the registry, built on store primitives; fan-out per device and the caps."
+uses = ["encryption", "plugin-base"]
+
+[[components]]
+id = "encryption"
+name = "Encryption at rest"
+layer = "core"
+status = "planned"
+prompt = "CORE_encryption"
+summary = "Streaming envelope encryption of every blob and record before a store sees it."
+uses = []
+
+[[components]]
+id = "enrollment"
+name = "Device enrollment"
+layer = "core"
+status = "planned"
+prompt = "CORE_enrollment"
+summary = "Self-service device tokens: an authenticated request for a token for a named device."
+uses = ["registry", "store"]
+
+[[components]]
+id = "diagnostics"
+name = "Diagnostics"
+layer = "core"
+status = "planned"
+prompt = "CORE_diagnostics"
+summary = "Mail-path checks for doctor, and trace, devices, refusals and probe."
+uses = ["sysops", "audit", "store"]

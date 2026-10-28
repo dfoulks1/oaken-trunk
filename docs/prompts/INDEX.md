@@ -22,11 +22,13 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | [CORE_plugin-host](CORE_plugin-host.md) | Written | 0.1 | L | Entry-point discovery, base classes, lifecycle, contract suites | CORE_system-operations |
 | [CORE_store](CORE_store.md) | Written | 0.1 | L | `BaseStore` and its primitives, and the core spool, `Locks`, `Credits`, `NonceStore` and device registry built on them | CORE_plugin-host, CORE_supervisor |
 | [CORE_line-server](CORE_line-server.md) | Written | 0.1 | L | `BaseLineServer`, and `BaseIngestor` and `BaseRetriever` on top of it, with the retriever session as a transaction | CORE_store, CORE_request-guard |
+| [CORE_encryption](CORE_encryption.md) | Written | 0.1 | M | Streaming envelope encryption between the core spool and the stores, with key files, rotation and checks | CORE_store |
 | [PLUGIN_directory-spool](PLUGIN_directory-spool.md) | Written | 0.1 | M | `BaseStore` primitives on local disk: blobs as files, indexes as journals, strict/batched/volatile durability | CORE_store |
 | [CORE_consumer-api](CORE_consumer-api.md) | Written | 0.1 | M | The consumer operations, the lease rules and wake-up | PLUGIN_directory-spool |
 | [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md) | Written | 0.1 | S | LMTP over a Unix socket: the Postfix delivery target | CORE_line-server, CORE_daemon |
-| [CORE_request-guard](CORE_request-guard.md) | Written | 0.1 | XL | Signed-requests guard and the authenticator plugin kind | CORE_plugin-host, CORE_supervisor |
+| [CORE_request-guard](CORE_request-guard.md) | Written | 0.1 | XL | Signed-requests guard and the authenticator plugin kind | CORE_plugin-host, CORE_supervisor, CORE_store |
 | [CORE_http-listener](CORE_http-listener.md) | Written | 0.1 | M | The TCP and TLS listener with the request guard in front, and HTTP submission on the ingest surface | CORE_daemon, CORE_request-guard |
+| [CORE_enrollment](CORE_enrollment.md) | Written | 0.1 | M | Self-service device registration over HTTP: an authenticated request for a token for device `IDENTIFIER` | CORE_http-listener, CORE_store |
 | [CORE_security-hardening](CORE_security-hardening.md) | Written | 0.1 | M | Injection, auth and open-relay test pass across every ingestor | PLUGIN_lmtp-ingest, CORE_consumer-api, CORE_http-listener, PLUGIN_pop3-retriever |
 | [DOCS_docs-site](DOCS_docs-site.md) | Partly built | 0.1 | S | Docs site tooling | CORE_bootstrap, CORE_operation-registry, CORE_daemon |
 | [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md) | Written | 0.1 | S | First-party qmail and Postfix commands that wrap `submit` with each MTA's conventions | CORE_plugin-host, CLI_client, CORE_operation-registry |
@@ -61,27 +63,29 @@ Computed from `depends`, so it cannot contradict them. Target 0.1 comes first.
 10. [CORE_audit-and-jobs](CORE_audit-and-jobs.md)
 11. [CORE_plugin-host](CORE_plugin-host.md)
 12. [CORE_store](CORE_store.md)
-13. [PLUGIN_directory-spool](PLUGIN_directory-spool.md)
-14. [CORE_consumer-api](CORE_consumer-api.md)
-15. [CORE_diagnostics](CORE_diagnostics.md)
-16. [CORE_request-guard](CORE_request-guard.md)
-17. [CORE_line-server](CORE_line-server.md)
-18. [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md)
-19. [CORE_http-listener](CORE_http-listener.md)
-20. [DOCS_docs-site](DOCS_docs-site.md)
-21. [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md)
-22. [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md)
-23. [CORE_security-hardening](CORE_security-hardening.md)
-24. [PLUGIN_sasl-bridge](PLUGIN_sasl-bridge.md)
-25. [DOCS_mta-guides](DOCS_mta-guides.md)
-26. [WEBUI_management-ui](WEBUI_management-ui.md)
+13. [CORE_encryption](CORE_encryption.md)
+14. [PLUGIN_directory-spool](PLUGIN_directory-spool.md)
+15. [CORE_consumer-api](CORE_consumer-api.md)
+16. [CORE_diagnostics](CORE_diagnostics.md)
+17. [CORE_request-guard](CORE_request-guard.md)
+18. [CORE_line-server](CORE_line-server.md)
+19. [PLUGIN_lmtp-ingest](PLUGIN_lmtp-ingest.md)
+20. [CORE_http-listener](CORE_http-listener.md)
+21. [CORE_enrollment](CORE_enrollment.md)
+22. [DOCS_docs-site](DOCS_docs-site.md)
+23. [PLUGIN_mta-adapters](PLUGIN_mta-adapters.md)
+24. [PLUGIN_pop3-retriever](PLUGIN_pop3-retriever.md)
+25. [CORE_security-hardening](CORE_security-hardening.md)
+26. [PLUGIN_sasl-bridge](PLUGIN_sasl-bridge.md)
+27. [DOCS_mta-guides](DOCS_mta-guides.md)
+28. [WEBUI_management-ui](WEBUI_management-ui.md)
 
 **Target later**
 
-27. [CORE_mail-authentication](CORE_mail-authentication.md)
-28. [CORE_send](CORE_send.md)
-29. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
-30. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
-31. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
-32. [MCP_mcp-door](MCP_mcp-door.md)
+29. [CORE_mail-authentication](CORE_mail-authentication.md)
+30. [CORE_send](CORE_send.md)
+31. [PLUGIN_smtp-ingest](PLUGIN_smtp-ingest.md)
+32. [PLUGIN_redis-spool](PLUGIN_redis-spool.md)
+33. [PLUGIN_s3-sqs-spool](PLUGIN_s3-sqs-spool.md)
+34. [MCP_mcp-door](MCP_mcp-door.md)
 <!-- /prompts:order -->

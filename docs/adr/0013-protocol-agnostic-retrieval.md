@@ -24,7 +24,9 @@ Trunk is only the server side, and should not care which client connects.
   `QUIT` acks. A dropped session acks nothing and the claims time out. `UIDL` is the delivery id. IMAP is
   not shipped: its clients give no reliable "I have it" signal, and it invites server-side folders, uploads
   and search. It can be another plugin later, under this ADR.
-- **Every device is a consumer.** Each device has its own key and gets every message for its recipient.
+- **Every device is a consumer.** Each device has its own key and gets every message for its recipient. A
+  recipient with no device is an unknown user, refused at RCPT the way Dovecot refuses one (`550 5.1.1`); a
+  new device receives mail from its enrollment on.
 - **Spools stay queues: one per device.** A body is stored once; each device has its own queue of
   references to it, and an ack removes the device's entry. The body goes when no queue holds it. No
   folders, no flags, no uploads, no per-account state.

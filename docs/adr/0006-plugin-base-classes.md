@@ -1,6 +1,6 @@
 # 6. Plugins extend standard base classes
 
-- Status: accepted
+- Status: accepted, amended by ADR 0014 (stores and line servers)
 - Date: 2026-10-24
 
 **Context.** Trunk must be extensible around a solid core, and the plugin model should feel like

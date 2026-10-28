@@ -33,8 +33,9 @@ CORE_http-listener). Plugin discovery (CORE_plugin-host). The directory spool (P
 2. **Ingest.** `ingest(envelope, chunks)` (what `submit` will call) assigns the id, re-chunks to at most 64 KiB,
    stops reading at the first byte over `max_message_size`, checks `usage()` against `max_spool_bytes` and
    `max_deliveries` (ADR 0013) before writing, and holds at most one chunk plus the header block.
-3. **Recipients.** Each recipient is checked against `[mail] local_domains`. The result is per recipient,
-   accepted or refused (65, refused recipient). Only accepted ones are committed. None accepted is the
+3. **Recipients.** Each recipient is checked against `[mail] local_domains` and must have at least one
+   registered device (CORE_store's registry); otherwise it is an unknown user, as Dovecot treats one. The
+   result is per recipient, accepted or refused (65, refused recipient). Only accepted ones are committed. None accepted is the
    refusal. An empty `local_domains` accepts nothing, and `doctor` says so.
 4. **Header block and digest.** Keep the bytes up to the first blank line, bounded by `max_header_bytes`
    (default 64 KiB, over is a permanent refusal). Compute a raw SHA-256 of the body through named digest taps

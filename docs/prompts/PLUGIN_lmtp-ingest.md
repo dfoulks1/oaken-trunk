@@ -14,7 +14,9 @@
 
 1. **Command table** (RFC 2033): `LHLO`, `MAIL`, `RCPT`, `DATA`, `RSET`, `NOOP`, `QUIT`. Unix socket by
    default, optional TCP.
-2. **Replies.** Per-recipient replies after `DATA` from the engine's results; backpressure as 451, 452 and 552.
+2. **Replies.** Follow Dovecot's LMTP replies, code and enhanced status: unknown user `550 5.1.1`, over a
+   spool cap `452 4.3.1`, too large `552 5.3.4`, temporary failure `451 4.3.0`. Per-recipient replies after
+   `DATA` from the engine's results. Verify each against Dovecot's source docs and name the version.
 3. **Contract.** `LineServerContract` and `IngestorContract` over this table.
 4. **Docs.** The guides are DOCS_mta-guides.
 

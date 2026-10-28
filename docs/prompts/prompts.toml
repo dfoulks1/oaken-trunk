@@ -131,6 +131,15 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
+name = "CORE_encryption"
+depends = ["CORE_store"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
 name = "PLUGIN_directory-spool"
 depends = ["CORE_store"]
 status = "Written"
@@ -159,7 +168,7 @@ target = "0.1"
 
 [[prompt]]
 name = "CORE_request-guard"
-depends = ["CORE_plugin-host", "CORE_supervisor"]
+depends = ["CORE_plugin-host", "CORE_supervisor", "CORE_store"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -169,6 +178,15 @@ target = "0.1"
 [[prompt]]
 name = "CORE_http-listener"
 depends = ["CORE_daemon", "CORE_request-guard"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_enrollment"
+depends = ["CORE_http-listener", "CORE_store"]
 status = "Written"
 built = "—"
 tested = "—"

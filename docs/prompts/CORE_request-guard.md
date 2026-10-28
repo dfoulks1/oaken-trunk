@@ -2,7 +2,7 @@
 
 **Read first:** `docs/prompts/CONTEXT.md`, `docs/prompts/context/CORE.md`, `docs/architecture/security.md`,
 ADR 0010.
-**Depends on:** [CORE_plugin-host](CORE_plugin-host.md), [CORE_supervisor](CORE_supervisor.md).
+**Depends on:** [CORE_plugin-host](CORE_plugin-host.md), [CORE_supervisor](CORE_supervisor.md), [CORE_store](CORE_store.md).
 **Track:** `CORE_`. Model: oaken-mail's `oaken/api/guard.py` (its ADR 0005). Tested on a bare ASGI app, so
 **Lift:** XL
 **Delivers:** Signed-requests guard and the authenticator plugin kind
@@ -70,7 +70,7 @@ Listeners and routes (CORE_http-listener, CORE_daemon). mTLS (needs the listener
 
 9. **Key operations.** `keys_add`, `keys_list`, `keys_revoke` per surface. `keys_add` takes `--recipients` for a `consume` key, and `--device NAME` for an `apptoken`, printed once. Revoking a
    device ends its sessions and drops its deliveries. It writes the private key
-   once to `--out`, mode 0600 from the first byte. The server keeps public keys in `<config>/keys/<surface>`.
+   once to `--out`, mode 0600 from the first byte. The server keeps public keys and token hashes in the registry (CORE_store), so every host sees them.
    A change takes effect without a restart.
 10. **Config and `doctor`.** `[security.<surface>] scheme = "..."`. `doctor` checks each surface and refuses a
     non-loopback surface with no authenticator.

@@ -65,6 +65,8 @@ prompt's "Read first".
 - **Standalone.** Trunk never imports oaken-mail; overlap and duplicated code are fine (ADR 0002).
 - **A tool, not a project.** 0.1 works out of the box: `init` writes a config, `doctor` explains what is
   wrong, `status` shows the queue. Docs carry a Postfix snippet, a qmail pipe line and a systemd unit.
+- **Follow the leader.** Mail is standardised. Where Dovecot or Postfix already answers a case, answer it
+  the same way: the same reply code, enhanced status and behaviour. Invent only where they have no answer.
 - **Coexistence.** LMTP (`virtual_transport = lmtp:unix:...`) and a pipe command.
 - **Never a whole message in memory.** Bodies stream in fixed chunks, in every ingestor, spool and
   consumer path (ADR 0003).
