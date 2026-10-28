@@ -106,13 +106,14 @@ Public-facing AI-written text is reviewed by a committer or labelled as AI-gener
 </section>
 <section id="contributing-with-prompts" class="doc-section"><div class="section-head"><span class="section-num">4</span><h2>Contributing with prompts</h2></div>
 <p>Oaken Trunk is built from a series of self-contained <strong>prompts</strong>, one per piece of work, in
-<a href="https://github.com/dfoulks1/oaken-trunk/tree/main/docs/prompts"><code>docs/prompts/</code></a> (the index and the
-master list of what is done and not done is <code>docs/prompts/CONTEXT.md</code>). A prompt is a specification:
+<a href="https://github.com/dfoulks1/oaken-trunk/tree/main/docs/prompts"><code>docs/prompts/</code></a> (the master list of
+what is done and not done is <code>docs/prompts/INDEX.md</code>, the rules are <code>docs/prompts/CONTEXT.md</code>). A prompt is a specification:
 what to build, what it depends on, its acceptance criteria and a report-back. You can run one with an
 AI coding tool or follow it by hand as a checklist; either way the <strong>tests and acceptance criteria are
 the contract</strong>, not the exact code any one run produces.</p>
-<p>Files are named <code>TRACK_NN-name.md</code> (<code>CORE_</code>, <code>PLUGIN_</code>, <code>CLI_</code>, <code>WEBUI_</code>, <code>MCP_</code>, <code>DOCS_</code>). The number is
-the prompt's permanent ID and the track says what it builds. The management UI (<code>WEBUI_</code>) is its own
+<p>Files are named <code>TRACK_name.md</code> (<code>CORE_</code>, <code>PLUGIN_</code>, <code>CLI_</code>, <code>WEBUI_</code>, <code>MCP_</code>, <code>DOCS_</code>). The name is the
+prompt's permanent ID and the track says what it builds; the build order comes from each prompt's
+dependencies in <code>docs/prompts/prompts.toml</code>, not from the name. The management UI (<code>WEBUI_</code>) is its own
 app and is never folded into a core prompt.</p>
 <p><strong>Not everything needs a prompt.</strong> A bug fix, a typo, a small refactor or a docs correction is an
 ordinary pull request: say what and why, add a test, run the checks. A prompt is for a new feature, a

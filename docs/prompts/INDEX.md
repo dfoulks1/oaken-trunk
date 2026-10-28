@@ -17,16 +17,16 @@ Rules and shared context are in [CONTEXT.md](CONTEXT.md).
 | [CLI_client](CLI_client.md) | Written | 0.1 | M | The `steamer` command: start, stop, reload, a generic runner and verbs generated from schemas | CORE_daemon |
 | [CORE_system-operations](CORE_system-operations.md) | Written | 0.1 | L | `init`, `doctor`, `status`, `stats` and the config operations | CORE_daemon, CORE_supervisor |
 | [CORE_audit-and-jobs](CORE_audit-and-jobs.md) | Written | 0.1 | L | Content-free audit log, stats rollup, the job runner and `checkup`, the maintenance sweep | CORE_daemon, CORE_system-operations |
-| [CORE_diagnostics](CORE_diagnostics.md) | Written | 0.1 | M | Mail-path checks for `doctor`, and the operations an operator uses to trace a message or a device | CORE_system-operations, CORE_audit-and-jobs, CORE_consumer-api |
 | [CORE_plugin-host](CORE_plugin-host.md) | Written | 0.1 | L | Entry-point discovery, base classes, lifecycle, contract suites | CORE_system-operations |
 | [CORE_store](CORE_store.md) | Written | 0.1 | L | `BaseStore` and its primitives, and the core spool, `Locks`, `Credits`, `NonceStore` and device registry built on them | CORE_plugin-host, CORE_supervisor |
-| [CORE_line-server](CORE_line-server.md) | Written | 0.1 | L | `BaseLineServer`, and `BaseIngestor` and `BaseRetriever` on top of it, with the retriever session as a transaction | CORE_store, CORE_keys |
 | [CORE_encryption](CORE_encryption.md) | Written | 0.1 | M | Streaming envelope encryption between the core spool and the stores, with key files, rotation and checks | CORE_store |
 | [PLUGIN_directory-spool](PLUGIN_directory-spool.md) | Written | 0.1 | M | `BaseStore` primitives on local disk: blobs as files, indexes as journals, strict/batched/volatile durability | CORE_store |
 | [CORE_consumer-api](CORE_consumer-api.md) | Written | 0.1 | M | The consumer operations, the lease rules and wake-up | PLUGIN_directory-spool |
-| [PLUGIN_mail-protocols](PLUGIN_mail-protocols.md) | Written | 0.1 | M | Three command tables on the line server: LMTP (Postfix delivers), POP3 (clients read), Dovecot-auth (Postfix submission logs in) | CORE_line-server, CORE_consumer-api |
+| [CORE_diagnostics](CORE_diagnostics.md) | Written | 0.1 | M | Mail-path checks for `doctor`, and the operations an operator uses to trace a message or a device | CORE_system-operations, CORE_audit-and-jobs, CORE_consumer-api |
 | [CORE_request-guard](CORE_request-guard.md) | Written | 0.1 | L | The authenticator plugin kind, the guard pipeline and surfaces, and ed25519 signed requests | CORE_plugin-host, CORE_supervisor, CORE_store |
 | [CORE_keys](CORE_keys.md) | Written | 0.1 | M | `apptoken` and `bearer` authenticators, and key operations in the registry, live on every host | CORE_request-guard, CORE_store |
+| [CORE_line-server](CORE_line-server.md) | Written | 0.1 | L | `BaseLineServer`, and `BaseIngestor` and `BaseRetriever` on top of it, with the retriever session as a transaction | CORE_store, CORE_keys |
+| [PLUGIN_mail-protocols](PLUGIN_mail-protocols.md) | Written | 0.1 | M | Three command tables on the line server: LMTP (Postfix delivers), POP3 (clients read), Dovecot-auth (Postfix submission logs in) | CORE_line-server, CORE_consumer-api |
 | [CORE_http-listener](CORE_http-listener.md) | Written | 0.1 | M | The TCP and TLS listener with the request guard in front, and HTTP submission on the ingest surface | CORE_daemon, CORE_request-guard |
 | [CORE_enrollment](CORE_enrollment.md) | Written | 0.1 | M | Self-service device registration over HTTP: an authenticated request for a token for device `IDENTIFIER` | CORE_http-listener, CORE_keys |
 | [CORE_security-hardening](CORE_security-hardening.md) | Written | 0.1 | M | Injection, auth and open-relay test pass across every ingestor | PLUGIN_mail-protocols, CORE_consumer-api, CORE_http-listener |

@@ -86,15 +86,6 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
-name = "CORE_diagnostics"
-depends = ["CORE_system-operations", "CORE_audit-and-jobs", "CORE_consumer-api"]
-status = "Written"
-built = "—"
-tested = "—"
-released = "—"
-target = "0.1"
-
-[[prompt]]
 name = "CORE_plugin-host"
 depends = ["CORE_system-operations"]
 status = "Written"
@@ -106,15 +97,6 @@ target = "0.1"
 [[prompt]]
 name = "CORE_store"
 depends = ["CORE_plugin-host", "CORE_supervisor"]
-status = "Written"
-built = "—"
-tested = "—"
-released = "—"
-target = "0.1"
-
-[[prompt]]
-name = "CORE_line-server"
-depends = ["CORE_store", "CORE_keys"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -149,8 +131,8 @@ released = "—"
 target = "0.1"
 
 [[prompt]]
-name = "PLUGIN_mail-protocols"
-depends = ["CORE_line-server", "CORE_consumer-api"]
+name = "CORE_diagnostics"
+depends = ["CORE_system-operations", "CORE_audit-and-jobs", "CORE_consumer-api"]
 status = "Written"
 built = "—"
 tested = "—"
@@ -169,6 +151,24 @@ target = "0.1"
 [[prompt]]
 name = "CORE_keys"
 depends = ["CORE_request-guard", "CORE_store"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "CORE_line-server"
+depends = ["CORE_store", "CORE_keys"]
+status = "Written"
+built = "—"
+tested = "—"
+released = "—"
+target = "0.1"
+
+[[prompt]]
+name = "PLUGIN_mail-protocols"
+depends = ["CORE_line-server", "CORE_consumer-api"]
 status = "Written"
 built = "—"
 tested = "—"

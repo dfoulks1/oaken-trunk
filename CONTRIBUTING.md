@@ -39,14 +39,15 @@ Public-facing AI-written text is reviewed by a committer or labelled as AI-gener
 ## Contributing with prompts
 
 Oaken Trunk is built from a series of self-contained **prompts**, one per piece of work, in
-[`docs/prompts/`](https://github.com/dfoulks1/oaken-trunk/tree/main/docs/prompts) (the index and the
-master list of what is done and not done is `docs/prompts/CONTEXT.md`). A prompt is a specification:
+[`docs/prompts/`](https://github.com/dfoulks1/oaken-trunk/tree/main/docs/prompts) (the master list of
+what is done and not done is `docs/prompts/INDEX.md`, the rules are `docs/prompts/CONTEXT.md`). A prompt is a specification:
 what to build, what it depends on, its acceptance criteria and a report-back. You can run one with an
 AI coding tool or follow it by hand as a checklist; either way the **tests and acceptance criteria are
 the contract**, not the exact code any one run produces.
 
-Files are named `TRACK_NN-name.md` (`CORE_`, `PLUGIN_`, `CLI_`, `WEBUI_`, `MCP_`, `DOCS_`). The number is
-the prompt's permanent ID and the track says what it builds. The management UI (`WEBUI_`) is its own
+Files are named `TRACK_name.md` (`CORE_`, `PLUGIN_`, `CLI_`, `WEBUI_`, `MCP_`, `DOCS_`). The name is the
+prompt's permanent ID and the track says what it builds; the build order comes from each prompt's
+dependencies in `docs/prompts/prompts.toml`, not from the name. The management UI (`WEBUI_`) is its own
 app and is never folded into a core prompt.
 
 **Not everything needs a prompt.** A bug fix, a typo, a small refactor or a docs correction is an
